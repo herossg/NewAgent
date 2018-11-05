@@ -20,8 +20,8 @@ public class Nano_it_summary implements Runnable {
 	
 	private synchronized  void Proc() {
 		Nano_it_summary.isRunning = true;	
-		//log.info("Nano it summary 실행");
-
+		//log.info("Nano it summary 실행"); 
+		
 		Connection conn = null;
 		Connection nconn = null;
 		Statement nano_msg = null;
