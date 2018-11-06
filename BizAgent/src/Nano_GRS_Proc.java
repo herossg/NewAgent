@@ -166,7 +166,7 @@ public class Nano_GRS_Proc implements Runnable {
 					
 				}
 				
-				String udPmsStr  = "update cb_grs_msg_bk set rcv_phone = replace(msg_rcv_phn,?,'-1') where msg_id = ? and max_sn = ?";
+				String udPmsStr  = "update cb_grs_msg_bk set MSG_RCV_PHN = replace(MSG_RCV_PHN,?,'-1') where msg_id = ? and max_sn = ?";
 				PreparedStatement udPms = conn.prepareStatement(udPmsStr);
 				udPms.setString(1, rs.getString("bc_rcv_phn"));
 				udPms.setString(2, rs.getString("msg_id"));
@@ -175,7 +175,7 @@ public class Nano_GRS_Proc implements Runnable {
 				udPms.close();
 			}
 
-			String delstr = "DELETE FROM cb_grs_msg_bk WHERE REPLACE(RCV_PHONE, '-1', '') not REGEXP '[0-9]'";
+			String delstr = "DELETE FROM cb_grs_msg_bk WHERE REPLACE(MSG_RCV_PHN, '-1', '') not REGEXP '[0-9]'";
 			PreparedStatement delquery = conn.prepareStatement(delstr);
 			delquery.executeUpdate();
 			delquery.close();
@@ -183,7 +183,7 @@ public class Nano_GRS_Proc implements Runnable {
 			rs.close();
 			
 		}catch(Exception ex) {
-			log.info("Nano Summary 오류 - " + ex.toString());
+			log.info("Nano GRS 오류 - " + ex.toString());
 		}
 		
 		try {

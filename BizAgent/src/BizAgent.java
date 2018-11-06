@@ -66,8 +66,30 @@ public class BizAgent implements Daemon, Runnable {
  
     @Override
     public void run() {
+    	
+    	String PreMonth = "";
+    	
         while(true) {
-        	
+
+			Date month = new Date();
+			SimpleDateFormat transFormat = new SimpleDateFormat("yyyyMM");
+			String monthStr = transFormat.format(month);
+
+			Calendar cal = Calendar.getInstance();
+			cal.add(Calendar.DATE, -5);
+			String PremonthStr = transFormat.format(cal.getTime());
+
+			if(!monthStr.equals(PreMonth))
+			{
+	        	// 매월 1일에는 Log Table 생성
+	        	Create_LOG_Table clt = new Create_LOG_Table();
+	        	clt.log = log;
+	        	clt.monthStr = monthStr;
+	        	Thread clt_proc = new Thread(clt);
+	        	clt_proc.start();
+	        	PreMonth = monthStr;
+			}
+			
         	// 2차 발신 분류 처리
         	TBLReqProcess trp = new TBLReqProcess();
         	trp.log = log;
@@ -79,14 +101,6 @@ public class BizAgent implements Daemon, Runnable {
         	nano.log = log;
         	Thread nano_sum_proc = new Thread(nano);
         	nano_sum_proc.start();
-
-			Date month = new Date();
-			SimpleDateFormat transFormat = new SimpleDateFormat("yyyyMM");
-			String monthStr = transFormat.format(month);
-
-			Calendar cal = Calendar.getInstance();
-			cal.add(Calendar.DATE, -5);
-			String PremonthStr = transFormat.format(cal.getTime());
 
 			// Nano 폰문자 처리
         	Nano_PMS_Proc nanoPMS = new Nano_PMS_Proc();
