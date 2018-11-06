@@ -1,5 +1,8 @@
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Properties;
 
 import org.apache.commons.daemon.Daemon;
@@ -27,7 +30,7 @@ public class BizAgent implements Daemon, Runnable {
         }
         
         try {
-        	p.load(new FileInputStream("E:\\BIZ\\BizAgent\\conf\\log4j.properties"));
+        	p.load(new FileInputStream("D:\\bizalimtalk\\BizAgent\\BizAgent\\conf\\log4j.properties"));
         	PropertyConfigurator.configure(p);
         	log.info("Log Property Load !!");
             status = "INITED";
@@ -73,7 +76,16 @@ public class BizAgent implements Daemon, Runnable {
         	nano.log = log;
         	Thread nano_sum_proc = new Thread(nano);
         	nano_sum_proc.start();
-        	        	
+        	
+        	Nano_PMS_Proc nanoPMS = new Nano_PMS_Proc();
+			Date month = new Date();
+			SimpleDateFormat transFormat = new SimpleDateFormat("yyyyMM");
+			String monthStr = transFormat.format(month);
+			nanoPMS.log = log;
+			nanoPMS.monthStr = monthStr;
+			Thread nano_PMS_proc = new Thread(nanoPMS);
+			nano_PMS_proc.start();
+        	
             try {
                 //log.info("Biz Agent Call OK.");
                 Thread.sleep(1000);

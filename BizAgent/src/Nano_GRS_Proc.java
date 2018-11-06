@@ -1,0 +1,206 @@
+import java.sql.*;
+import java.text.SimpleDateFormat;
+
+import org.apache.log4j.Logger;
+import com.mysql.jdbc.Driver;
+import java.util.Date;
+
+public class Nano_GRS_Proc implements Runnable {
+	private final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
+
+	private final String DB_URL = "jdbc:mysql://222.122.203.68/dhn?characterEncoding=utf8";
+	private final String USER_NAME = "root";
+	private final String PASSWORD = "sjk4556!!22";
+	
+	public static boolean isRunning = false;
+	public Logger log;
+	public String monthStr;
+	
+	public void run() {
+		if(!isRunning) {
+			if(monthStr == null || monthStr.isEmpty()) {
+				Date month = new Date();
+				SimpleDateFormat transFormat = new SimpleDateFormat("yyyyMM");
+				monthStr = transFormat.format(month);
+			}
+			
+			Proc();
+		} 
+	}
+	
+	private synchronized  void Proc() {
+		isRunning = true;	
+		//log.info("Nano it summary 실행");  수정 테스트...
+		
+		Connection conn = null;
+		Connection nconn = null;
+		Statement grs_msg = null;
+
+		try {
+			Class.forName(JDBC_DRIVER);
+			conn = DriverManager.getConnection(DB_URL, USER_NAME, PASSWORD);
+
+			grs_msg = conn.createStatement();
+			String grs_str    = "select cgm.cb_msg_id as msgid" + 
+								"      ,cgm.msg_id" + 
+								"      ,cgm.msg_st" + 
+								"      ,cgm.max_sn" + 
+								"      ,cgb.BC_RSLT_NO" + 
+								"      ,(case" + 
+								"         when cgb.bc_snd_st = '2' and cgb.bc_rslt_no = '0' and" + 
+								"              addtime(cgb.bc_snd_dttm, '00:10:00') < now() then" + 
+								"          '성공'" + 
+								"         else" + 
+								"          cgb.bc_rslt_text" + 
+								"       end) as BC_RSLT_TEXT" + 
+								"	  ,cgb.bc_rcv_phn" + 
+								"      ,(case when cgb.bc_rcv_phn like '01%' then " +
+								"                concat('82', right(cgb.bc_rcv_phn, length(cgb.bc_rcv_phn) - 1)) " +
+								"             else " +
+								"                cgb.bc_rcv_phn" +
+								"        end) as PHN" + 
+								"      ,cgm.REMARK4" + 
+								"      ,cm.mem_userid" + 
+								"      ,cm.mem_level" + 
+								"      ,cm.mem_phn_agent" + 
+								"      ,cm.mem_sms_agent" + 
+								"      ,cm.mem_2nd_send" + 
+								"      ,cm.mem_id" + 
+								"  from cb_grs_msg_bk cgm" + 
+								" inner join cb_grs_broadcast_"+ monthStr +" cgb" + 
+								"    on cgm.msg_id = cgb.msg_id" + 
+								"   and cgm.msg_rcv_phn like concat('%', cgb.bc_rcv_phn , '%')" + 
+								" inner join cb_member cm" + 
+								"    on cm.mem_id = cgm.cb_msg_id" + 
+								" where cgm.msg_st in ('1', '0')" + 
+								"   and cgb.bc_snd_st in( '3', '4') " + 
+								" order by cgm.msg_id limit 0" + 
+								"         ,1000";
+			
+			ResultSet rs = grs_msg.executeQuery(grs_str);
+			
+			String pre_mem_id = "";
+			Price_info price = null;
+			while(rs.next()) {
+				
+				String mem_id = rs.getString("mem_id");
+				String sent_key = rs.getString("REMARK4");
+				String userid = rs.getString("mem_userid");
+				
+				String wtudstr;
+				String msgudstr;
+				PreparedStatement wtud;
+				PreparedStatement msgud; 
+				
+				String 	amtStr = "insert into cb_amt_" + userid + "(amt_datetime," +
+											                        "amt_kind," +
+											                        "amt_amount," +
+											                        "amt_memo," +
+											                        "amt_reason," +
+											                        "amt_payback," +
+											                        "amt_admin)" +
+											                 "values(?," +
+															           "?," +	
+															           "?," +	
+															           "?," +	
+															           "?," +	
+															           "?," +	
+															           "?)";
+				PreparedStatement amtins;
+				String kind = "";
+				float amount = 0;
+				String memo = "";
+				float payback = 0;
+				float admin_amt = 0;
+				
+				if(pre_mem_id != mem_id) {
+					price = new Price_info(Integer.valueOf(mem_id));
+					pre_mem_id = mem_id;
+				}
+				
+				if(rs.getString("BC_RSLT_NO").equals("0")) {
+					
+					msgudstr = "update cb_msg_" + userid + " set MESSAGE_TYPE='gs', MESSAGE = '웹(A) 성공', RESULT = 'Y' "
+							+ " where remark4=? and phn = ?";
+					msgud = conn.prepareStatement(msgudstr);
+					msgud.setString(1, sent_key);
+					msgud.setString(2, rs.getString("PHN"));
+					msgud.executeUpdate();
+					msgud.close();
+				} else {
+					wtudstr = "update cb_wt_msg_sent set mst_err_grs = ifnull(mst_err_grs,0) + 1, mst_grs = mst_grs-1  where mst_id=?";
+					wtud = conn.prepareStatement(wtudstr);
+					wtud.setString(1, sent_key);
+					wtud.executeUpdate();
+					wtud.close();
+					
+					msgudstr = "update cb_msg_" + userid + " set MESSAGE_TYPE='gs', MESSAGE = ?, RESULT = 'N' "
+							+ " where remark4=? and phn = ?";
+					msgud = conn.prepareStatement(msgudstr);
+					msgud.setString(1, rs.getString("BC_RSLT_NO"));
+					msgud.setString(2, sent_key);
+					msgud.setString(3, rs.getString("PHN"));
+					msgud.executeUpdate();
+					msgud.close();
+										
+					kind = "3";
+					amount = price.member_price.price_grs;
+					payback = price.member_price.price_grs - price.parent_price.price_grs;
+					admin_amt = price.base_price.price_grs;
+					memo = "웹(A) 발송실패 환불";
+					if(amount == 0 || amount == 0.0f) {
+						amount = admin_amt;
+					}
+
+					amtins = conn.prepareStatement(amtStr);
+					amtins.setTimestamp(1, new java.sql.Timestamp(System.currentTimeMillis())); 
+					amtins.setString(2, kind); 
+					amtins.setFloat(3, amount); 
+					amtins.setString(4, memo); 
+					amtins.setString(5, (sent_key+ "_" + rs.getString("max_sn") + "_" + rs.getString("PHN"))); 
+					amtins.setFloat(6, payback * -1 ); 
+					amtins.setFloat(7, admin_amt * -1 ); 
+					
+					amtins.executeUpdate();
+					amtins.close();
+					
+				}
+				
+				String udPmsStr  = "update cb_grs_msg_bk set rcv_phone = replace(msg_rcv_phn,?,'-1') where msg_id = ? and max_sn = ?";
+				PreparedStatement udPms = conn.prepareStatement(udPmsStr);
+				udPms.setString(1, rs.getString("bc_rcv_phn"));
+				udPms.setString(2, rs.getString("msg_id"));
+				udPms.setString(3, rs.getString("max_sn"));
+				udPms.executeUpdate();
+				udPms.close();
+			}
+
+			String delstr = "DELETE FROM cb_grs_msg_bk WHERE REPLACE(RCV_PHONE, '-1', '') not REGEXP '[0-9]'";
+			PreparedStatement delquery = conn.prepareStatement(delstr);
+			delquery.executeUpdate();
+			delquery.close();
+			
+			rs.close();
+			
+		}catch(Exception ex) {
+			log.info("Nano Summary 오류 - " + ex.toString());
+		}
+		
+		try {
+			if(grs_msg!=null) {
+				grs_msg.close();
+			}
+		} catch(Exception e) {}
+
+		try {
+			if(conn!=null) {
+				conn.close();
+			}
+		} catch(Exception e) {}
+		
+		isRunning = false;
+		//log.info("Nano it summary 끝");
+	}
+	
+	 
+}

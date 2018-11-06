@@ -169,7 +169,7 @@ public class Nano_it_summary implements Runnable {
 					amtins.setString(2, kind); 
 					amtins.setFloat(3, amount * (float)ins_cnt); 
 					amtins.setString(4, memo); 
-					amtins.setString(5, (sent_key + rs.getString("max_sn"))); 
+					amtins.setString(5, (sent_key+ "_" + rs.getString("max_sn"))); 
 					amtins.setFloat(6, payback * (float)ins_cnt); 
 					amtins.setFloat(7, admin_amt * (float)ins_cnt); 
 					
@@ -240,7 +240,7 @@ public class Nano_it_summary implements Runnable {
 					amtins.setString(2, kind); 
 					amtins.setFloat(3, amount * (float)ins_cnt); 
 					amtins.setString(4, memo); 
-					amtins.setString(5, (sent_key + rs.getString("max_sn"))); 
+					amtins.setString(5, (sent_key + "_" + rs.getString("max_sn"))); 
 					amtins.setFloat(6, payback * (float)ins_cnt); 
 					amtins.setFloat(7, admin_amt * (float)ins_cnt); 
 					
@@ -320,7 +320,7 @@ public class Nano_it_summary implements Runnable {
 					amtins.setString(2, kind); 
 					amtins.setFloat(3, amount * (float)ins_cnt); 
 					amtins.setString(4, memo); 
-					amtins.setString(5, (sent_key + rs.getString("max_sn"))); 
+					amtins.setString(5, (sent_key+ "_" + rs.getString("max_sn"))); 
 					amtins.setFloat(6, payback * (float)ins_cnt); 
 					amtins.setFloat(7, admin_amt * (float)ins_cnt); 
 					
