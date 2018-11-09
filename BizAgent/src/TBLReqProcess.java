@@ -752,7 +752,7 @@ public class TBLReqProcess implements Runnable {
 			rs.close();
 			
 		} catch (Exception ex) {
-			log.info("cb_wt_setting 조회 오류"+ex.toString());
+			log.info("TBL REQUEST RESULT 처리 중 오류 : "+ex.toString());
 		}
 		
 		try {

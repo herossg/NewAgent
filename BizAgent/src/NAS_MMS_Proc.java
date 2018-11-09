@@ -154,7 +154,7 @@ public class NAS_MMS_Proc implements Runnable {
 			rs.close();
 			
 		}catch(Exception ex) {
-			log.info("Nano BKGMMS 오류 - " + ex.toString());
+			log.info("NASelf MMS 오류 - " + ex.toString());
 		}
 		
 		try {

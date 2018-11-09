@@ -194,9 +194,10 @@ public class BizAgent implements Daemon, Runnable {
 			
             try {
                 //log.info("Biz Agent Call OK.");
-                Thread.sleep(1000);
+                Thread.sleep(5000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
+                log.info("메인 Thread 오류 : " + e.toString());
             }
            // if (no > 1) {
             	//log.info("Biz Agent 끝.");

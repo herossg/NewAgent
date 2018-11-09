@@ -182,7 +182,7 @@ public class Nano_PMS_Proc implements Runnable {
 			rs.close();
 			
 		}catch(Exception ex) {
-			log.info("Nano Summary 오류 - " + ex.toString());
+			log.info("Nano 폰문자 처리 오류 - " + ex.toString());
 		}
 		
 		try {
