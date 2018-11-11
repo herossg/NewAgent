@@ -8,7 +8,7 @@ import com.mysql.jdbc.Driver;
 public class TBLReqProcess implements Runnable {
 	private final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
 	
-	private final String DB_URL = "jdbc:mysql://222.122.203.68/dhn?characterEncoding=utf8";
+	private final String DB_URL = "jdbc:mysql://210.114.225.53/dhn?characterEncoding=utf8";
 	private final String USER_NAME = "root";
 	private final String PASSWORD = "sjk4556!!22";
 	

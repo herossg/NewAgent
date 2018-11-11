@@ -8,7 +8,7 @@ import java.util.Date;
 public class Nano_PMS_Proc implements Runnable {
 	private final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
 
-	private final String DB_URL = "jdbc:mysql://222.122.203.68/dhn?characterEncoding=utf8";
+	private final String DB_URL = "jdbc:mysql://210.114.225.53/dhn?characterEncoding=utf8";
 	private final String USER_NAME = "root";
 	private final String PASSWORD = "sjk4556!!22";
 	
@@ -35,7 +35,7 @@ public class Nano_PMS_Proc implements Runnable {
 		Connection conn = null;
 		Connection nconn = null;
 		Statement pms_msg = null;
-
+		int totalcnt = 0;
 		try {
 			Class.forName(JDBC_DRIVER);
 			conn = DriverManager.getConnection(DB_URL, USER_NAME, PASSWORD);
@@ -81,7 +81,7 @@ public class Nano_PMS_Proc implements Runnable {
 			String pre_mem_id = "";
 			Price_info price = null;
 			while(rs.next()) {
-				
+				totalcnt++;
 				String mem_id = rs.getString("mem_id");
 				String sent_key = rs.getString("REMARK4");
 				String userid = rs.getString("mem_userid");
@@ -183,6 +183,9 @@ public class Nano_PMS_Proc implements Runnable {
 			
 		}catch(Exception ex) {
 			log.info("Nano 폰문자 처리 오류 - " + ex.toString());
+		}
+		if(totalcnt > 0) {
+			log.info("Nano 폰문자  " + totalcnt + " 건 처리 함.");
 		}
 		
 		try {
