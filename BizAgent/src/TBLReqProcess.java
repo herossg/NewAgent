@@ -52,21 +52,23 @@ public class TBLReqProcess implements Runnable {
 					"              ,b.mem_2nd_send" + 
 					"          from TBL_REQUEST_RESULT a inner join cb_member b on SPLIT(a.MSGID, '_', 1)=b.mem_id" + 
 					"         where ( a.reserve_dt < '" + rd.format(reserve_dt) + "'" + 
-					"              or a.reserve_dt = '00000000000000')";
+					"              or a.reserve_dt = '00000000000000')" +
+					"          limit 0, 1000 ";
 			ResultSet rs = tbl_result.executeQuery(sqlstr);
 			
 			String msgtype = "LMS";
 			String pre_mem_id = "";
 			Price_info price = null;
-			
+			int msgcnt = 0;
 			while(rs.next()) {
+				msgcnt ++;
 				String userid = rs.getString("mem_userid");
 				if(rs.getString("SMS_KIND").equals("S")) {
 					msgtype = "SMS";
 				} else {
 					msgtype = "LMS";
 				}
-				log.info("MSG ID : " + rs.getString("MSGID") + " 진행 시작 !!");
+				//log.info("MSG ID : " + rs.getString("MSGID") + " 진행 시작 !!");
 				String msg_id = rs.getString("MSGID");
 				String mem_id = rs.getString("mem_id");
 				String mem_lv = rs.getString("mem_level");
@@ -79,7 +81,8 @@ public class TBLReqProcess implements Runnable {
 				String phn = "";
 				String mem_2nd_type = "";
 				try {
-					if(rs.getString("PHN").substring(0, 1).equals("82")) {
+					//log.info("PHN : " + rs.getString("PHN") + " / " + rs.getString("PHN").substring(0, 2));
+					if(rs.getString("PHN").substring(0, 2).equals("82")) {
 						phn = "0" + rs.getString("PHN").substring(2);
 					} else {
 						phn = rs.getString("PHN");
@@ -400,13 +403,13 @@ public class TBLReqProcess implements Runnable {
 							bkgins.setString(5, msg_sms);
 							bkgins.setString(6, rs.getString("SMS_SENDER"));
 							bkgins.setString(7, "0");
-							bkgins.setString(9, msg_id);
-							bkgins.setString(10, sent_key);
-							bkgins.setString(12, mem_id);
+							bkgins.setString(8, msg_id);
+							bkgins.setString(9, sent_key);
+							bkgins.setString(10, mem_id);
 							if(rs.getString("RESERVE_DT").equals("00000000000000")) {
-								bkgins.setString(13, rd.format(reserve_dt));
+								bkgins.setString(11, rd.format(reserve_dt));
 							}else {
-								bkgins.setString(13, rs.getString("RESERVE_DT"));
+								bkgins.setString(11, rs.getString("RESERVE_DT"));
 							}
 							bkgins.executeUpdate();
 							bkgins.close();
@@ -540,7 +543,7 @@ public class TBLReqProcess implements Runnable {
 							Statement nblock = nconn.createStatement();
 							String nblockstr = "select count(1) as cnt from sdk_block_hp where hp = '" + phn + "'";
 							ResultSet nrs = nblock.executeQuery(nblockstr);
-							
+							nrs.first();
 							if(nrs.getInt("cnt") > 0) {
 								wtudstr = "update cb_wt_msg_sent set mst_err_nas=ifnull(mst_err_nas,0)+1 where mst_id=?";
 								wtud = conn.prepareStatement(wtudstr);
@@ -657,13 +660,13 @@ public class TBLReqProcess implements Runnable {
 									nasins.setString(5, msg_sms);
 									nasins.setString(6, rs.getString("SMS_SENDER"));
 									nasins.setString(7, "0");
-									nasins.setString(9, msg_id);
-									nasins.setString(10, sent_key);
-									nasins.setString(12, mem_id);
+									nasins.setString(8, msg_id);
+									nasins.setString(9, sent_key);
+									nasins.setString(10, mem_id);
 									if(rs.getString("RESERVE_DT").equals("00000000000000")) {
-										nasins.setString(13, rd.format(reserve_dt));
+										nasins.setString(11, rd.format(reserve_dt));
 									}else {
-										nasins.setString(13, rs.getString("RESERVE_DT"));
+										nasins.setString(11, rs.getString("RESERVE_DT"));
 									}
 									nasins.executeUpdate();
 									nasins.close();
@@ -714,7 +717,7 @@ public class TBLReqProcess implements Runnable {
 								msgud.close();
 							}
 
-							break;
+							
 							
 						}
 					} else {
@@ -748,7 +751,9 @@ public class TBLReqProcess implements Runnable {
 				trrdel.close();
 				//break;
 			}
-			
+			if(msgcnt > 0 ) {
+				log.info("TBL REQUEST RESULT 처리 : "+ msgcnt + " 건");
+			}
 			rs.close();
 			
 		} catch (Exception ex) {

@@ -31,7 +31,7 @@ public class BizAgent implements Daemon, Runnable {
         }
         
         try {
-        	p.load(new FileInputStream("D:\\bizalimtalk\\BizAgent\\BizAgent\\conf\\log4j.properties"));
+        	p.load(new FileInputStream("/root/BizAgent/conf/log4j.properties"));
         	PropertyConfigurator.configure(p);
         	log.info("Log Property Load !!");
             status = "INITED";

@@ -302,7 +302,7 @@ public class Nano_it_summary implements Runnable {
 					msgud = conn.prepareStatement(msgudstr);
 					msgud.setString(1, sent_key);
 					msgud.executeUpdate();
-					log.info(msgud.toString());
+					//log.info(msgud.toString());
 					msgud.close();
 					
 										

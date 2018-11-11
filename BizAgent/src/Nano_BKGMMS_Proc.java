@@ -113,7 +113,7 @@ public class Nano_BKGMMS_Proc implements Runnable {
 					wtud.executeUpdate();
 					wtud.close();
 					
-					msgudstr = "update cb_msg_" + userid + " set MESSAGE_TYPE='gs',CODE='GRS' MESSAGE = ?, RESULT = 'N' "
+					msgudstr = "update cb_msg_" + userid + " set MESSAGE_TYPE='gs',CODE='GRS', MESSAGE = ?, RESULT = 'N' "
 							+ " where MSGID = ?";
 					msgud = conn.prepareStatement(msgudstr);
 					msgud.setString(1, rs.getString("RSLT"));
@@ -144,7 +144,7 @@ public class Nano_BKGMMS_Proc implements Runnable {
 					
 				}
 				
-				String udFUNsmsStr  = "update cb_mms_log_" + monthStr + " set tr_sendstat = '5' where msgkey =?";
+				String udFUNsmsStr  = "update cb_mms_log_" + monthStr + " set status = '5' where msgkey =?";
 				PreparedStatement udFUNsms = conn.prepareStatement(udFUNsmsStr);
 				udFUNsms.setString(1, rs.getString("MSGKEY"));
 				udFUNsms.executeUpdate();

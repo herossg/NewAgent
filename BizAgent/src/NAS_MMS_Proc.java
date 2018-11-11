@@ -113,8 +113,9 @@ public class NAS_MMS_Proc implements Runnable {
 					wtud.executeUpdate();
 					wtud.close();
 					
-					msgudstr = "update cb_msg_" + userid + " set MESSAGE_TYPE='ns',CODE='NAS' MESSAGE = ?, RESULT = 'N' "
+					msgudstr = "update cb_msg_" + userid + " set MESSAGE_TYPE='ns',CODE='NAS', MESSAGE = ?, RESULT = 'N' "
 							+ " where MSGID = ?";
+					//log.info(msgudstr);
 					msgud = conn.prepareStatement(msgudstr);
 					msgud.setString(1, rs.getString("RSLT"));
 					msgud.setString(2, msgid);
@@ -144,7 +145,7 @@ public class NAS_MMS_Proc implements Runnable {
 					
 				}
 				
-				String udFUNsmsStr  = "update cb_nas_mms_msg_log_" + monthStr + " set tr_sendstat = '5' where msgkey =?";
+				String udFUNsmsStr  = "update cb_nas_mms_msg_log_" + monthStr + " set status = '5' where msgkey =?";
 				PreparedStatement udFUNsms = conn.prepareStatement(udFUNsmsStr);
 				udFUNsms.setString(1, rs.getString("MSGKEY"));
 				udFUNsms.executeUpdate();

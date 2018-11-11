@@ -114,7 +114,7 @@ public class NAS_SMS_Proc implements Runnable {
 					wtud.executeUpdate();
 					wtud.close();
 					
-					msgudstr = "update cb_msg_" + userid + " set MESSAGE_TYPE='ns',CODE='NAS' MESSAGE = ?, RESULT = 'N' "
+					msgudstr = "update cb_msg_" + userid + " set MESSAGE_TYPE='ns',CODE='NAS', MESSAGE = ?, RESULT = 'N' "
 							+ " where MSGID = ?";
 					msgud = conn.prepareStatement(msgudstr);
 					msgud.setString(1, rs.getString("RSLT"));

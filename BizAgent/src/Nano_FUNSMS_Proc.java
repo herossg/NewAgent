@@ -114,7 +114,7 @@ public class Nano_FUNSMS_Proc implements Runnable {
 					wtud.executeUpdate();
 					wtud.close();
 					
-					msgudstr = "update cb_msg_" + userid + " set MESSAGE_TYPE='gs',CODE='GRS' MESSAGE = ?, RESULT = 'N' "
+					msgudstr = "update cb_msg_" + userid + " set MESSAGE_TYPE='gs',CODE='GRS',MESSAGE = ?, RESULT = 'N' "
 							+ " where MSGID = ?";
 					msgud = conn.prepareStatement(msgudstr);
 					msgud.setString(1, rs.getString("RSLT"));
