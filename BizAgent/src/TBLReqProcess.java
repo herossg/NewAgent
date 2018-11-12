@@ -53,7 +53,7 @@ public class TBLReqProcess implements Runnable {
 					"          from TBL_REQUEST_RESULT a inner join cb_member b on SPLIT(a.MSGID, '_', 1)=b.mem_id" + 
 					"         where ( a.reserve_dt < '" + rd.format(reserve_dt) + "'" + 
 					"              or a.reserve_dt = '00000000000000')" +
-					"          limit 0, 1000 ";
+					"          limit 0, 2000 ";
 			ResultSet rs = tbl_result.executeQuery(sqlstr);
 			
 			String msgtype = "LMS";

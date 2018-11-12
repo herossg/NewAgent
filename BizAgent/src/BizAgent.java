@@ -91,11 +91,11 @@ public class BizAgent implements Daemon, Runnable {
 			}
 			
         	// 2차 발신 분류 처리
-        	TBLReqProcess trp = new TBLReqProcess();
+        	/*TBLReqProcess trp = new TBLReqProcess();
         	trp.log = log;
         	Thread trp_proc = new Thread(trp);
         	trp_proc.start();
-        	
+        	*/
         	// 나노 아이티 동보 전송 처리
         	Nano_it_summary nano = new Nano_it_summary();
         	nano.log = log;

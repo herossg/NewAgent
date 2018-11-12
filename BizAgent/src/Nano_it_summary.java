@@ -1,3 +1,9 @@
+import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CodingErrorAction;
 import java.sql.*;
 import org.apache.log4j.Logger;
 import com.mysql.jdbc.Driver;
@@ -276,8 +282,8 @@ public class Nano_it_summary implements Runnable {
 					grsins.setString(2, "0");
 					grsins.setString(3, rs.getString("SMS_SENDER") );
 					grsins.setString(4, rs.getString("PHN"));
-					if(rs.getString("MSG_SMS").replaceAll("\\r\\n|\\r|\\n", "").length()>36) {
-						grsins.setString(5, rs.getString("MSG_SMS").replaceAll("\\r\\n|\\r|\\n", "").substring(0, 36));
+					if(length(rs.getString("MSG_SMS").replaceAll("\\r\\n|\\r|\\n", ""))>36) {
+						grsins.setString(5, substring(rs.getString("MSG_SMS").replaceAll("\\r\\n|\\r|\\n", ""), 36));
 					}else {
 						grsins.setString(5, rs.getString("MSG_SMS").replaceAll("\\r\\n|\\r|\\n", ""));
 					}
@@ -354,5 +360,46 @@ public class Nano_it_summary implements Runnable {
 		//log.info("Nano it summary 끝");
 	}
 	
-	 
+    public static String substring(String parameterName, int maxLength) {
+        int DB_FIELD_LENGTH = maxLength;
+ 
+        Charset utf8Charset = Charset.forName("UTF-8");
+        CharsetDecoder cd = utf8Charset.newDecoder();
+ 
+        try {
+            byte[] sba = parameterName.getBytes("UTF-8");
+            // Ensure truncating by having byte buffer = DB_FIELD_LENGTH
+            ByteBuffer bb = ByteBuffer.wrap(sba, 0, DB_FIELD_LENGTH); // len in [B]
+            CharBuffer cb = CharBuffer.allocate(DB_FIELD_LENGTH); // len in [char] <= # [B]
+            // Ignore an incomplete character
+            cd.onMalformedInput(CodingErrorAction.IGNORE);
+            cd.decode(bb, cb, true);
+            cd.flush(cb);
+            parameterName = new String(cb.array(), 0, cb.position());
+        } catch (UnsupportedEncodingException e) {
+            System.err.println("### 지원하지 않는 인코딩입니다." + e);
+        }
+ 
+        return parameterName;
+    }
+ 
+    // 문자열 인코딩에 따라서 글자수 체크
+    public static int length(CharSequence sequence) {
+        int count = 0;
+        for (int i = 0, len = sequence.length(); i < len; i++) {
+            char ch = sequence.charAt(i);
+ 
+            if (ch <= 0x7F) {
+                count++;
+            } else if (ch <= 0x7FF) {
+                count += 2;
+            } else if (Character.isHighSurrogate(ch)) {
+                count += 4;
+                ++i;
+            } else {
+                count += 3;
+            }
+        }
+        return count;
+    }
 }
