@@ -276,8 +276,8 @@ public class Nano_it_summary implements Runnable {
 					grsins.setString(2, "0");
 					grsins.setString(3, rs.getString("SMS_SENDER") );
 					grsins.setString(4, rs.getString("PHN"));
-					if(rs.getString("MSG_SMS").replaceAll("\\r\\n|\\r|\\n", "").length()>40) {
-						grsins.setString(5, rs.getString("MSG_SMS").replaceAll("\\r\\n|\\r|\\n", "").substring(0, 40));
+					if(rs.getString("MSG_SMS").replaceAll("\\r\\n|\\r|\\n", "").length()>36) {
+						grsins.setString(5, rs.getString("MSG_SMS").replaceAll("\\r\\n|\\r|\\n", "").substring(0, 36));
 					}else {
 						grsins.setString(5, rs.getString("MSG_SMS").replaceAll("\\r\\n|\\r|\\n", ""));
 					}

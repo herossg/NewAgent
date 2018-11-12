@@ -704,17 +704,7 @@ public class TBLReqProcess implements Runnable {
 									amtins.executeUpdate();
 									amtins.close();
 								}
-								wtudstr = "update cb_wt_msg_sent set mst_nas=ifnull(mst_nas,0)+1 where mst_id=?";
-								wtud = conn.prepareStatement(wtudstr);
-								wtud.setString(1, sent_key);
-								wtud.executeUpdate();
-								wtud.close();
-								
-								msgudstr = "update cb_msg_" + userid + " set MESSAGE_TYPE='ns',CODE='NAS', MESSAGE = '결과 수신대기' where MSGID=?";
-								msgud = conn.prepareStatement(msgudstr);
-								msgud.setString(1, msg_id);
-								msgud.executeUpdate();
-								msgud.close();
+								 
 							}
 
 							
