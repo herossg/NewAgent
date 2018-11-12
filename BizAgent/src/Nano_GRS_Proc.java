@@ -8,16 +8,23 @@ import java.util.Date;
 public class Nano_GRS_Proc implements Runnable {
 	private final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
 
-	private final String DB_URL = "jdbc:mysql://210.114.225.53/dhn?characterEncoding=utf8";
+	private String DB_URL;
 	private final String USER_NAME = "root";
 	private final String PASSWORD = "sjk4556!!22";
 	
 	public static boolean isRunning = false;
+	public boolean isPremonth = false;
+	public static boolean isPreRunning = false;
 	public Logger log;
 	public String monthStr;
 	
+	public Nano_GRS_Proc(String _db_url, Logger _log) {
+		DB_URL = _db_url;
+		log = _log;
+	}
+	
 	public void run() {
-		if(!isRunning) {
+		if(!isRunning || (isPremonth && !isPreRunning)) {
 			if(monthStr == null || monthStr.isEmpty()) {
 				Date month = new Date();
 				SimpleDateFormat transFormat = new SimpleDateFormat("yyyyMM");
@@ -29,7 +36,11 @@ public class Nano_GRS_Proc implements Runnable {
 	}
 	
 	private synchronized  void Proc() {
-		isRunning = true;	
+		if(isPremonth) {
+			isPreRunning = true;
+		} else {
+			isRunning = true;
+		}	
 		//log.info("Nano it summary 실행");  수정 테스트...
 		
 		Connection conn = null;
@@ -114,7 +125,7 @@ public class Nano_GRS_Proc implements Runnable {
 				float admin_amt = 0;
 				
 				if(pre_mem_id != mem_id) {
-					price = new Price_info(Integer.valueOf(mem_id));
+					price = new Price_info(DB_URL, Integer.valueOf(mem_id));
 					pre_mem_id = mem_id;
 				}
 				
@@ -202,7 +213,11 @@ public class Nano_GRS_Proc implements Runnable {
 			}
 		} catch(Exception e) {}
 		
-		isRunning = false;
+		if(isPremonth) {
+			isPreRunning = false;
+		} else {
+			isRunning = false;
+		}
 		//log.info("Nano it summary 끝");
 	}
 	

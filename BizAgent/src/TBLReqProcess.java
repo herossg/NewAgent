@@ -8,26 +8,32 @@ import com.mysql.jdbc.Driver;
 public class TBLReqProcess implements Runnable {
 	private final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
 	
-	private final String DB_URL = "jdbc:mysql://210.114.225.53/dhn?characterEncoding=utf8";
+	private String DB_URL;
 	private final String USER_NAME = "root";
 	private final String PASSWORD = "sjk4556!!22";
 	
 	private final String NURL = "jdbc:mysql://125.128.249.42/bizsms";
 	private final String NUSER_NAME = "bizsms";
 	private final String NPASSWORD = "!@nanum0915";
+	public int div_str;
 	
-	
-	public static boolean isRunning = false;
+	public static boolean[] isRunning = {false,false,false,false,false,false,false,false,false,false,};
 	public Logger log;
 	
+	public TBLReqProcess(String _db_url, Logger _log, int _div) {
+		DB_URL = _db_url;
+		log = _log;
+		div_str = _div;
+	}
+	
 	public void run() {
-		if(!TBLReqProcess.isRunning) {
+		if(!TBLReqProcess.isRunning[div_str]) {
 			Proc();
 		} 
 	}
 	
 	private synchronized  void Proc() {
-		TBLReqProcess.isRunning = true;	
+		TBLReqProcess.isRunning[div_str] = true;	
 		
 		//log.info("TBL RESULT PROC 실행");
 		Connection conn = null;
@@ -51,9 +57,10 @@ public class TBLReqProcess implements Runnable {
 					"              ,b.mem_sms_agent" + 
 					"              ,b.mem_2nd_send" + 
 					"          from TBL_REQUEST_RESULT a inner join cb_member b on SPLIT(a.MSGID, '_', 1)=b.mem_id" + 
-					"         where ( a.reserve_dt < '" + rd.format(reserve_dt) + "'" + 
+					"         where substr(a.msgid, -1) = '" + div_str + "'" +
+					"           and ( a.reserve_dt < '" + rd.format(reserve_dt) + "'" + 
 					"              or a.reserve_dt = '00000000000000')" +
-					"          limit 0, 2000 ";
+					"          limit 0, 1000 ";
 			ResultSet rs = tbl_result.executeQuery(sqlstr);
 			
 			String msgtype = "LMS";
@@ -107,7 +114,7 @@ public class TBLReqProcess implements Runnable {
 				
 				// 사용자별 단가를 불러 옴.
 				if(pre_mem_id != mem_id) {
-					price = new Price_info(Integer.valueOf(mem_id));
+					price = new Price_info(DB_URL, Integer.valueOf(mem_id));
 					pre_mem_id = mem_id;
 				}
 				
@@ -198,8 +205,8 @@ public class TBLReqProcess implements Runnable {
 				insSt.setString(11, rs.getString("KIND"));
 				insSt.setString(12, rs.getString("MESSAGE"));
 				insSt.setString(13, mem_2nd_type);
-				insSt.setString(14, rs.getString("MSG"));
-				insSt.setString(15, rs.getString("MSG_SMS"));
+				insSt.setString(14, "");
+				insSt.setString(15, "");
 				insSt.setString(16, rs.getString("ONLY_SMS"));
 				insSt.setString(17, rs.getString("P_COM"));
 				insSt.setString(18, rs.getString("P_INVOICE"));
@@ -742,12 +749,12 @@ public class TBLReqProcess implements Runnable {
 				//break;
 			}
 			if(msgcnt > 0 ) {
-				log.info("TBL REQUEST RESULT 처리 : "+ msgcnt + " 건");
+				log.info("TBL REQUEST RESULT " + div_str + "  처리 : "+ msgcnt + " 건");
 			}
 			rs.close();
 			
 		} catch (Exception ex) {
-			log.info("TBL REQUEST RESULT 처리 중 오류 : "+ex.toString());
+			log.info("TBL REQUEST RESULT " + div_str + " 처리 중 오류 : "+ex.toString());
 		}
 		
 		try {
@@ -775,8 +782,8 @@ public class TBLReqProcess implements Runnable {
 //			e.printStackTrace();
 //		}
 		
-		TBLReqProcess.isRunning = false;
-		//log.info("TBL RESULT PROC 끝");
+		TBLReqProcess.isRunning[div_str] = false;
+		//log.info("TBL RESULT PROC 끝 : " + div_str);
 	}
 	
 	 

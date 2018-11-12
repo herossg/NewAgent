@@ -11,12 +11,17 @@ import com.mysql.jdbc.Driver;
 public class Nano_it_summary implements Runnable {
 	private final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
 
-	private final String DB_URL = "jdbc:mysql://210.114.225.53/dhn?characterEncoding=utf8";
+	private String DB_URL;
 	private final String USER_NAME = "root";
 	private final String PASSWORD = "sjk4556!!22";
 	
 	public static boolean isRunning = false;
 	public Logger log;
+	
+	public Nano_it_summary(String _db_url, Logger _log) {
+		DB_URL = _db_url;
+		log = _log;
+	}
 	
 	public void run() {
 		if(!Nano_it_summary.isRunning) {
@@ -101,7 +106,7 @@ public class Nano_it_summary implements Runnable {
 				float admin_amt = 0;
 				
 				if(pre_mem_id != mem_id) {
-					price = new Price_info(Integer.valueOf(mem_id));
+					price = new Price_info(DB_URL, Integer.valueOf(mem_id));
 					pre_mem_id = mem_id;
 				}
 				

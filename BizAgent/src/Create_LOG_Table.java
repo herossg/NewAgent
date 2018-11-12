@@ -8,13 +8,18 @@ import java.util.Date;
 public class Create_LOG_Table implements Runnable {
 	private final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
 
-	private final String DB_URL = "jdbc:mysql://210.114.225.53/dhn?characterEncoding=utf8";
+	private String DB_URL;
 	private final String USER_NAME = "root";
 	private final String PASSWORD = "sjk4556!!22";
 	
 	public static boolean isRunning = false;
 	public Logger log;
 	public String monthStr;
+
+	public Create_LOG_Table(String _db_url, Logger _log) {
+		DB_URL = _db_url;
+		log = _log;
+	}
 	
 	public void run() {
 		if(!isRunning) {

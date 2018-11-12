@@ -5,7 +5,7 @@ import com.mysql.jdbc.Driver;
 public class Price_info  {
 	private final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
 
-	private final String DB_URL = "jdbc:mysql://210.114.225.53/dhn";
+	private String DB_URL;
 	private final String USER_NAME = "root";
 	private final String PASSWORD = "sjk4556!!22";
 	
@@ -14,10 +14,11 @@ public class Price_info  {
 	public Price parent_price = new Price();
 	public Price member_price = new Price();
 	
-	public Price_info(int mem_id ) {
+	public Price_info(String db_url, int mem_id ) {
 		Connection conn = null;
 		Statement bstate = null;
 		Statement pstate = null;
+		DB_URL = db_url;
 
 		try {
 			Class.forName(JDBC_DRIVER);
