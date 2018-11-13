@@ -99,7 +99,7 @@ public class BizAgent implements Daemon, Runnable {
 			}
 			
         	// 2차 발신 분류 처리
-			  
+			   
 			for(int i=0; i<10; i++) 
 			{
 	        	TBLReqProcess trp = new TBLReqProcess(DB_URL, log, i);
@@ -110,7 +110,7 @@ public class BizAgent implements Daemon, Runnable {
 	        	if(TBLReqProcess.isRunning[i])
 	        		isRunning = true;
 			}
-			  
+			   
         	// 나노 아이티 동보 전송 처리
         	Nano_it_summary nano = new Nano_it_summary(DB_URL, log);
         	Thread nano_sum_proc = new Thread(nano);

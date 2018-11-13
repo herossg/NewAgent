@@ -57,9 +57,10 @@ public class TBLReqProcess implements Runnable {
 					"              ,b.mem_sms_agent" + 
 					"              ,b.mem_2nd_send" + 
 					"          from TBL_REQUEST_RESULT a inner join cb_member b on SPLIT(a.MSGID, '_', 1)=b.mem_id" + 
-					"         where substr(a.msgid, -1) = '" + div_str + "'" +
+					"         where REMARK3 = '" + div_str + "'" +
 					"           and ( a.reserve_dt < '" + rd.format(reserve_dt) + "'" + 
 					"              or a.reserve_dt = '00000000000000')" +
+					"           order by reg_dt " +
 					"          limit 0, 1000 ";
 			ResultSet rs = tbl_result.executeQuery(sqlstr);
 			
@@ -231,7 +232,7 @@ public class TBLReqProcess implements Runnable {
 				
 				//log.info("한글 : " +rs.getString("MSG")+ "Insert Qeury : " + insSt.toString());
 				
-				insSt.executeUpdate();
+				//insSt.executeUpdate();
 				insSt.close();
 				
 				if(rs.getString("RESULT").equals("Y")) {
@@ -722,7 +723,7 @@ public class TBLReqProcess implements Runnable {
 						wtudstr = "";
 						
 						if(rs.getString("MESSAGE_TYPE").equals("ft")) {
-							if(rs.getString("IMAGE_URL").isEmpty()) {
+							if(rs.getString("IMAGE_URL") == null || rs.getString("IMAGE_URL").isEmpty() ) {
 								wtudstr = "update cb_wt_msg_sent set mst_err_ft = ifnull(mst_err_ft,0)+1 where mst_id=?";
 							} else {
 								wtudstr = "update cb_wt_msg_sent set mst_err_ft_img = ifnull(mst_err_ft_img,0)+1 where mst_id=?";

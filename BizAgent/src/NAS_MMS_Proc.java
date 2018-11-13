@@ -61,7 +61,8 @@ public class NAS_MMS_Proc implements Runnable {
 								"         cm.mem_phn_agent," + 
 								"         cm.mem_sms_agent," + 
 								"         cm.mem_2nd_send," + 
-								"         cm.mem_id" + 
+								"         cm.mem_id," + 
+								"         cml.STATUS as status" + 
 								"    FROM cb_nas_mms_msg_log_" + monthStr + " cml," + 
 								"         cb_member cm" + 
 								"   WHERE cml.etc4 = cm.mem_id" + 
@@ -157,9 +158,10 @@ public class NAS_MMS_Proc implements Runnable {
 					
 				}
 				
-				String udFUNsmsStr  = "update cb_nas_mms_msg_log_" + monthStr + " set status = '5' where msgkey =?";
+				String udFUNsmsStr  = "update cb_nas_mms_msg_log_" + monthStr + " set status = '5' where msgkey =? and status = ?";
 				PreparedStatement udFUNsms = conn.prepareStatement(udFUNsmsStr);
 				udFUNsms.setString(1, rs.getString("MSGKEY"));
+				udFUNsms.setString(2, rs.getString("status"));
 				udFUNsms.executeUpdate();
 				udFUNsms.close();
 			}
