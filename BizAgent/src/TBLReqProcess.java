@@ -334,7 +334,7 @@ public class TBLReqProcess implements Runnable {
 					PreparedStatement wtud;
 					PreparedStatement msgud; 
 					
-					if( !rs.getString("MESSAGE").equals("InvalidPhoneNumber") && !mem_resend.isEmpty() && !msg_sms.isEmpty() && !rs.getString("SMS_SENDER").isEmpty() ) {
+					if( !rs.getString("MESSAGE").equals("InvalidPhoneNumber") && mem_resend != null &&  !mem_resend.isEmpty() && msg_sms !=null && !msg_sms.isEmpty() && !rs.getString("SMS_SENDER").isEmpty() ) {
 						
 						String 	amtStr = "insert into cb_amt_" + userid + "(amt_datetime," +
 										                                   "amt_kind," +
