@@ -244,7 +244,7 @@ public class TBLReqProcess implements Runnable {
 					Statement upd = conn.createStatement();
 					String upstr = "update cb_wt_msg_sent " ;
 					if(rs.getString("MESSAGE_TYPE").equals("ft")) {
-						if(rs.getString("IMAGE_URL").isEmpty()) {
+						if(rs.getString("IMAGE_URL") == null || rs.getString("IMAGE_URL").isEmpty()) {
 							upstr = upstr + "set mst_ft = ifnull(mst_ft, 0) + 1 ";
 							kind = "F";
 							amount = price.member_price.price_ft;

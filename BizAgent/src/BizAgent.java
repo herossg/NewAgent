@@ -34,6 +34,7 @@ public class BizAgent implements Daemon, Runnable {
         
         try {
         	//p.load(new FileInputStream("E:\\Git\\BizAgent\\conf\\log4j.properties")); 
+        	//p.load(new FileInputStream("D:\\BIZ\\BizAgent\\BizAgent\\conf\\log4j.properties")); 
         	p.load(new FileInputStream("/root/BizAgent/conf/log4j.properties"));
         	PropertyConfigurator.configure(p);
         	log.info("Log Property Load !!");
@@ -98,6 +99,7 @@ public class BizAgent implements Daemon, Runnable {
 			}
 			
         	// 2차 발신 분류 처리
+			 
 			for(int i=0; i<10; i++) 
 			{
 	        	TBLReqProcess trp = new TBLReqProcess(DB_URL, log, i);
@@ -108,6 +110,7 @@ public class BizAgent implements Daemon, Runnable {
 	        	if(TBLReqProcess.isRunning[i])
 	        		isRunning = true;
 			}
+			 
         	// 나노 아이티 동보 전송 처리
         	Nano_it_summary nano = new Nano_it_summary(DB_URL, log);
         	Thread nano_sum_proc = new Thread(nano);
