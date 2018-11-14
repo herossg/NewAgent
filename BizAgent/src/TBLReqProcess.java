@@ -232,10 +232,10 @@ public class TBLReqProcess implements Runnable {
 				
 				//log.info("한글 : " +rs.getString("MSG")+ "Insert Qeury : " + insSt.toString());
 				
-				//insSt.executeUpdate();
+				insSt.executeUpdate();
 				insSt.close();
 				
-				if(rs.getString("RESULT").equals("Y")) {
+				if(rs.getString("RESULT") != null && rs.getString("RESULT").equals("Y")) {
 				// 발신 성공이면 금액 차감
 					String kind = "";
 					float amount = 0;
@@ -320,7 +320,7 @@ public class TBLReqProcess implements Runnable {
 
 				} else {
 				// 실패 이면서 2차 발신 대상이면 2차 발신 Table 에 Insert	
-					if(rs.getString("MESSAGE_TYPE").equals("ft")) {
+					if(rs.getString("MESSAGE_TYPE") != null && rs.getString("MESSAGE_TYPE").equals("ft")) {
 	 					// 친구톡 발송 실패시 친구톡 성공 목록에서 삭제
 						String fldelstr = "delete from cb_friend_list where mem_id = ? and phn = ? ";
 						PreparedStatement fldel = conn.prepareStatement(fldelstr);
@@ -722,13 +722,13 @@ public class TBLReqProcess implements Runnable {
 						// 2차 발신이 없는 경우 카카오 실패 건시 처리
 						wtudstr = "";
 						
-						if(rs.getString("MESSAGE_TYPE").equals("ft")) {
+						if(rs.getString("MESSAGE_TYPE") != null && rs.getString("MESSAGE_TYPE").equals("ft")) {
 							if(rs.getString("IMAGE_URL") == null || rs.getString("IMAGE_URL").isEmpty() ) {
 								wtudstr = "update cb_wt_msg_sent set mst_err_ft = ifnull(mst_err_ft,0)+1 where mst_id=?";
 							} else {
 								wtudstr = "update cb_wt_msg_sent set mst_err_ft_img = ifnull(mst_err_ft_img,0)+1 where mst_id=?";
 							}
-						} else if(rs.getString("MESSAGE_TYPE").equals("at")) {
+						} else if(rs.getString("MESSAGE_TYPE") != null && rs.getString("MESSAGE_TYPE").equals("at")) {
 							wtudstr = "update cb_wt_msg_sent set mst_err_at=ifnull(mst_err_at,0)+1 where mst_id=?";
 						}
 						
