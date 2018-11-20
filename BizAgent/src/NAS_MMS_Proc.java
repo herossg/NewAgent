@@ -110,8 +110,8 @@ public class NAS_MMS_Proc implements Runnable {
 					price = new Price_info(DB_URL, Integer.valueOf(mem_id));
 					pre_mem_id = mem_id;
 				}
-				
-				if(rs.getString("RSLT").equals("0")) {
+				//성공 혹은 기간만료 오류는 성공 처리 함.
+				if(rs.getString("RSLT").equals("0") || rs.getString("RSLT").equals("110")) {
 					wtudstr = "update cb_wt_msg_sent set mst_nas = ifnull(mst_nas,0) + 1, mst_wait = mst_wait - 1  where mst_id=?";
 					wtud = conn.prepareStatement(wtudstr);
 					wtud.setString(1, sent_key);
