@@ -422,7 +422,7 @@ public class TBLReqProcess implements Runnable {
 							bkgins.executeUpdate();
 							bkgins.close();
 							
-							wtudstr = "update cb_wt_msg_sent set mst_grs=ifnull(mst_grs,0)+1 where mst_id=?";
+							wtudstr = "update cb_wt_msg_sent set mst_wait=ifnull(mst_wait,0)+1 where mst_id=?";
 							wtud = conn.prepareStatement(wtudstr);
 							wtud.setString(1, sent_key);
 							wtud.executeUpdate();
@@ -497,7 +497,7 @@ public class TBLReqProcess implements Runnable {
 								funsmsins.executeUpdate();
 								funsmsins.close();
 								
-								wtudstr = "update cb_wt_msg_sent set mst_grs_sms=ifnull(mst_grs_sms,0)+1 where mst_id=?";
+								wtudstr = "update cb_wt_msg_sent set mst_wait=ifnull(mst_wait,0)+1 where mst_id=?";
 								wtud = conn.prepareStatement(wtudstr);
 								wtud.setString(1, sent_key);
 								wtud.executeUpdate();
@@ -605,7 +605,7 @@ public class TBLReqProcess implements Runnable {
 									nassmsins.executeUpdate();
 									nassmsins.close();
 									
-									wtudstr = "update cb_wt_msg_sent set mst_nas_sms=ifnull(mst_nas_sms,0)+1 where mst_id=?";
+									wtudstr = "update cb_wt_msg_sent set mst_wait=ifnull(mst_wait,0)+1 where mst_id=?";
 									wtud = conn.prepareStatement(wtudstr);
 									wtud.setString(1, sent_key);
 									wtud.executeUpdate();
@@ -679,7 +679,7 @@ public class TBLReqProcess implements Runnable {
 									nasins.executeUpdate();
 									nasins.close();
 									
-									wtudstr = "update cb_wt_msg_sent set mst_nas=ifnull(mst_nas,0)+1 where mst_id=?";
+									wtudstr = "update cb_wt_msg_sent set mst_wait=ifnull(mst_wait,0)+1 where mst_id=?";
 									wtud = conn.prepareStatement(wtudstr);
 									wtud.setString(1, sent_key);
 									wtud.executeUpdate();

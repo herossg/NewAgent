@@ -153,7 +153,7 @@ public class Nano_it_summary implements Runnable {
 					_015ins.executeUpdate();
 					_015ins.close();
 					
-					wtudstr = "update cb_wt_msg_sent set mst_015=ifnull(mst_015,0)+" + ins_cnt + " where mst_id=?";
+					wtudstr = "update cb_wt_msg_sent set mst_wait=ifnull(mst_wait,0)+" + ins_cnt + " where mst_id=?";
 					wtud = conn.prepareStatement(wtudstr);
 					wtud.setString(1, sent_key);
 					wtud.executeUpdate();
@@ -224,7 +224,7 @@ public class Nano_it_summary implements Runnable {
 					Phoneins.executeUpdate();
 					Phoneins.close();
 					
-					wtudstr = "update cb_wt_msg_sent set mst_phn=ifnull(mst_phn,0)+" + ins_cnt + " where mst_id=?";
+					wtudstr = "update cb_wt_msg_sent set mst_wait=ifnull(mst_wait,0)+" + ins_cnt + " where mst_id=?";
 					wtud = conn.prepareStatement(wtudstr);
 					wtud.setString(1, sent_key);
 					wtud.executeUpdate();
@@ -301,7 +301,7 @@ public class Nano_it_summary implements Runnable {
 					grsins.executeUpdate();
 					grsins.close();
 					
-					wtudstr = "update cb_wt_msg_sent set mst_grs=ifnull(mst_grs,0)+" + ins_cnt + " where mst_id=?";
+					wtudstr = "update cb_wt_msg_sent set mst_wait=ifnull(mst_wait,0)+" + ins_cnt + " where mst_id=?";
 					wtud = conn.prepareStatement(wtudstr);
 					wtud.setString(1, sent_key);
 					wtud.executeUpdate();

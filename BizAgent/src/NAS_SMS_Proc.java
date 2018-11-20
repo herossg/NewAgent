@@ -111,6 +111,11 @@ public class NAS_SMS_Proc implements Runnable {
 				}
 				
 				if(rs.getString("RSLT").equals("0")) {
+					wtudstr = "update cb_wt_msg_sent set mst_nas_sms = ifnull(mst_nas_sms,0) + 1, mst_wait = mst_wait - 1  where mst_id=?";
+					wtud = conn.prepareStatement(wtudstr);
+					wtud.setString(1, sent_key);
+					wtud.executeUpdate();
+					wtud.close();
 					
 					msgudstr = "update cb_msg_" + userid + " set MESSAGE_TYPE='ns', MESSAGE = '웹(B) SMS 성공', RESULT = 'Y' "
 							+ " where MSGID = ?";
@@ -119,7 +124,7 @@ public class NAS_SMS_Proc implements Runnable {
 					msgud.executeUpdate();
 					msgud.close();
 				} else {
-					wtudstr = "update cb_wt_msg_sent set mst_err_nas_sms = ifnull(mst_err_nas_sms,0) + 1, mst_nas_sms = mst_nas_sms - 1  where mst_id=?";
+					wtudstr = "update cb_wt_msg_sent set mst_err_nas_sms = ifnull(mst_err_nas_sms,0) + 1, mst_wait = mst_wait - 1  where mst_id=?";
 					wtud = conn.prepareStatement(wtudstr);
 					wtud.setString(1, sent_key);
 					wtud.executeUpdate();

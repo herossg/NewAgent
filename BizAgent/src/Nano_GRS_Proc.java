@@ -131,6 +131,12 @@ public class Nano_GRS_Proc implements Runnable {
 				
 				if(rs.getString("BC_RSLT_NO").equals("0")) {
 					
+					wtudstr = "update cb_wt_msg_sent set mst_grs = ifnull(mst_grs,0) + 1, mst_wait = mst_wait - 1  where mst_id=?";
+					wtud = conn.prepareStatement(wtudstr);
+					wtud.setString(1, sent_key);
+					wtud.executeUpdate();
+					wtud.close();
+					
 					msgudstr = "update cb_msg_" + userid + " set MESSAGE_TYPE='gs', MESSAGE = '웹(A) 성공', RESULT = 'Y' "
 							+ " where remark4=? and phn = ?";
 					msgud = conn.prepareStatement(msgudstr);
@@ -139,7 +145,7 @@ public class Nano_GRS_Proc implements Runnable {
 					msgud.executeUpdate();
 					msgud.close();
 				} else {
-					wtudstr = "update cb_wt_msg_sent set mst_err_grs = ifnull(mst_err_grs,0) + 1, mst_grs = mst_grs-1  where mst_id=?";
+					wtudstr = "update cb_wt_msg_sent set mst_err_grs = ifnull(mst_err_grs,0) + 1, mst_wait = mst_wait - 1  where mst_id=?";
 					wtud = conn.prepareStatement(wtudstr);
 					wtud.setString(1, sent_key);
 					wtud.executeUpdate();

@@ -111,6 +111,11 @@ public class Nano_FUNSMS_Proc implements Runnable {
 				}
 				
 				if(rs.getString("RSLT").equals("0")) {
+					wtudstr = "update cb_wt_msg_sent set mst_grs_sms = ifnull(mst_grs_sms,0) + 1, mst_wait = mst_wait - 1  where mst_id=?";
+					wtud = conn.prepareStatement(wtudstr);
+					wtud.setString(1, sent_key);
+					wtud.executeUpdate();
+					wtud.close();
 					
 					msgudstr = "update cb_msg_" + userid + " set MESSAGE_TYPE='gs', MESSAGE = '웹(A) SMS 성공', RESULT = 'Y' "
 							+ " where MSGID = ?";
@@ -119,7 +124,7 @@ public class Nano_FUNSMS_Proc implements Runnable {
 					msgud.executeUpdate();
 					msgud.close();
 				} else {
-					wtudstr = "update cb_wt_msg_sent set mst_err_grs_sms = ifnull(mst_err_grs_sms,0) + 1, mst_grs_sms = mst_grs_sms - 1  where mst_id=?";
+					wtudstr = "update cb_wt_msg_sent set mst_err_grs_sms = ifnull(mst_err_grs_sms,0) + 1, mst_wait = mst_wait - 1  where mst_id=?";
 					wtud = conn.prepareStatement(wtudstr);
 					wtud.setString(1, sent_key);
 					wtud.executeUpdate();
