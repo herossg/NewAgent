@@ -185,16 +185,19 @@ public class BizAgent implements Daemon, Runnable {
 			}
 
 			// Nano GRS 처리
-			Nano_GRS_Proc nanogrs = new Nano_GRS_Proc(DB_URL, log);
-			nanogrs.monthStr = monthStr;
-			Thread nanogrs_proc = new Thread(nanogrs);
-			if(!isStop)
-				nanogrs_proc.start();
-			if(Nano_GRS_Proc.isRunning)
-        		isRunning = true;
-        	
+			for(int j=0; j<10; j++) 
+			{
+				Nano_GRS_Proc nanogrs = new Nano_GRS_Proc(DB_URL, log, j);
+				nanogrs.monthStr = monthStr;
+				Thread nanogrs_proc = new Thread(nanogrs);
+				if(!isStop)
+					nanogrs_proc.start();
+				if(Nano_GRS_Proc.isRunning[j])
+	        		isRunning = true;
+			}
+			
 			if(!monthStr.equals(PremonthStr)) {
-				Nano_GRS_Proc Prenanogrs = new Nano_GRS_Proc(DB_URL, log);
+				Nano_PREGRS_Proc Prenanogrs = new Nano_PREGRS_Proc(DB_URL, log);
 				Prenanogrs.monthStr = PremonthStr;
 				Prenanogrs.isPremonth = true;
 				Thread Prenanogrs_proc = new Thread(Prenanogrs);
@@ -246,7 +249,7 @@ public class BizAgent implements Daemon, Runnable {
 			
             try {
                 //log.info("Biz Agent Call OK.");
-                Thread.sleep(5000);
+                Thread.sleep(3000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
                 log.info("메인 Thread 오류 : " + e.toString());

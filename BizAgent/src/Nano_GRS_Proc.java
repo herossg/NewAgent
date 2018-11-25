@@ -12,19 +12,22 @@ public class Nano_GRS_Proc implements Runnable {
 	private final String USER_NAME = "root";
 	private final String PASSWORD = "sjk4556!!22";
 	
-	public static boolean isRunning = false;
+	//public static boolean isRunning = false;
 	public boolean isPremonth = false;
 	public static boolean isPreRunning = false;
 	public Logger log;
 	public String monthStr;
+	public static boolean[] isRunning = {false,false,false,false,false,false,false,false,false,false,};
+	public int div_str;
 	
-	public Nano_GRS_Proc(String _db_url, Logger _log) {
+	public Nano_GRS_Proc(String _db_url, Logger _log, int _div) {
 		DB_URL = _db_url;
 		log = _log;
+		div_str = _div;
 	}
 	
 	public void run() {
-		if(!isRunning || (isPremonth && !isPreRunning)) {
+		if(!isRunning[div_str]  ) {
 			if(monthStr == null || monthStr.isEmpty()) {
 				Date month = new Date();
 				SimpleDateFormat transFormat = new SimpleDateFormat("yyyyMM");
@@ -36,12 +39,8 @@ public class Nano_GRS_Proc implements Runnable {
 	}
 	
 	private synchronized  void Proc() {
-		if(isPremonth) {
-			isPreRunning = true;
-		} else {
-			isRunning = true;
-		}	
-		//log.info("Nano it summary 실행");  수정 테스트...
+	 
+		isRunning[div_str] = true; 
 		
 		Connection conn = null;
 		Connection nconn = null;
@@ -85,6 +84,7 @@ public class Nano_GRS_Proc implements Runnable {
 								"    on cm.mem_id = cgm.cb_msg_id" + 
 								" where cgm.msg_st in ('1', '0')" + 
 								"   and cgb.bc_snd_st in( '3', '4') " + 
+								"   and (cgb.msg_id % 10) = " + div_str +
 								" order by cgm.msg_id limit 0" + 
 								"         ,1000";
 			
@@ -92,8 +92,13 @@ public class Nano_GRS_Proc implements Runnable {
 			
 			String pre_mem_id = "";
 			Price_info price = null;
+			
+			
 			while(rs.next()) {
 				totalcnt++;
+				//if(totalcnt <= 1)
+				//	log.info("Nano GRS 처리 실행.( " + div_str + " )"); 
+
 				String mem_id = rs.getString("mem_id");
 				String sent_key = rs.getString("REMARK4");
 				String userid = rs.getString("mem_userid");
@@ -204,7 +209,7 @@ public class Nano_GRS_Proc implements Runnable {
 		}
 		
 		if(totalcnt > 0) {
-			log.info("Nano GRS " + totalcnt + " 건 처리 함.");
+			log.info("Nano GRS " + totalcnt + " 건 처리 함.( " + div_str + " )");
 		}
 		
 		try {
@@ -219,11 +224,8 @@ public class Nano_GRS_Proc implements Runnable {
 			}
 		} catch(Exception e) {}
 		
-		if(isPremonth) {
-			isPreRunning = false;
-		} else {
-			isRunning = false;
-		}
+		isRunning[div_str] = false;
+		
 		//log.info("Nano it summary 끝");
 	}
 	

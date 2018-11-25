@@ -67,7 +67,7 @@ public class NAS_SMS_Proc implements Runnable {
 								"   WHERE cml.tr_etc4 = cm.mem_id" + 
 								"     AND cml.tr_sendstat= '2'" + 
 								" order by tr_senddate" + 
-								"     limit 0, 100";
+								"     limit 0, 1000";
 			ResultSet rs = funsms_msg.executeQuery(funsms_str);
 			
 			String pre_mem_id = "";
@@ -161,7 +161,7 @@ public class NAS_SMS_Proc implements Runnable {
 					
 				}
 				
-				String udFUNsmsStr  = "update cb_sms_log_" + monthStr + " set tr_sendstat = '5' where tr_num =?";
+				String udFUNsmsStr  = "update cb_nas_sms_msg_log_" + monthStr + " set tr_sendstat = '5' where tr_num =?";
 				PreparedStatement udFUNsms = conn.prepareStatement(udFUNsmsStr);
 				udFUNsms.setString(1, rs.getString("MSGKEY"));
 				udFUNsms.executeUpdate();
