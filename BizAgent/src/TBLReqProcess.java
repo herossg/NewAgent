@@ -39,7 +39,7 @@ public class TBLReqProcess implements Runnable {
 		Connection conn = null;
 		Connection nconn = null;
 		Statement tbl_result = null;
-
+		boolean isPass = false; // 전체 Loop 를 그냥 지나 가기 위한 변수 Loop 가 시작시에는 무조건 False
 		try {
 			Class.forName(JDBC_DRIVER);
 			conn = DriverManager.getConnection(DB_URL, USER_NAME, PASSWORD);
@@ -70,6 +70,8 @@ public class TBLReqProcess implements Runnable {
 			int msgcnt = 0;
 			while(rs.next()) {
 				msgcnt ++;
+				isPass = false;
+				
 				String userid = rs.getString("mem_userid");
 				if(rs.getString("SMS_KIND").equals("S")) {
 					msgtype = "SMS";
@@ -231,271 +233,209 @@ public class TBLReqProcess implements Runnable {
 				insSt.setString(36, rs.getString("mem_userid"));
 				
 				//log.info("한글 : " +rs.getString("MSG")+ "Insert Qeury : " + insSt.toString());
+				try {
+					insSt.executeUpdate();
+				} catch(Exception ex) {
+					/*
+					 * Insert 에러 발생은 MSG ID 중복에 의한 것 말고는 없음.
+					 * 처리함.
+					 * 1. 성공이면 과금 되었는지 확인 하고 안되었으면 그냥 흘린다.
+					 * 1-1. 과금이 되었다면 완전히 빠져 나간다.
+					 */
+					isPass = true;
+					log.info("TBL Process Error : " + msg_id + "( " + ex.toString() + " ) ");
+						
+				}
 				
-				insSt.executeUpdate();
 				insSt.close();
 				
-				if(rs.getString("RESULT") != null && rs.getString("RESULT").equals("Y")) {
-				// 발신 성공이면 금액 차감
-					String kind = "";
-					float amount = 0;
-					String memo = "";
-					float payback = 0;
-					float admin_amt = 0;
-					Statement upd = conn.createStatement();
-					String upstr = "update cb_wt_msg_sent " ;
-					if(rs.getString("MESSAGE_TYPE").equals("ft")) {
-						if(rs.getString("IMAGE_URL") == null || rs.getString("IMAGE_URL").isEmpty()) {
-							upstr = upstr + "set mst_ft = ifnull(mst_ft, 0) + 1 ";
-							kind = "F";
-							amount = price.member_price.price_ft;
-							payback = price.member_price.price_ft - price.parent_price.price_ft;
-							admin_amt = price.base_price.price_ft;
-							memo = "친구톡(텍스트)";
-						} else {
-							upstr = upstr + "set mst_ft_img = ifnull(mst_ft_img, 0) + 1 ";
-							kind = "I";
-							amount = price.member_price.price_ft_img;
-							payback = price.member_price.price_ft_img - price.parent_price.price_ft_img;
-							admin_amt = price.base_price.price_ft_img;
-							memo = "친구톡(이미지)";
-						}
-						upstr = upstr + " where mst_id = " + sent_key;
-						
-						// 친구톡 성공 목록 저장용
-						// 기존에 있으면 지우고 추가
-						String fldelstr = "delete from cb_friend_list where mem_id = ? and phn = ? ";
-						PreparedStatement fldel = conn.prepareStatement(fldelstr);
-						fldel.setInt(1, Integer.valueOf(mem_id));
-						fldel.setString(2, phn);
-						fldel.executeUpdate();
-						fldel.close();
-						
-						String flstr = "insert into cb_friend_list(mem_id, phn, last_send_date) values(?,?,?)";
-						PreparedStatement flins = conn.prepareStatement(flstr);
-						flins.setInt(1, Integer.valueOf(mem_id));
-						flins.setString(2, phn);
-						flins.setTimestamp(3, new java.sql.Timestamp(System.currentTimeMillis()));
-						
-						flins.executeUpdate();
-						flins.close();
-						
-					}else if(rs.getString("MESSAGE_TYPE").equals("at")) {
-						upstr = upstr + "set mst_at = ifnull(mst_at, 0) + 1 where mst_id = " + sent_key;
-						kind = "A";
-						amount = price.member_price.price_at;
-						payback = price.member_price.price_at - price.parent_price.price_at;
-						admin_amt = price.base_price.price_at;
-						memo = "알림톡";
-					}
-					
-					upd.execute(upstr);
-					upd.close();
-					
-					String amtStr = "insert into cb_amt_" + userid + "(amt_datetime," +
-					                                                  "amt_kind," +
-					                                                  "amt_amount," +
-					                                                  "amt_memo," +
-					                                                  "amt_reason," +
-					                                                  "amt_payback," +
-					                                                  "amt_admin)" +
-					                                           "values(?," +
-					                      					          "?," +	
-					                      					          "?," +	
-					                      					          "?," +	
-					                      					          "?," +	
-					                      					          "?," +	
-					                      					          "?)";
-					PreparedStatement amtins = conn.prepareStatement(amtStr);
-					amtins.setTimestamp(1, new java.sql.Timestamp(System.currentTimeMillis())); 
-					amtins.setString(2, kind); 
-					amtins.setFloat(3, amount); 
-					amtins.setString(4, memo); 
-					amtins.setString(5, msg_id); 
-					amtins.setFloat(6, payback); 
-					amtins.setFloat(7, admin_amt); 
-					
-					amtins.executeUpdate();
-					amtins.close();
-
-				} else {
-				// 실패 이면서 2차 발신 대상이면 2차 발신 Table 에 Insert	
-					if(rs.getString("MESSAGE_TYPE") != null && rs.getString("MESSAGE_TYPE").equals("ft")) {
-	 					// 친구톡 발송 실패시 친구톡 성공 목록에서 삭제
-						String fldelstr = "delete from cb_friend_list where mem_id = ? and phn = ? ";
-						PreparedStatement fldel = conn.prepareStatement(fldelstr);
-						fldel.setInt(1, Integer.valueOf(mem_id));
-						fldel.setString(2, phn);
-						fldel.executeUpdate();
-						fldel.close();
-					}
-
-					String wtudstr;
-					String msgudstr;
-					PreparedStatement wtud;
-					PreparedStatement msgud; 
-					
-					if( !rs.getString("MESSAGE").equals("InvalidPhoneNumber") && mem_resend != null &&  !mem_resend.isEmpty() && msg_sms !=null && !msg_sms.isEmpty() && !rs.getString("SMS_SENDER").isEmpty() ) {
-						
-						String 	amtStr = "insert into cb_amt_" + userid + "(amt_datetime," +
-										                                   "amt_kind," +
-										                                   "amt_amount," +
-										                                   "amt_memo," +
-										                                   "amt_reason," +
-										                                   "amt_payback," +
-										                                   "amt_admin)" +
-										                            "values(?," +
-										    					           "?," +	
-										    					           "?," +	
-										    					           "?," +	
-										    					           "?," +	
-										    					           "?," +	
-										    					           "?)";
-						PreparedStatement amtins;
+				if(!isPass) {
+					if(rs.getString("RESULT") != null && rs.getString("RESULT").equals("Y")) {
+					// 발신 성공이면 금액 차감
 						String kind = "";
 						float amount = 0;
 						String memo = "";
 						float payback = 0;
 						float admin_amt = 0;
-						
-						String nanoit;
-						PreparedStatement nanoins;
-						
-						switch(mem_resend) {
-						case "015":
-							nanoit = "insert into cb_nanoit_msg(msg_type, remark4, phn) values(?, ?, ?)";
-							nanoins = conn.prepareStatement(nanoit);
-							nanoins.setString(1, "015");
-							nanoins.setString(2, sent_key);
-							nanoins.setString(3, phn);
-							nanoins.executeUpdate();
-							nanoins.close();
-							break;
-						case "PHONE":
-							nanoit = "insert into cb_nanoit_msg(msg_type, remark4, phn) values(?, ?, ?)";
-							nanoins = conn.prepareStatement(nanoit);
-							nanoins.setString(1, "PHONE");
-							nanoins.setString(2, sent_key);
-							nanoins.setString(3, phn);
-							nanoins.executeUpdate();
-							nanoins.close();
-							break;			
-						case "BKG":
-							String bkgstr ="insert into cb_mms_msg(SUBJECT"
-									                          + ", PHONE"
-									                          + ", CALLBACK"
-									                          + ", STATUS"
-									                          + ", MSG"
-									                          + ", BILL_ID"
-									                          + ", TYPE"
-									                          + ", ETC1"
-									                          + ", ETC2"
-									                          + ", ETC4"
-									                          + ", REQDATE) "
-									                    + "values( ?"
-									                          + ", ?"
-									                          + ", ?"
-									                          + ", ? "
-									                          + ", ?"
-									                          + ", ?"
-									                          + ", ?"
-									                          + ", ?"
-									                          + ", ?"
-									                          + ", ?"
-									                          + ", ?)";
-							PreparedStatement bkgins = conn.prepareStatement(bkgstr);
-							bkgins.setString(1,  rs.getString("SMS_LMS_TIT").replaceAll("\\r\\n|\\r|\\n", ""));
-							bkgins.setString(2, phn);
-							bkgins.setString(3, rs.getString("SMS_SENDER"));
-							bkgins.setString(4, "0");
-							bkgins.setString(5, msg_sms);
-							bkgins.setString(6, rs.getString("SMS_SENDER"));
-							bkgins.setString(7, "0");
-							bkgins.setString(8, msg_id);
-							bkgins.setString(9, sent_key);
-							bkgins.setString(10, mem_id);
-							if(rs.getString("RESERVE_DT").equals("00000000000000")) {
-								bkgins.setString(11, rd.format(reserve_dt));
-							}else {
-								bkgins.setString(11, rs.getString("RESERVE_DT"));
+						Statement upd = conn.createStatement();
+						String upstr = "update cb_wt_msg_sent " ;
+						if(rs.getString("MESSAGE_TYPE").equals("ft")) {
+							if(rs.getString("IMAGE_URL") == null || rs.getString("IMAGE_URL").isEmpty()) {
+								upstr = upstr + "set mst_ft = ifnull(mst_ft, 0) + 1 ";
+								kind = "F";
+								amount = price.member_price.price_ft;
+								payback = price.member_price.price_ft - price.parent_price.price_ft;
+								admin_amt = price.base_price.price_ft;
+								memo = "친구톡(텍스트)";
+							} else {
+								upstr = upstr + "set mst_ft_img = ifnull(mst_ft_img, 0) + 1 ";
+								kind = "I";
+								amount = price.member_price.price_ft_img;
+								payback = price.member_price.price_ft_img - price.parent_price.price_ft_img;
+								admin_amt = price.base_price.price_ft_img;
+								memo = "친구톡(이미지)";
 							}
-							bkgins.executeUpdate();
-							bkgins.close();
+							upstr = upstr + " where mst_id = " + sent_key;
 							
-							wtudstr = "update cb_wt_msg_sent set mst_wait=ifnull(mst_wait,0)+1 where mst_id=?";
-							wtud = conn.prepareStatement(wtudstr);
-							wtud.setString(1, sent_key);
-							wtud.executeUpdate();
-							wtud.close();
+							// 친구톡 성공 목록 저장용
+							// 기존에 있으면 지우고 추가
+							String fldelstr = "delete from cb_friend_list where mem_id = ? and phn = ? ";
+							PreparedStatement fldel = conn.prepareStatement(fldelstr);
+							fldel.setInt(1, Integer.valueOf(mem_id));
+							fldel.setString(2, phn);
+							fldel.executeUpdate();
+							fldel.close();
 							
-							msgudstr = "update cb_msg_" + userid + " set MESSAGE_TYPE='gs',CODE='GRS', MESSAGE = '결과 수신대기' where MSGID=?";
-							msgud = conn.prepareStatement(msgudstr);
-							msgud.setString(1, msg_id);
-							msgud.executeUpdate();
-							msgud.close();
-												
-							kind = "P";
-							amount = price.member_price.price_grs;
-							payback = price.member_price.price_grs - price.parent_price.price_grs;
-							admin_amt = price.base_price.price_grs;
-							memo = "웹(A)";
-							if(amount == 0 || amount == 0.0f) {
-								amount = admin_amt;
-							}
-
-							amtins = conn.prepareStatement(amtStr);
-							amtins.setTimestamp(1, new java.sql.Timestamp(System.currentTimeMillis())); 
-							amtins.setString(2, kind); 
-							amtins.setFloat(3, amount); 
-							amtins.setString(4, memo); 
-							amtins.setString(5, msg_id); 
-							amtins.setFloat(6, payback); 
-							amtins.setFloat(7, admin_amt); 
+							String flstr = "insert into cb_friend_list(mem_id, phn, last_send_date) values(?,?,?)";
+							PreparedStatement flins = conn.prepareStatement(flstr);
+							flins.setInt(1, Integer.valueOf(mem_id));
+							flins.setString(2, phn);
+							flins.setTimestamp(3, new java.sql.Timestamp(System.currentTimeMillis()));
 							
-							amtins.executeUpdate();
-							amtins.close();
+							flins.executeUpdate();
+							flins.close();
 							
-							break;
-						case "GREEN_SHOT":
-							if(msgtype.equals("SMS")) {
-								String funsmsstr = "insert into cb_sms_msg(TR_PHONE"
-										                               + ",TR_CALLBACK"
-										                               + ",TR_ORG_CALLBACK"
-										                               + ",TR_SENDSTAT"
-										                               + ",TR_MSG"
-										                               + ",TR_MSGTYPE"
-										                               + ",TR_ETC1"
-										                               + ",TR_ETC2"
-										                               + ",TR_ETC4"
-										                               + ",TR_SENDDATE)"
-										                               + "values("
-										                               + " ?"
-										                               + ",?"
-										                               + ",?"
-										                               + ",?"
-										                               + ",?"
-										                               + ",?"
-										                               + ",?"
-										                               + ",?"
-										                               + ",?"
-										                               + ",?)";
-								PreparedStatement funsmsins = conn.prepareStatement(funsmsstr);
-								funsmsins.setString(1, phn);
-								funsmsins.setString(2, rs.getString("SMS_SENDER"));
-								funsmsins.setString(3, rs.getString("SMS_SENDER"));
-								funsmsins.setString(4, "0");
-								funsmsins.setString(5, msg_sms);
-								funsmsins.setString(6, "0");
-								funsmsins.setString(7, msg_id);
-								funsmsins.setString(8, sent_key);
-								funsmsins.setString(9, mem_id);
+						}else if(rs.getString("MESSAGE_TYPE").equals("at")) {
+							upstr = upstr + "set mst_at = ifnull(mst_at, 0) + 1 where mst_id = " + sent_key;
+							kind = "A";
+							amount = price.member_price.price_at;
+							payback = price.member_price.price_at - price.parent_price.price_at;
+							admin_amt = price.base_price.price_at;
+							memo = "알림톡";
+						}
+						
+						upd.execute(upstr);
+						upd.close();
+						
+						String amtStr = "insert into cb_amt_" + userid + "(amt_datetime," +
+						                                                  "amt_kind," +
+						                                                  "amt_amount," +
+						                                                  "amt_memo," +
+						                                                  "amt_reason," +
+						                                                  "amt_payback," +
+						                                                  "amt_admin)" +
+						                                           "values(?," +
+						                      					          "?," +	
+						                      					          "?," +	
+						                      					          "?," +	
+						                      					          "?," +	
+						                      					          "?," +	
+						                      					          "?)";
+						PreparedStatement amtins = conn.prepareStatement(amtStr);
+						amtins.setTimestamp(1, new java.sql.Timestamp(System.currentTimeMillis())); 
+						amtins.setString(2, kind); 
+						amtins.setFloat(3, amount); 
+						amtins.setString(4, memo); 
+						amtins.setString(5, msg_id); 
+						amtins.setFloat(6, payback); 
+						amtins.setFloat(7, admin_amt); 
+						
+						amtins.executeUpdate();
+						amtins.close();
+	
+					} else {
+					// 실패 이면서 2차 발신 대상이면 2차 발신 Table 에 Insert	
+						if(rs.getString("MESSAGE_TYPE") != null && rs.getString("MESSAGE_TYPE").equals("ft")) {
+		 					// 친구톡 발송 실패시 친구톡 성공 목록에서 삭제
+							String fldelstr = "delete from cb_friend_list where mem_id = ? and phn = ? ";
+							PreparedStatement fldel = conn.prepareStatement(fldelstr);
+							fldel.setInt(1, Integer.valueOf(mem_id));
+							fldel.setString(2, phn);
+							fldel.executeUpdate();
+							fldel.close();
+						}
+	
+						String wtudstr;
+						String msgudstr;
+						PreparedStatement wtud;
+						PreparedStatement msgud; 
+						
+						if( !rs.getString("MESSAGE").equals("InvalidPhoneNumber") && mem_resend != null &&  !mem_resend.isEmpty() && msg_sms !=null && !msg_sms.isEmpty() && !rs.getString("SMS_SENDER").isEmpty() ) {
+							
+							String 	amtStr = "insert into cb_amt_" + userid + "(amt_datetime," +
+											                                   "amt_kind," +
+											                                   "amt_amount," +
+											                                   "amt_memo," +
+											                                   "amt_reason," +
+											                                   "amt_payback," +
+											                                   "amt_admin)" +
+											                            "values(?," +
+											    					           "?," +	
+											    					           "?," +	
+											    					           "?," +	
+											    					           "?," +	
+											    					           "?," +	
+											    					           "?)";
+							PreparedStatement amtins;
+							String kind = "";
+							float amount = 0;
+							String memo = "";
+							float payback = 0;
+							float admin_amt = 0;
+							
+							String nanoit;
+							PreparedStatement nanoins;
+							
+							switch(mem_resend) {
+							case "015":
+								nanoit = "insert into cb_nanoit_msg(msg_type, remark4, phn) values(?, ?, ?)";
+								nanoins = conn.prepareStatement(nanoit);
+								nanoins.setString(1, "015");
+								nanoins.setString(2, sent_key);
+								nanoins.setString(3, phn);
+								nanoins.executeUpdate();
+								nanoins.close();
+								break;
+							case "PHONE":
+								nanoit = "insert into cb_nanoit_msg(msg_type, remark4, phn) values(?, ?, ?)";
+								nanoins = conn.prepareStatement(nanoit);
+								nanoins.setString(1, "PHONE");
+								nanoins.setString(2, sent_key);
+								nanoins.setString(3, phn);
+								nanoins.executeUpdate();
+								nanoins.close();
+								break;			
+							case "BKG":
+								String bkgstr ="insert into cb_mms_msg(SUBJECT"
+										                          + ", PHONE"
+										                          + ", CALLBACK"
+										                          + ", STATUS"
+										                          + ", MSG"
+										                          + ", BILL_ID"
+										                          + ", TYPE"
+										                          + ", ETC1"
+										                          + ", ETC2"
+										                          + ", ETC4"
+										                          + ", REQDATE) "
+										                    + "values( ?"
+										                          + ", ?"
+										                          + ", ?"
+										                          + ", ? "
+										                          + ", ?"
+										                          + ", ?"
+										                          + ", ?"
+										                          + ", ?"
+										                          + ", ?"
+										                          + ", ?"
+										                          + ", ?)";
+								PreparedStatement bkgins = conn.prepareStatement(bkgstr);
+								bkgins.setString(1,  rs.getString("SMS_LMS_TIT").replaceAll("\\r\\n|\\r|\\n", ""));
+								bkgins.setString(2, phn);
+								bkgins.setString(3, rs.getString("SMS_SENDER"));
+								bkgins.setString(4, "0");
+								bkgins.setString(5, msg_sms);
+								bkgins.setString(6, rs.getString("SMS_SENDER"));
+								bkgins.setString(7, "0");
+								bkgins.setString(8, msg_id);
+								bkgins.setString(9, sent_key);
+								bkgins.setString(10, mem_id);
 								if(rs.getString("RESERVE_DT").equals("00000000000000")) {
-									funsmsins.setString(10, rd.format(reserve_dt));
+									bkgins.setString(11, rd.format(reserve_dt));
 								}else {
-									funsmsins.setString(10, rs.getString("RESERVE_DT"));
-								} 
-								funsmsins.executeUpdate();
-								funsmsins.close();
+									bkgins.setString(11, rs.getString("RESERVE_DT"));
+								}
+								bkgins.executeUpdate();
+								bkgins.close();
 								
 								wtudstr = "update cb_wt_msg_sent set mst_wait=ifnull(mst_wait,0)+1 where mst_id=?";
 								wtud = conn.prepareStatement(wtudstr);
@@ -503,21 +443,21 @@ public class TBLReqProcess implements Runnable {
 								wtud.executeUpdate();
 								wtud.close();
 								
-								msgudstr = "update cb_msg_" + userid + " set MESSAGE_TYPE='gs',CODE='GRS', MESSAGE = '결과 수신대기', SMS_KIND='S' where MSGID=?";
+								msgudstr = "update cb_msg_" + userid + " set MESSAGE_TYPE='gs',CODE='GRS', MESSAGE = '결과 수신대기' where MSGID=?";
 								msgud = conn.prepareStatement(msgudstr);
 								msgud.setString(1, msg_id);
 								msgud.executeUpdate();
 								msgud.close();
-																				
+													
 								kind = "P";
-								amount = price.member_price.price_grs_sms;
-								payback = price.member_price.price_grs_sms - price.parent_price.price_grs_sms;
-								admin_amt = price.base_price.price_grs_sms;
-								memo = "웹(A) SMS";
+								amount = price.member_price.price_grs;
+								payback = price.member_price.price_grs - price.parent_price.price_grs;
+								admin_amt = price.base_price.price_grs;
+								memo = "웹(A)";
 								if(amount == 0 || amount == 0.0f) {
 									amount = admin_amt;
 								}
-
+	
 								amtins = conn.prepareStatement(amtStr);
 								amtins.setTimestamp(1, new java.sql.Timestamp(System.currentTimeMillis())); 
 								amtins.setString(2, kind); 
@@ -530,43 +470,10 @@ public class TBLReqProcess implements Runnable {
 								amtins.executeUpdate();
 								amtins.close();
 								
-							}else if(msgtype.equals("LMS")) {
-								nanoit = "insert into cb_nanoit_msg(msg_type, remark4, phn) values(?, ?, ?)";
-								nanoins = conn.prepareStatement(nanoit);
-								nanoins.setString(1, "GRS");
-								nanoins.setString(2, sent_key);
-								nanoins.setString(3, phn);
-								nanoins.executeUpdate();
-								nanoins.close();
-								break;		
-							}
-								
-							break;
-						case "NASELF":
-							if(nconn == null) {
-								nconn = DriverManager.getConnection(NURL, NUSER_NAME, NPASSWORD);
-							}
-							
-							// 나셀프 수신거부 List 조회 후 수신거부 처리
-							Statement nblock = nconn.createStatement();
-							String nblockstr = "select count(1) as cnt from sdk_block_hp where hp = '" + phn + "'";
-							ResultSet nrs = nblock.executeQuery(nblockstr);
-							nrs.first();
-							if(nrs.getInt("cnt") > 0) {
-								wtudstr = "update cb_wt_msg_sent set mst_err_nas=ifnull(mst_err_nas,0)+1 where mst_id=?";
-								wtud = conn.prepareStatement(wtudstr);
-								wtud.setString(1, sent_key);
-								wtud.executeUpdate();
-								wtud.close();
-								
-								msgudstr = "update cb_msg_" + userid + " set MESSAGE_TYPE='ns',CODE='NAS', MESSAGE = '수신거부', RESULT = 'N' where MSGID=?";
-								msgud = conn.prepareStatement(msgudstr);
-								msgud.setString(1, msg_id);
-								msgud.executeUpdate();
-								msgud.close();
-							} else {
+								break;
+							case "GREEN_SHOT":
 								if(msgtype.equals("SMS")) {
-									String nassmsstr = "insert into cb_nas_sms_msg(TR_PHONE"
+									String funsmsstr = "insert into cb_sms_msg(TR_PHONE"
 											                               + ",TR_CALLBACK"
 											                               + ",TR_ORG_CALLBACK"
 											                               + ",TR_SENDSTAT"
@@ -587,23 +494,23 @@ public class TBLReqProcess implements Runnable {
 											                               + ",?"
 											                               + ",?"
 											                               + ",?)";
-									PreparedStatement nassmsins = conn.prepareStatement(nassmsstr);
-									nassmsins.setString(1, phn);
-									nassmsins.setString(2, rs.getString("SMS_SENDER"));
-									nassmsins.setString(3, rs.getString("SMS_SENDER"));
-									nassmsins.setString(4, "0");
-									nassmsins.setString(5, msg_sms);
-									nassmsins.setString(6, "0");
-									nassmsins.setString(7, msg_id);
-									nassmsins.setString(8, sent_key);
-									nassmsins.setString(9, mem_id);
+									PreparedStatement funsmsins = conn.prepareStatement(funsmsstr);
+									funsmsins.setString(1, phn);
+									funsmsins.setString(2, rs.getString("SMS_SENDER"));
+									funsmsins.setString(3, rs.getString("SMS_SENDER"));
+									funsmsins.setString(4, "0");
+									funsmsins.setString(5, msg_sms);
+									funsmsins.setString(6, "0");
+									funsmsins.setString(7, msg_id);
+									funsmsins.setString(8, sent_key);
+									funsmsins.setString(9, mem_id);
 									if(rs.getString("RESERVE_DT").equals("00000000000000")) {
-										nassmsins.setString(10, rd.format(reserve_dt));
+										funsmsins.setString(10, rd.format(reserve_dt));
 									}else {
-										nassmsins.setString(10, rs.getString("RESERVE_DT"));
+										funsmsins.setString(10, rs.getString("RESERVE_DT"));
 									} 
-									nassmsins.executeUpdate();
-									nassmsins.close();
+									funsmsins.executeUpdate();
+									funsmsins.close();
 									
 									wtudstr = "update cb_wt_msg_sent set mst_wait=ifnull(mst_wait,0)+1 where mst_id=?";
 									wtud = conn.prepareStatement(wtudstr);
@@ -611,21 +518,21 @@ public class TBLReqProcess implements Runnable {
 									wtud.executeUpdate();
 									wtud.close();
 									
-									msgudstr = "update cb_msg_" + userid + " set MESSAGE_TYPE='ns',CODE='NAS', MESSAGE = '결과 수신대기', SMS_KIND='S' where MSGID=?";
+									msgudstr = "update cb_msg_" + userid + " set MESSAGE_TYPE='gs',CODE='GRS', MESSAGE = '결과 수신대기', SMS_KIND='S' where MSGID=?";
 									msgud = conn.prepareStatement(msgudstr);
 									msgud.setString(1, msg_id);
 									msgud.executeUpdate();
 									msgud.close();
 																					
 									kind = "P";
-									amount = price.member_price.price_nas_sms;
-									payback = price.member_price.price_nas_sms - price.parent_price.price_nas_sms;
-									admin_amt = price.base_price.price_nas_sms;
-									memo = "웹(B) SMS";
+									amount = price.member_price.price_grs_sms;
+									payback = price.member_price.price_grs_sms - price.parent_price.price_grs_sms;
+									admin_amt = price.base_price.price_grs_sms;
+									memo = "웹(A) SMS";
 									if(amount == 0 || amount == 0.0f) {
 										amount = admin_amt;
 									}
-							
+	
 									amtins = conn.prepareStatement(amtStr);
 									amtins.setTimestamp(1, new java.sql.Timestamp(System.currentTimeMillis())); 
 									amtins.setString(2, kind); 
@@ -637,111 +544,219 @@ public class TBLReqProcess implements Runnable {
 									
 									amtins.executeUpdate();
 									amtins.close();
-								}else if(msgtype.equals("LMS")) {
-									String nasstr ="insert into cb_nas_mms_msg(SUBJECT"
-											                          + ", PHONE"
-											                          + ", CALLBACK"
-											                          + ", STATUS"
-											                          + ", MSG"
-											                          + ", BILL_ID"
-											                          + ", TYPE"
-											                          + ", ETC1"
-											                          + ", ETC2"
-											                          + ", ETC4"
-											                          + ", REQDATE) "
-											                    + "values( ?"
-											                          + ", ?"
-											                          + ", ?"
-											                          + ", ? "
-											                          + ", ?"
-											                          + ", ?"
-											                          + ", ?"
-											                          + ", ?"
-											                          + ", ?"
-											                          + ", ?"
-											                          + ", ?)";
-									PreparedStatement nasins = conn.prepareStatement(nasstr);
-									nasins.setString(1,  rs.getString("SMS_LMS_TIT").replaceAll("\\r\\n|\\r|\\n", ""));
-									nasins.setString(2, phn);
-									nasins.setString(3, rs.getString("SMS_SENDER"));
-									nasins.setString(4, "0");
-									nasins.setString(5, msg_sms);
-									nasins.setString(6, rs.getString("SMS_SENDER"));
-									nasins.setString(7, "0");
-									nasins.setString(8, msg_id);
-									nasins.setString(9, sent_key);
-									nasins.setString(10, mem_id);
-									if(rs.getString("RESERVE_DT").equals("00000000000000")) {
-										nasins.setString(11, rd.format(reserve_dt));
-									}else {
-										nasins.setString(11, rs.getString("RESERVE_DT"));
-									}
-									nasins.executeUpdate();
-									nasins.close();
 									
-									wtudstr = "update cb_wt_msg_sent set mst_wait=ifnull(mst_wait,0)+1 where mst_id=?";
+								}else if(msgtype.equals("LMS")) {
+									nanoit = "insert into cb_nanoit_msg(msg_type, remark4, phn) values(?, ?, ?)";
+									nanoins = conn.prepareStatement(nanoit);
+									nanoins.setString(1, "GRS");
+									nanoins.setString(2, sent_key);
+									nanoins.setString(3, phn);
+									nanoins.executeUpdate();
+									nanoins.close();
+									break;		
+								}
+									
+								break;
+							case "NASELF":
+								if(nconn == null) {
+									nconn = DriverManager.getConnection(NURL, NUSER_NAME, NPASSWORD);
+								}
+								
+								// 나셀프 수신거부 List 조회 후 수신거부 처리
+								Statement nblock = nconn.createStatement();
+								String nblockstr = "select count(1) as cnt from sdk_block_hp where hp = '" + phn + "'";
+								ResultSet nrs = nblock.executeQuery(nblockstr);
+								nrs.first();
+								if(nrs.getInt("cnt") > 0) {
+									wtudstr = "update cb_wt_msg_sent set mst_err_nas=ifnull(mst_err_nas,0)+1 where mst_id=?";
 									wtud = conn.prepareStatement(wtudstr);
 									wtud.setString(1, sent_key);
 									wtud.executeUpdate();
 									wtud.close();
 									
-									msgudstr = "update cb_msg_" + userid + " set MESSAGE_TYPE='ns',CODE='NAS', MESSAGE = '결과 수신대기' where MSGID=?";
+									msgudstr = "update cb_msg_" + userid + " set MESSAGE_TYPE='ns',CODE='NAS', MESSAGE = '수신거부', RESULT = 'N' where MSGID=?";
 									msgud = conn.prepareStatement(msgudstr);
 									msgud.setString(1, msg_id);
 									msgud.executeUpdate();
 									msgud.close();
-														
-									kind = "P";
-									amount = price.member_price.price_nas;
-									payback = price.member_price.price_nas - price.parent_price.price_nas;
-									admin_amt = price.base_price.price_nas;
-									memo = "웹(B)";
-									if(amount == 0 || amount == 0.0f) {
-										amount = admin_amt;
+								} else {
+									if(msgtype.equals("SMS")) {
+										String nassmsstr = "insert into cb_nas_sms_msg(TR_PHONE"
+												                               + ",TR_CALLBACK"
+												                               + ",TR_ORG_CALLBACK"
+												                               + ",TR_SENDSTAT"
+												                               + ",TR_MSG"
+												                               + ",TR_MSGTYPE"
+												                               + ",TR_ETC1"
+												                               + ",TR_ETC2"
+												                               + ",TR_ETC4"
+												                               + ",TR_SENDDATE)"
+												                               + "values("
+												                               + " ?"
+												                               + ",?"
+												                               + ",?"
+												                               + ",?"
+												                               + ",?"
+												                               + ",?"
+												                               + ",?"
+												                               + ",?"
+												                               + ",?"
+												                               + ",?)";
+										PreparedStatement nassmsins = conn.prepareStatement(nassmsstr);
+										nassmsins.setString(1, phn);
+										nassmsins.setString(2, rs.getString("SMS_SENDER"));
+										nassmsins.setString(3, rs.getString("SMS_SENDER"));
+										nassmsins.setString(4, "0");
+										nassmsins.setString(5, msg_sms);
+										nassmsins.setString(6, "0");
+										nassmsins.setString(7, msg_id);
+										nassmsins.setString(8, sent_key);
+										nassmsins.setString(9, mem_id);
+										if(rs.getString("RESERVE_DT").equals("00000000000000")) {
+											nassmsins.setString(10, rd.format(reserve_dt));
+										}else {
+											nassmsins.setString(10, rs.getString("RESERVE_DT"));
+										} 
+										nassmsins.executeUpdate();
+										nassmsins.close();
+										
+										wtudstr = "update cb_wt_msg_sent set mst_wait=ifnull(mst_wait,0)+1 where mst_id=?";
+										wtud = conn.prepareStatement(wtudstr);
+										wtud.setString(1, sent_key);
+										wtud.executeUpdate();
+										wtud.close();
+										
+										msgudstr = "update cb_msg_" + userid + " set MESSAGE_TYPE='ns',CODE='NAS', MESSAGE = '결과 수신대기', SMS_KIND='S' where MSGID=?";
+										msgud = conn.prepareStatement(msgudstr);
+										msgud.setString(1, msg_id);
+										msgud.executeUpdate();
+										msgud.close();
+																						
+										kind = "P";
+										amount = price.member_price.price_nas_sms;
+										payback = price.member_price.price_nas_sms - price.parent_price.price_nas_sms;
+										admin_amt = price.base_price.price_nas_sms;
+										memo = "웹(B) SMS";
+										if(amount == 0 || amount == 0.0f) {
+											amount = admin_amt;
+										}
+								
+										amtins = conn.prepareStatement(amtStr);
+										amtins.setTimestamp(1, new java.sql.Timestamp(System.currentTimeMillis())); 
+										amtins.setString(2, kind); 
+										amtins.setFloat(3, amount); 
+										amtins.setString(4, memo); 
+										amtins.setString(5, msg_id); 
+										amtins.setFloat(6, payback); 
+										amtins.setFloat(7, admin_amt); 
+										
+										amtins.executeUpdate();
+										amtins.close();
+									}else if(msgtype.equals("LMS")) {
+										String nasstr ="insert into cb_nas_mms_msg(SUBJECT"
+												                          + ", PHONE"
+												                          + ", CALLBACK"
+												                          + ", STATUS"
+												                          + ", MSG"
+												                          + ", BILL_ID"
+												                          + ", TYPE"
+												                          + ", ETC1"
+												                          + ", ETC2"
+												                          + ", ETC4"
+												                          + ", REQDATE) "
+												                    + "values( ?"
+												                          + ", ?"
+												                          + ", ?"
+												                          + ", ? "
+												                          + ", ?"
+												                          + ", ?"
+												                          + ", ?"
+												                          + ", ?"
+												                          + ", ?"
+												                          + ", ?"
+												                          + ", ?)";
+										PreparedStatement nasins = conn.prepareStatement(nasstr);
+										nasins.setString(1,  rs.getString("SMS_LMS_TIT").replaceAll("\\r\\n|\\r|\\n", ""));
+										nasins.setString(2, phn);
+										nasins.setString(3, rs.getString("SMS_SENDER"));
+										nasins.setString(4, "0");
+										nasins.setString(5, msg_sms);
+										nasins.setString(6, rs.getString("SMS_SENDER"));
+										nasins.setString(7, "0");
+										nasins.setString(8, msg_id);
+										nasins.setString(9, sent_key);
+										nasins.setString(10, mem_id);
+										if(rs.getString("RESERVE_DT").equals("00000000000000")) {
+											nasins.setString(11, rd.format(reserve_dt));
+										}else {
+											nasins.setString(11, rs.getString("RESERVE_DT"));
+										}
+										nasins.executeUpdate();
+										nasins.close();
+										
+										wtudstr = "update cb_wt_msg_sent set mst_wait=ifnull(mst_wait,0)+1 where mst_id=?";
+										wtud = conn.prepareStatement(wtudstr);
+										wtud.setString(1, sent_key);
+										wtud.executeUpdate();
+										wtud.close();
+										
+										msgudstr = "update cb_msg_" + userid + " set MESSAGE_TYPE='ns',CODE='NAS', MESSAGE = '결과 수신대기' where MSGID=?";
+										msgud = conn.prepareStatement(msgudstr);
+										msgud.setString(1, msg_id);
+										msgud.executeUpdate();
+										msgud.close();
+															
+										kind = "P";
+										amount = price.member_price.price_nas;
+										payback = price.member_price.price_nas - price.parent_price.price_nas;
+										admin_amt = price.base_price.price_nas;
+										memo = "웹(B)";
+										if(amount == 0 || amount == 0.0f) {
+											amount = admin_amt;
+										}
+							
+										amtins = conn.prepareStatement(amtStr);
+										amtins.setTimestamp(1, new java.sql.Timestamp(System.currentTimeMillis())); 
+										amtins.setString(2, kind); 
+										amtins.setFloat(3, amount); 
+										amtins.setString(4, memo); 
+										amtins.setString(5, msg_id); 
+										amtins.setFloat(6, payback); 
+										amtins.setFloat(7, admin_amt); 
+										
+										amtins.executeUpdate();
+										amtins.close();
 									}
-						
-									amtins = conn.prepareStatement(amtStr);
-									amtins.setTimestamp(1, new java.sql.Timestamp(System.currentTimeMillis())); 
-									amtins.setString(2, kind); 
-									amtins.setFloat(3, amount); 
-									amtins.setString(4, memo); 
-									amtins.setString(5, msg_id); 
-									amtins.setFloat(6, payback); 
-									amtins.setFloat(7, admin_amt); 
-									
-									amtins.executeUpdate();
-									amtins.close();
+									 
 								}
-								 
+	
+								
+								
 							}
-
+						} else {
+							// 2차 발신이 없는 경우 카카오 실패 건시 처리
+							wtudstr = "";
 							
-							
-						}
-					} else {
-						// 2차 발신이 없는 경우 카카오 실패 건시 처리
-						wtudstr = "";
-						
-						if(rs.getString("MESSAGE_TYPE") != null && rs.getString("MESSAGE_TYPE").equals("ft")) {
-							if(rs.getString("IMAGE_URL") == null || rs.getString("IMAGE_URL").isEmpty() ) {
-								wtudstr = "update cb_wt_msg_sent set mst_err_ft = ifnull(mst_err_ft,0)+1 where mst_id=?";
-							} else {
-								wtudstr = "update cb_wt_msg_sent set mst_err_ft_img = ifnull(mst_err_ft_img,0)+1 where mst_id=?";
+							if(rs.getString("MESSAGE_TYPE") != null && rs.getString("MESSAGE_TYPE").equals("ft")) {
+								if(rs.getString("IMAGE_URL") == null || rs.getString("IMAGE_URL").isEmpty() ) {
+									wtudstr = "update cb_wt_msg_sent set mst_err_ft = ifnull(mst_err_ft,0)+1 where mst_id=?";
+								} else {
+									wtudstr = "update cb_wt_msg_sent set mst_err_ft_img = ifnull(mst_err_ft_img,0)+1 where mst_id=?";
+								}
+							} else if(rs.getString("MESSAGE_TYPE") != null && rs.getString("MESSAGE_TYPE").equals("at")) {
+								wtudstr = "update cb_wt_msg_sent set mst_err_at=ifnull(mst_err_at,0)+1 where mst_id=?";
 							}
-						} else if(rs.getString("MESSAGE_TYPE") != null && rs.getString("MESSAGE_TYPE").equals("at")) {
-							wtudstr = "update cb_wt_msg_sent set mst_err_at=ifnull(mst_err_at,0)+1 where mst_id=?";
+							
+							if(!wtudstr.isEmpty()) {
+								wtud = conn.prepareStatement(wtudstr);
+								wtud.setString(1, sent_key);
+								wtud.executeUpdate();
+								wtud.close();
+							}
 						}
 						
-						if(!wtudstr.isEmpty()) {
-							wtud = conn.prepareStatement(wtudstr);
-							wtud.setString(1, sent_key);
-							wtud.executeUpdate();
-							wtud.close();
-						}
 					}
-					
 				}
-				
 				String trrdelstr = "delete from TBL_REQUEST_RESULT where MSGID= ?";
 				PreparedStatement trrdel = conn.prepareStatement(trrdelstr);
 				trrdel.setString(1, msg_id);

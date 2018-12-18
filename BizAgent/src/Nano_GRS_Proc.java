@@ -197,10 +197,12 @@ public class Nano_GRS_Proc implements Runnable {
 				udPms.close();
 			}
 
-			String delstr = "DELETE FROM cb_grs_msg_bk WHERE REPLACE(MSG_RCV_PHN, '-1', '') not REGEXP '[0-9]'";
-			PreparedStatement delquery = conn.prepareStatement(delstr);
-			delquery.executeUpdate();
-			delquery.close();
+			if(div_str == 0) {
+				String delstr = "DELETE FROM cb_grs_msg_bk WHERE REPLACE(MSG_RCV_PHN, '-1', '') not REGEXP '[0-9]'";
+				PreparedStatement delquery = conn.prepareStatement(delstr);
+				delquery.executeUpdate();
+				delquery.close();
+			}
 			
 			rs.close();
 			
