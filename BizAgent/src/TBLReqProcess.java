@@ -667,15 +667,15 @@ public class TBLReqProcess implements Runnable {
 											mms1 = mmsrs.getString("origin1_path");
 											mms2 = mmsrs.getString("origin2_path");
 											mms3 = mmsrs.getString("origin3_path");
-											/*
-											if(!mms1.isEmpty() && mms1 != null)
+											
+											if(mms1 != null)
 												file_cnt++;
-											if(!mms2.isEmpty() && mms2 != null)
+											if(mms2 != null)
 												file_cnt++;
-											if(!mms3.isEmpty() && mms3 != null)
+											if(mms3 != null)
 												file_cnt++;
-											*/
-											file_cnt = 1;
+											
+											//file_cnt = 1;
 										}
 																				
 										String nasstr ="insert into cb_nas_mms_msg(SUBJECT"
