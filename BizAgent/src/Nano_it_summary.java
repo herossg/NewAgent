@@ -55,6 +55,7 @@ public class Nano_it_summary implements Runnable {
 									"     ,cm.mem_level" + 
 									"     ,wms.mst_reserved_dt as RESERVE_DT" + 
 									"     ,max(sn) as max_sn" + 
+									"     ,wms.mst_mms_content" + 
 									" from cb_nanoit_msg cnm " + 
 									"inner join cb_wt_msg_sent wms" + 
 									"   on cnm.remark4 = wms.mst_id " + 
@@ -260,6 +261,23 @@ public class Nano_it_summary implements Runnable {
 					
 					break;	 
 				case "GRS":
+					
+					String mms1="", mms2="", mms3="";
+					String msgtype = "LMS";
+					
+					if(rs.getString("mst_mms_content").length()>5) {
+						String mmsinfostr = "select * from cb_mms_images cmi where cmi.mem_id = '" + mem_id + "' and mms_id = '" + rs.getString("mst_mms_content") + "'";
+						Statement mmsinfo = conn.createStatement();
+						ResultSet mmsrs = mmsinfo.executeQuery(mmsinfostr);
+						mmsrs.first();
+						
+						mms1 = mmsrs.getString("origin1_path");
+						mms2 = mmsrs.getString("origin2_path");
+						mms3 = mmsrs.getString("origin3_path");
+						
+						msgtype = "MMS";
+					}
+					
 					String grsstr = "insert into cb_grs_msg(msg_gb"
 													  + ",msg_st"
 													  + ",msg_snd_phn"
@@ -267,6 +285,9 @@ public class Nano_it_summary implements Runnable {
 													  + ",subject"
 													  + ",text"
 													  + ",cb_msg_id"
+													  + ",file_path1"
+													  + ",file_path2"
+													  + ",file_path3"
 													  + ",remark4"
 													  + ",max_sn"
 													  + ",msg_req_dttm"
@@ -281,9 +302,12 @@ public class Nano_it_summary implements Runnable {
 													  + ",?"
 													  + ",?"
 													  + ",?"
+													  + ",?"
+													  + ",?"
+													  + ",?"
 													  + ",?)";
 					PreparedStatement grsins = conn.prepareStatement(grsstr);
-					grsins.setString(1, "LMS");
+					grsins.setString(1, msgtype);
 					grsins.setString(2, "0");
 					grsins.setString(3, rs.getString("SMS_SENDER") );
 					grsins.setString(4, rs.getString("PHN"));
@@ -294,10 +318,13 @@ public class Nano_it_summary implements Runnable {
 					}
 					grsins.setString(6, rs.getString("MSG_SMS").replaceAll("\\xC2\\xA0", " ") );
 					grsins.setString(7, mem_id);
-					grsins.setString(8, sent_key);
-					grsins.setString(9, rs.getString("max_sn"));
-					grsins.setTimestamp(10, new java.sql.Timestamp(System.currentTimeMillis())); 
-					grsins.setTimestamp(11, new java.sql.Timestamp(System.currentTimeMillis())); 
+					grsins.setString(8, mms1);
+					grsins.setString(9, mms2);
+					grsins.setString(10, mms3);
+					grsins.setString(11, sent_key);
+					grsins.setString(12, rs.getString("max_sn"));
+					grsins.setTimestamp(13, new java.sql.Timestamp(System.currentTimeMillis())); 
+					grsins.setTimestamp(14, new java.sql.Timestamp(System.currentTimeMillis())); 
 					grsins.executeUpdate();
 					grsins.close();
 					
@@ -318,10 +345,19 @@ public class Nano_it_summary implements Runnable {
 					
 										
 					kind = "P";
-					amount = price.member_price.price_grs;
-					payback = price.member_price.price_grs - price.parent_price.price_grs;
-					admin_amt = price.base_price.price_grs;
-					memo = "웹(A)";
+					
+					if(mms1.isEmpty() && mms2.isEmpty() && mms3.isEmpty()) {
+						amount = price.member_price.price_grs;
+						payback = price.member_price.price_grs - price.parent_price.price_grs;
+						admin_amt = price.base_price.price_grs;
+						memo = "웹(A)";
+					} else {
+						amount = price.member_price.price_grs_mms;
+						payback = price.member_price.price_grs_mms - price.parent_price.price_grs_mms;
+						admin_amt = price.base_price.price_grs_mms;
+						memo = "웹(A) MMS";
+					}
+					
 					if(amount == 0 || amount == 0.0f) {
 						amount = admin_amt;
 					}

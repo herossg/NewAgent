@@ -204,7 +204,7 @@ public class Create_LOG_Table implements Runnable {
 			}
 			rs.close();			
 
-			
+			 
 			rs = md.getTables(null, "dhn", "cb_nas_sms_msg_log_"+ monthStr, types);
 			
 			if(!rs.next()) {
@@ -250,6 +250,7 @@ public class Create_LOG_Table implements Runnable {
 			}
 			rs.close();			
 
+			log.info("Nas Log 생성 시작");
 			rs = md.getTables(null, "dhn", "cb_nas_mms_msg_log_"+ monthStr, types);
 			
 			if(!rs.next()) {
@@ -301,18 +302,20 @@ public class Create_LOG_Table implements Runnable {
 						"                                INDEX `cb_nas_mms_msg_log_" + monthStr + "_IDX2` (`REPORTDATE`)," + 
 						"                                INDEX `cb_nas_mms_msg_log_" + monthStr + "_IDX3` (`EXPIRETIME`)," + 
 						"                                INDEX `cb_nas_mms_msg_log_" + monthStr + "_IDX4` (`SENTDATE`)," + 
-						"                                INDEX `cb_nas_mms_msg_log_" + monthStr + "_IDX5` (`TERMINATEDDATE`)" + 
-						"                                INDEX `cb_nas_mms_msg_log_" + monthStr + "_IDX6` (`STATUS`,`MSGKEY`)" + 
+						"                                INDEX `cb_nas_mms_msg_log_" + monthStr + "_IDX5` (`TERMINATEDDATE`)," +  
+						"                                INDEX `cb_nas_mms_msg_log_" + monthStr + "_IDX6` (`STATUS`,`MSGKEY`)" +
 						"                                )" + 
 						"                                COLLATE='utf8_general_ci'" + 
 						"                                ENGINE=InnoDB";
+				
+				log.info("Nas Log Create = " + CreateSTR);
 				CRTTable.executeUpdate(CreateSTR);
 				CRTTable.close();
 			}
 			rs.close();			
 
 		}catch(Exception ex) {
-			log.info("Create Table 오류 - " + ex.toString());
+			log.info("Create Nas Table 오류 - " + ex.toString() );
 		}
 		
 		try {

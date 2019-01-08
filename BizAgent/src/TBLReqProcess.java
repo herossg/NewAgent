@@ -56,6 +56,7 @@ public class TBLReqProcess implements Runnable {
 					"              ,b.mem_phn_agent" + 
 					"              ,b.mem_sms_agent" + 
 					"              ,b.mem_2nd_send" + 
+					"              ,(select mst_mms_content from cb_wt_msg_sent wms where wms.mst_id = a.remark4) as mms_id" + 
 					"          from TBL_REQUEST_RESULT a inner join cb_member b on SPLIT(a.MSGID, '_', 1)=b.mem_id" + 
 					"         where REMARK3 = '" + div_str + "'" +
 					"           and ( a.reserve_dt < '" + rd.format(reserve_dt) + "'" + 
@@ -653,6 +654,21 @@ public class TBLReqProcess implements Runnable {
 										amtins.executeUpdate();
 										amtins.close();
 									}else if(msgtype.equals("LMS")) {
+										
+										String mms1="", mms2="", mms3="";
+										
+										if(rs.getString("mms_id").length()>5) {
+											String mmsinfostr = "select * from cb_mms_images cmi where cmi.mem_id = '" + mem_id + "' and mms_id = '" + rs.getString("mms_id") + "'";
+											Statement mmsinfo = conn.createStatement();
+											ResultSet mmsrs = mmsinfo.executeQuery(mmsinfostr);
+											mmsrs.first();
+											
+											mms1 = mmsrs.getString("origin1_path");
+											mms2 = mmsrs.getString("origin2_path");
+											mms3 = mmsrs.getString("origin3_path");
+											
+										}
+																				
 										String nasstr ="insert into cb_nas_mms_msg(SUBJECT"
 												                          + ", PHONE"
 												                          + ", CALLBACK"
@@ -660,6 +676,9 @@ public class TBLReqProcess implements Runnable {
 												                          + ", MSG"
 												                          + ", BILL_ID"
 												                          + ", TYPE"
+												                          + ", FILE_PATH1"
+												                          + ", FILE_PATH2"
+												                          + ", FILE_PATH3"
 												                          + ", ETC1"
 												                          + ", ETC2"
 												                          + ", ETC4"
@@ -674,6 +693,9 @@ public class TBLReqProcess implements Runnable {
 												                          + ", ?"
 												                          + ", ?"
 												                          + ", ?"
+												                          + ", ?"
+												                          + ", ?"
+												                          + ", ?"
 												                          + ", ?)";
 										PreparedStatement nasins = conn.prepareStatement(nasstr);
 										nasins.setString(1,  rs.getString("SMS_LMS_TIT").replaceAll("\\r\\n|\\r|\\n", ""));
@@ -682,10 +704,13 @@ public class TBLReqProcess implements Runnable {
 										nasins.setString(4, "0");
 										nasins.setString(5, msg_sms);
 										nasins.setString(6, rs.getString("SMS_SENDER"));
-										nasins.setString(7, "0");
-										nasins.setString(8, msg_id);
-										nasins.setString(9, sent_key);
-										nasins.setString(10, mem_id);
+										nasins.setString(7, mms1);
+										nasins.setString(8, mms2);
+										nasins.setString(9, mms3);
+										nasins.setString(10, "0");
+										nasins.setString(11, msg_id);
+										nasins.setString(12, sent_key);
+										nasins.setString(13, mem_id);
 										if(rs.getString("RESERVE_DT").equals("00000000000000")) {
 											nasins.setString(11, rd.format(reserve_dt));
 										}else {
@@ -707,10 +732,18 @@ public class TBLReqProcess implements Runnable {
 										msgud.close();
 															
 										kind = "P";
-										amount = price.member_price.price_nas;
-										payback = price.member_price.price_nas - price.parent_price.price_nas;
-										admin_amt = price.base_price.price_nas;
-										memo = "웹(B)";
+										
+										if(mms1.isEmpty() && mms2.isEmpty() && mms3.isEmpty()) {
+											amount = price.member_price.price_nas;
+											payback = price.member_price.price_nas - price.parent_price.price_nas;
+											admin_amt = price.base_price.price_nas;
+											memo = "웹(B)";
+										} else {
+											amount = price.member_price.price_nas_mms;
+											payback = price.member_price.price_nas_mms - price.parent_price.price_nas_mms;
+											admin_amt = price.base_price.price_nas_mms;
+											memo = "웹(B) MMS";
+										}
 										if(amount == 0 || amount == 0.0f) {
 											amount = admin_amt;
 										}

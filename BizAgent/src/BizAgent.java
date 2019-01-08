@@ -18,7 +18,7 @@ public class BizAgent implements Daemon, Runnable {
     private Thread thread = null;
     private Logger log = Logger.getLogger(getClass());
     Properties p = new Properties();
-    private final String DB_URL = "jdbc:mysql://210.114.225.53/dhn?characterEncoding=utf8";
+    private final String DB_URL = "jdbc:mysql://210.114.225.53/dhn?characterEncoding=utf8";  
     //private final String DB_URL = "jdbc:mysql://222.122.203.68/dhn?characterEncoding=utf8";
     private boolean isStop = false;
     

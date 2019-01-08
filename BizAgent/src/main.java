@@ -9,7 +9,7 @@ import org.apache.log4j.Logger;
 public class main {
     
 	public static void main(String[] args) {
-		 
+//		 
 //		BizAgent bizagent = new BizAgent();
 //        try {
 //            DaemonContext dc = new DaemonContext() {
@@ -25,7 +25,7 @@ public class main {
 //            };
 //
 //            bizagent.init(dc);
-//            bizagent.start();
+////            bizagent.start();
 //        } catch (Exception e) {
 //            System.out.println( e );
 //        }

@@ -76,6 +76,9 @@ public class Nano_GRS_Proc implements Runnable {
 								"      ,cm.mem_sms_agent" + 
 								"      ,cm.mem_2nd_send" + 
 								"      ,cm.mem_id" + 
+								"      ,cgm.FILE_PATH1 as mms1" + 
+								"      ,cgm.FILE_PATH2 as mms2" + 
+								"      ,cgm.FILE_PATH3 as mms3" + 
 								"  from cb_grs_msg_bk cgm" + 
 								" inner join cb_grs_broadcast_"+ monthStr +" cgb" + 
 								"    on cgm.msg_id = cgb.msg_id" + 
@@ -166,10 +169,17 @@ public class Nano_GRS_Proc implements Runnable {
 					msgud.close();
 										
 					kind = "3";
-					amount = price.member_price.price_grs;
-					payback = price.member_price.price_grs - price.parent_price.price_grs;
-					admin_amt = price.base_price.price_grs;
-					memo = "웹(A) 발송실패 환불";
+					if(rs.getString("mms1").isEmpty() && rs.getString("mms2").isEmpty() && rs.getString("mms3").isEmpty()) {
+						amount = price.member_price.price_grs;
+						payback = price.member_price.price_grs - price.parent_price.price_grs;
+						admin_amt = price.base_price.price_grs;
+						memo = "웹(A) 발송실패 환불";
+					} else {
+						amount = price.member_price.price_grs_mms;
+						payback = price.member_price.price_grs_mms - price.parent_price.price_grs_mms;
+						admin_amt = price.base_price.price_grs_mms;
+						memo = "웹(A) MMS 발송실패 환불";
+					}
 					if(amount == 0 || amount == 0.0f) {
 						amount = admin_amt;
 					}

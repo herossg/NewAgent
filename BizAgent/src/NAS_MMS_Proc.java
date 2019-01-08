@@ -62,7 +62,10 @@ public class NAS_MMS_Proc implements Runnable {
 								"         cm.mem_sms_agent," + 
 								"         cm.mem_2nd_send," + 
 								"         cm.mem_id," + 
-								"         cml.STATUS as status" + 
+								"         cml.STATUS as status," + 
+								"         cml.FILE_PATH1 as mms1," + 
+								"         cml.FILE_PATH2 as mms2," + 
+								"         cml.FILE_PATH3 as mms3," + 
 								"    FROM cb_nas_mms_msg_log_" + monthStr + " cml," + 
 								"         cb_member cm" + 
 								"   WHERE cml.etc4 = cm.mem_id" + 
@@ -141,10 +144,18 @@ public class NAS_MMS_Proc implements Runnable {
 					msgud.close();
 										
 					kind = "3";
-					amount = price.member_price.price_nas;
-					payback = price.member_price.price_nas - price.parent_price.price_nas;
-					admin_amt = price.base_price.price_nas;
-					memo = "웹(B) 발송실패 환불";
+					if(rs.getString("mms1").isEmpty() && rs.getString("mms2").isEmpty() && rs.getString("mms3").isEmpty()) {
+						amount = price.member_price.price_nas;
+						payback = price.member_price.price_nas - price.parent_price.price_nas;
+						admin_amt = price.base_price.price_nas;
+						memo = "웹(B) 발송실패 환불";
+					} else { 
+						amount = price.member_price.price_nas_mms;
+						payback = price.member_price.price_nas_mms - price.parent_price.price_nas_mms;
+						admin_amt = price.base_price.price_nas_mms;
+						memo = "웹(B) MMS 발송실패 환불";
+					}
+					
 					if(amount == 0 || amount == 0.0f) {
 						amount = admin_amt;
 					}
