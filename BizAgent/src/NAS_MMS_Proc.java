@@ -65,7 +65,7 @@ public class NAS_MMS_Proc implements Runnable {
 								"         cml.STATUS as status," + 
 								"         cml.FILE_PATH1 as mms1," + 
 								"         cml.FILE_PATH2 as mms2," + 
-								"         cml.FILE_PATH3 as mms3," + 
+								"         cml.FILE_PATH3 as mms3" + 
 								"    FROM cb_nas_mms_msg_log_" + monthStr + " cml," + 
 								"         cb_member cm" + 
 								"   WHERE cml.etc4 = cm.mem_id" + 

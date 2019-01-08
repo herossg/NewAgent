@@ -78,6 +78,8 @@ public class Price_info  {
 					"				,i.mad_price_sms    as c_mad_price_sms   " + 
 					"				,i.mad_price_lms    as c_mad_price_lms   " + 
 					"				,i.mad_price_mms    as c_mad_price_mms   " + 
+					"				,i.mad_price_grs_mms    as c_mad_price_grs_mms   " + 
+					"				,i.mad_price_nas_mms    as c_mad_price_nas_mms   " + 
 					"				,a.mad_price_at     as p_mad_price_at    " + 
 					"				,a.mad_price_ft     as p_mad_price_ft    " + 
 					"				,a.mad_price_ft_img as p_mad_price_ft_img" + 

@@ -346,7 +346,7 @@ public class Nano_it_summary implements Runnable {
 										
 					kind = "P";
 					
-					if(mms1.isEmpty() && mms2.isEmpty() && mms3.isEmpty()) {
+					if( (mms1.isEmpty() || mms1 == null) && (mms2.isEmpty() || mms2 == null) && (mms3.isEmpty() || mms3 == null)) {
 						amount = price.member_price.price_grs;
 						payback = price.member_price.price_grs - price.parent_price.price_grs;
 						admin_amt = price.base_price.price_grs;

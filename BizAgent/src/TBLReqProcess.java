@@ -656,6 +656,7 @@ public class TBLReqProcess implements Runnable {
 									}else if(msgtype.equals("LMS")) {
 										
 										String mms1="", mms2="", mms3="";
+										int file_cnt = 0;
 										
 										if(rs.getString("mms_id").length()>5) {
 											String mmsinfostr = "select * from cb_mms_images cmi where cmi.mem_id = '" + mem_id + "' and mms_id = '" + rs.getString("mms_id") + "'";
@@ -666,7 +667,15 @@ public class TBLReqProcess implements Runnable {
 											mms1 = mmsrs.getString("origin1_path");
 											mms2 = mmsrs.getString("origin2_path");
 											mms3 = mmsrs.getString("origin3_path");
-											
+											/*
+											if(!mms1.isEmpty() && mms1 != null)
+												file_cnt++;
+											if(!mms2.isEmpty() && mms2 != null)
+												file_cnt++;
+											if(!mms3.isEmpty() && mms3 != null)
+												file_cnt++;
+											*/
+											file_cnt = 1;
 										}
 																				
 										String nasstr ="insert into cb_nas_mms_msg(SUBJECT"
@@ -682,11 +691,13 @@ public class TBLReqProcess implements Runnable {
 												                          + ", ETC1"
 												                          + ", ETC2"
 												                          + ", ETC4"
-												                          + ", REQDATE) "
+												                          + ", REQDATE "
+												                          + ", FILE_CNT) "
 												                    + "values( ?"
 												                          + ", ?"
 												                          + ", ?"
 												                          + ", ? "
+												                          + ", ?"
 												                          + ", ?"
 												                          + ", ?"
 												                          + ", ?"
@@ -704,18 +715,19 @@ public class TBLReqProcess implements Runnable {
 										nasins.setString(4, "0");
 										nasins.setString(5, msg_sms);
 										nasins.setString(6, rs.getString("SMS_SENDER"));
-										nasins.setString(7, mms1);
-										nasins.setString(8, mms2);
-										nasins.setString(9, mms3);
-										nasins.setString(10, "0");
+										nasins.setString(7, "0");
+										nasins.setString(8, mms1);
+										nasins.setString(9, mms2);
+										nasins.setString(10, mms3);
 										nasins.setString(11, msg_id);
 										nasins.setString(12, sent_key);
 										nasins.setString(13, mem_id);
 										if(rs.getString("RESERVE_DT").equals("00000000000000")) {
-											nasins.setString(11, rd.format(reserve_dt));
+											nasins.setString(14, rd.format(reserve_dt));
 										}else {
-											nasins.setString(11, rs.getString("RESERVE_DT"));
+											nasins.setString(14, rs.getString("RESERVE_DT"));
 										}
+										nasins.setInt( 15, file_cnt  );
 										nasins.executeUpdate();
 										nasins.close();
 										
