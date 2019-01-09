@@ -2,6 +2,7 @@ import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import com.mysql.jdbc.Driver;
 
@@ -668,11 +669,11 @@ public class TBLReqProcess implements Runnable {
 											mms2 = mmsrs.getString("origin2_path");
 											mms3 = mmsrs.getString("origin3_path");
 											
-											if(mms1 != null)
+											if(!StringUtils.isBlank(mms1))
 												file_cnt++;
-											if(mms2 != null)
+											if(!StringUtils.isBlank(mms2))
 												file_cnt++;
-											if(mms3 != null)
+											if(!StringUtils.isBlank(mms3))
 												file_cnt++;
 											
 											//file_cnt = 1;
@@ -745,7 +746,7 @@ public class TBLReqProcess implements Runnable {
 															
 										kind = "P";
 										
-										if(mms1.isEmpty() && mms2.isEmpty() && mms3.isEmpty()) {
+										if(StringUtils.isBlank(mms1) && StringUtils.isBlank(mms2) && StringUtils.isBlank(mms3)) {
 											amount = price.member_price.price_nas;
 											payback = price.member_price.price_nas - price.parent_price.price_nas;
 											admin_amt = price.base_price.price_nas;

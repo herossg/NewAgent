@@ -5,6 +5,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
 import java.sql.*;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import com.mysql.jdbc.Driver;
 
@@ -346,7 +348,7 @@ public class Nano_it_summary implements Runnable {
 										
 					kind = "P";
 					
-					if( (mms1.isEmpty() || mms1 == null) && (mms2.isEmpty() || mms2 == null) && (mms3.isEmpty() || mms3 == null)) {
+					if( StringUtils.isBlank( mms1 ) && StringUtils.isBlank(mms2) && StringUtils.isBlank(mms3)) {
 						amount = price.member_price.price_grs;
 						payback = price.member_price.price_grs - price.parent_price.price_grs;
 						admin_amt = price.base_price.price_grs;

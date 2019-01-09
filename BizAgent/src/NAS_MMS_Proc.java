@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import org.apache.log4j.Logger;
 import com.mysql.jdbc.Driver;
 import java.util.Date;
+import org.apache.commons.lang3.StringUtils;
 
 public class NAS_MMS_Proc implements Runnable {
 	private final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
@@ -144,7 +145,7 @@ public class NAS_MMS_Proc implements Runnable {
 					msgud.close();
 										
 					kind = "3";
-					if(rs.getString("mms1").isEmpty() && rs.getString("mms2").isEmpty() && rs.getString("mms3").isEmpty()) {
+					if(StringUtils.isBlank( rs.getString("mms1") ) ) {
 						amount = price.member_price.price_nas;
 						payback = price.member_price.price_nas - price.parent_price.price_nas;
 						admin_amt = price.base_price.price_nas;

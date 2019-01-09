@@ -2,6 +2,7 @@ import java.sql.*;
 import java.text.SimpleDateFormat;
 
 import org.apache.log4j.Logger;
+import org.apache.commons.lang3.StringUtils;
 import com.mysql.jdbc.Driver;
 import java.util.Date;
 
@@ -169,7 +170,7 @@ public class Nano_GRS_Proc implements Runnable {
 					msgud.close();
 										
 					kind = "3";
-					if(rs.getString("mms1").isEmpty() && rs.getString("mms2").isEmpty() && rs.getString("mms3").isEmpty()) {
+					if( StringUtils.isBlank( rs.getString("mms1") ) && StringUtils.isBlank(rs.getString("mms2") ) && StringUtils.isBlank( rs.getString("mms3") )) {
 						amount = price.member_price.price_grs;
 						payback = price.member_price.price_grs - price.parent_price.price_grs;
 						admin_amt = price.base_price.price_grs;
