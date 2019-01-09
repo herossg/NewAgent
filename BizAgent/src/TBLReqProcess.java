@@ -746,7 +746,7 @@ public class TBLReqProcess implements Runnable {
 															
 										kind = "P";
 										
-										if(StringUtils.isBlank(mms1) && StringUtils.isBlank(mms2) && StringUtils.isBlank(mms3)) {
+										if( ( mms1 == null || mms1.isEmpty())  && ( mms2 == null || mms2.isEmpty()) && ( mms3 == null || mms3.isEmpty())) {
 											amount = price.member_price.price_nas;
 											payback = price.member_price.price_nas - price.parent_price.price_nas;
 											admin_amt = price.base_price.price_nas;

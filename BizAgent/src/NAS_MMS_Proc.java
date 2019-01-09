@@ -145,7 +145,8 @@ public class NAS_MMS_Proc implements Runnable {
 					msgud.close();
 										
 					kind = "3";
-					if(StringUtils.isBlank( rs.getString("mms1") ) ) {
+					String mms1 = rs.getString("mms1");
+					if( mms1 == null || mms1.isEmpty() ) {
 						amount = price.member_price.price_nas;
 						payback = price.member_price.price_nas - price.parent_price.price_nas;
 						admin_amt = price.base_price.price_nas;

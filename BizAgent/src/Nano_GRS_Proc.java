@@ -170,7 +170,11 @@ public class Nano_GRS_Proc implements Runnable {
 					msgud.close();
 										
 					kind = "3";
-					if( StringUtils.isBlank( rs.getString("mms1") ) && StringUtils.isBlank(rs.getString("mms2") ) && StringUtils.isBlank( rs.getString("mms3") )) {
+					String mms1 = rs.getString("mms1");
+					String mms2 = rs.getString("mms2");
+					String mms3 = rs.getString("mms3");
+					
+					if( ( mms1 == null || mms1.isEmpty())  && ( mms2 == null || mms2.isEmpty()) && ( mms3 == null || mms3.isEmpty())) {
 						amount = price.member_price.price_grs;
 						payback = price.member_price.price_grs - price.parent_price.price_grs;
 						admin_amt = price.base_price.price_grs;
@@ -181,6 +185,7 @@ public class Nano_GRS_Proc implements Runnable {
 						admin_amt = price.base_price.price_grs_mms;
 						memo = "웹(A) MMS 발송실패 환불";
 					}
+
 					if(amount == 0 || amount == 0.0f) {
 						amount = admin_amt;
 					}
