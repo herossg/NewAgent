@@ -337,7 +337,7 @@ public class TBLReqProcess implements Runnable {
 	
 					} else {
 					// 실패 이면서 2차 발신 대상이면 2차 발신 Table 에 Insert	
-						if(rs.getString("MESSAGE_TYPE") != null && rs.getString("MESSAGE_TYPE").equals("ft")) {
+						/*if(rs.getString("MESSAGE_TYPE") != null && rs.getString("MESSAGE_TYPE").equals("ft")) {
 		 					// 친구톡 발송 실패시 친구톡 성공 목록에서 삭제
 							String fldelstr = "delete from cb_friend_list where mem_id = ? and phn = ? ";
 							PreparedStatement fldel = conn.prepareStatement(fldelstr);
@@ -346,7 +346,7 @@ public class TBLReqProcess implements Runnable {
 							fldel.executeUpdate();
 							fldel.close();
 						}
-	
+						*/
 						String wtudstr;
 						String msgudstr;
 						PreparedStatement wtud;
