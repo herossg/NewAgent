@@ -15,9 +15,10 @@ public class BizDBCPInit {
 	private static final String USER_NAME = "root";
 	private static final String PASSWORD = "sjk4556!!22";
 	private static final String DB_URL = "jdbc:mysql://210.114.225.53/dhn?characterEncoding=utf8";  
-	
+	//private static final String DB_URL = "jdbc:mysql://222.122.203.68/dhn?characterEncoding=utf8";
+	 
 	private BizDBCPInit() {
-	
+		initConnectionPool();
 	}
 	
 	private static class Singleton {

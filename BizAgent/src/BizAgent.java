@@ -43,7 +43,7 @@ public class BizAgent implements Daemon, Runnable {
             this.thread = new Thread(this);
             log.info("init OK.");
             //System.out.println(); 
-            
+            bizDBCP = BizDBCPInit.getInstance();
         } catch(IOException e) {
         	log.info("../conf/log4j.properties 파일 없어");
         }
