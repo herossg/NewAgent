@@ -22,7 +22,8 @@ public class Price_info  {
 
 		try {
 			//Class.forName(JDBC_DRIVER);
-			conn =  BizDBCPInit.getConnection(); //DriverManager.getConnection(DB_URL, USER_NAME, PASSWORD);
+			//conn =  DriverManager.getConnection(DB_URL, USER_NAME, PASSWORD);
+			conn = BizDBCPInit.getConnection();
 			bstate = conn.createStatement();
 			
 			String sql;

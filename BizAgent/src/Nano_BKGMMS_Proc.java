@@ -48,7 +48,8 @@ public class Nano_BKGMMS_Proc implements Runnable {
 		int totalcnt = 0;
 		try {
 			//Class.forName(JDBC_DRIVER);
-			conn =  BizDBCPInit.getConnection(); //conn = DriverManager.getConnection(DB_URL, USER_NAME, PASSWORD);
+			//conn =  DriverManager.getConnection(DB_URL, USER_NAME, PASSWORD);
+			conn = BizDBCPInit.getConnection();
 
 			bkgmms_msg = conn.createStatement();
 			String bkgmms_str = "SELECT   cml.ETC1 AS MSGID," + 

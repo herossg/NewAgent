@@ -16,11 +16,12 @@ public class BizAgent implements Daemon, Runnable {
     private String status = "";
     private int no = 0;
     private Thread thread = null;
-    private Logger log = Logger.getLogger(getClass());
+    public Logger log = Logger.getLogger(getClass());
     Properties p = new Properties();
     private final String DB_URL = "jdbc:mysql://210.114.225.53/dhn?characterEncoding=utf8";  
     //private final String DB_URL = "jdbc:mysql://222.122.203.68/dhn?characterEncoding=utf8";
     private boolean isStop = false;
+    BizDBCPInit bizDBCP;
     
     @Override
     public void init(DaemonContext context) throws DaemonInitException, Exception {
@@ -41,7 +42,8 @@ public class BizAgent implements Daemon, Runnable {
             status = "INITED";
             this.thread = new Thread(this);
             log.info("init OK.");
-            //System.out.println();
+            //System.out.println(); 
+            
         } catch(IOException e) {
         	log.info("../conf/log4j.properties 파일 없어");
         }

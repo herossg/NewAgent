@@ -49,7 +49,8 @@ public class Nano_FUNSMS_Proc implements Runnable {
 		int totalcnt = 0;
 		try {
 			//Class.forName(JDBC_DRIVER);
-			conn =  BizDBCPInit.getConnection(); //conn = DriverManager.getConnection(DB_URL, USER_NAME, PASSWORD);
+			//conn =  DriverManager.getConnection(DB_URL, USER_NAME, PASSWORD);
+			conn = BizDBCPInit.getConnection();
 
 			funsms_msg = conn.createStatement();
 			String funsms_str = "SELECT   cml.TR_ETC1 AS MSGID," + 

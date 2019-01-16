@@ -2,11 +2,10 @@ import java.sql.*;
 import java.text.SimpleDateFormat;
 
 import org.apache.log4j.Logger;
-import org.apache.commons.lang3.StringUtils;
 import com.mysql.jdbc.Driver;
 import java.util.Date;
 
-public class Nano_GRS_Proc implements Runnable {
+public class Nano_PREGRS_Proc implements Runnable {
 	private final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
 
 	private String DB_URL;
@@ -17,31 +16,27 @@ public class Nano_GRS_Proc implements Runnable {
 	public boolean isPremonth = false;
 	public static boolean isPreRunning = false;
 	public Logger log;
-	public String monthStr;
-	public static boolean[] isRunning = {false,false,false,false,false,false,false,false,false,false,};
-	public int div_str;
+	public String monthStr; 
 	
-	public Nano_GRS_Proc(String _db_url, Logger _log, int _div) {
+	public Nano_PREGRS_Proc(String _db_url, Logger _log ) {
 		DB_URL = _db_url;
-		log = _log;
-		div_str = _div;
+		log = _log; 
 	}
 	
 	public void run() {
-		if(!isRunning[div_str]  ) {
+		if( !isPreRunning) {
 			if(monthStr == null || monthStr.isEmpty()) {
 				Date month = new Date();
 				SimpleDateFormat transFormat = new SimpleDateFormat("yyyyMM");
 				monthStr = transFormat.format(month);
+			} else {
+				Proc();
 			}
-			
-			Proc();
 		} 
 	}
 	
 	private synchronized  void Proc() {
-	 
-		isRunning[div_str] = true; 
+		isPreRunning = true;
 		
 		Connection conn = null;
 		Connection nconn = null;
@@ -78,9 +73,6 @@ public class Nano_GRS_Proc implements Runnable {
 								"      ,cm.mem_sms_agent" + 
 								"      ,cm.mem_2nd_send" + 
 								"      ,cm.mem_id" + 
-								"      ,cgm.FILE_PATH1 as mms1" + 
-								"      ,cgm.FILE_PATH2 as mms2" + 
-								"      ,cgm.FILE_PATH3 as mms3" + 
 								"  from cb_grs_msg_bk cgm" + 
 								" inner join cb_grs_broadcast_"+ monthStr +" cgb" + 
 								"    on cgm.msg_id = cgb.msg_id" + 
@@ -89,7 +81,6 @@ public class Nano_GRS_Proc implements Runnable {
 								"    on cm.mem_id = cgm.cb_msg_id" + 
 								" where cgm.msg_st in ('1', '0')" + 
 								"   and cgb.bc_snd_st in( '3', '4') " + 
-								"   and (cgb.msg_id % 10) = " + div_str +
 								" order by cgm.msg_id limit 0" + 
 								"         ,1000";
 			
@@ -101,8 +92,8 @@ public class Nano_GRS_Proc implements Runnable {
 			
 			while(rs.next()) {
 				totalcnt++;
-				//if(totalcnt <= 1)
-				//	log.info("Nano GRS 처리 실행.( " + div_str + " )"); 
+				if(totalcnt <= 1)
+					log.info("Nano GRS 처리 실행"); 
 
 				String mem_id = rs.getString("mem_id");
 				String sent_key = rs.getString("REMARK4");
@@ -171,22 +162,10 @@ public class Nano_GRS_Proc implements Runnable {
 					msgud.close();
 										
 					kind = "3";
-					String mms1 = rs.getString("mms1");
-					String mms2 = rs.getString("mms2");
-					String mms3 = rs.getString("mms3");
-					
-					if( ( mms1 == null || mms1.isEmpty())  && ( mms2 == null || mms2.isEmpty()) && ( mms3 == null || mms3.isEmpty())) {
-						amount = price.member_price.price_grs;
-						payback = price.member_price.price_grs - price.parent_price.price_grs;
-						admin_amt = price.base_price.price_grs;
-						memo = "웹(A) 발송실패 환불";
-					} else {
-						amount = price.member_price.price_grs_mms;
-						payback = price.member_price.price_grs_mms - price.parent_price.price_grs_mms;
-						admin_amt = price.base_price.price_grs_mms;
-						memo = "웹(A) MMS 발송실패 환불";
-					}
-
+					amount = price.member_price.price_grs;
+					payback = price.member_price.price_grs - price.parent_price.price_grs;
+					admin_amt = price.base_price.price_grs;
+					memo = "웹(A) 발송실패 환불";
 					if(amount == 0 || amount == 0.0f) {
 						amount = admin_amt;
 					}
@@ -214,12 +193,10 @@ public class Nano_GRS_Proc implements Runnable {
 				udPms.close();
 			}
 
-			if(div_str == 0) {
-				String delstr = "DELETE FROM cb_grs_msg_bk WHERE REPLACE(MSG_RCV_PHN, '-1', '') not REGEXP '[0-9]'";
-				PreparedStatement delquery = conn.prepareStatement(delstr);
-				delquery.executeUpdate();
-				delquery.close();
-			}
+			String delstr = "DELETE FROM cb_grs_msg_bk WHERE REPLACE(MSG_RCV_PHN, '-1', '') not REGEXP '[0-9]'";
+			PreparedStatement delquery = conn.prepareStatement(delstr);
+			delquery.executeUpdate();
+			delquery.close();
 			
 			rs.close();
 			
@@ -228,7 +205,7 @@ public class Nano_GRS_Proc implements Runnable {
 		}
 		
 		if(totalcnt > 0) {
-			log.info("Nano GRS " + totalcnt + " 건 처리 함.( " + div_str + " )");
+			log.info("Nano GRS " + totalcnt + " 건 처리 함.");
 		}
 		
 		try {
@@ -243,8 +220,7 @@ public class Nano_GRS_Proc implements Runnable {
 			}
 		} catch(Exception e) {}
 		
-		isRunning[div_str] = false;
-		
+		isPreRunning = false; 
 		//log.info("Nano it summary 끝");
 	}
 	

@@ -43,8 +43,9 @@ public class TBLReqProcess implements Runnable {
 		boolean isPass = false; // 전체 Loop 를 그냥 지나 가기 위한 변수 Loop 가 시작시에는 무조건 False
 		try {
 			//Class.forName(JDBC_DRIVER);
-			conn =  BizDBCPInit.getConnection(); // DriverManager.getConnection(DB_URL, USER_NAME, PASSWORD);
-
+			//conn =  DriverManager.getConnection(DB_URL, USER_NAME, PASSWORD);
+			conn = BizDBCPInit.getConnection();
+			
 			tbl_result = conn.createStatement();
 						
 	        Date reserve_dt = new Date();

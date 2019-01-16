@@ -8,12 +8,13 @@ import org.apache.commons.dbcp2.PoolableConnectionFactory;
 import org.apache.commons.dbcp2.PoolingDriver;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+import com.mysql.jdbc.Driver;
 
 public class BizDBCPInit {
-	private final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-	private final String USER_NAME = "root";
-	private final String PASSWORD = "sjk4556!!22";
-	private final String DB_URL = "jdbc:mysql://210.114.225.53/dhn?characterEncoding=utf8";  
+	private static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
+	private static final String USER_NAME = "root";
+	private static final String PASSWORD = "sjk4556!!22";
+	private static final String DB_URL = "jdbc:mysql://210.114.225.53/dhn?characterEncoding=utf8";  
 	
 	private BizDBCPInit() {
 	
@@ -28,10 +29,11 @@ public class BizDBCPInit {
 	}
 	
 	public void initConnectionPool() {
-		try {
-			Class.forName(JDBC_DRIVER);
 		
-			ConnectionFactory connFactory = new DriverManagerConnectionFactory(DB_URL, USER_NAME, PASSWORD);
+		try {
+			Class.forName(BizDBCPInit.JDBC_DRIVER);
+		
+			ConnectionFactory connFactory = new DriverManagerConnectionFactory(BizDBCPInit.DB_URL, BizDBCPInit.USER_NAME, BizDBCPInit.PASSWORD);
 
 			//close 할경우 종료하지 않고 커넥션 풀에 반환
 			PoolableConnectionFactory poolableConnFactory = new PoolableConnectionFactory(connFactory, null);
