@@ -20,9 +20,10 @@ public class Nano_GRS_Proc implements Runnable {
 	public String monthStr;
 	public static boolean[] isRunning = {false,false,false,false,false,false,false,false,false,false,};
 	public int div_str;
-	
-	public Nano_GRS_Proc(String _db_url, Logger _log, int _div) {
-		DB_URL = _db_url;
+	private Connection conn = null;
+
+	public Nano_GRS_Proc(Connection _conn, Logger _log, int _div) {
+		conn = _conn;
 		log = _log;
 		div_str = _div;
 	}
@@ -43,13 +44,13 @@ public class Nano_GRS_Proc implements Runnable {
 	 
 		isRunning[div_str] = true; 
 		
-		Connection conn = null;
+		//Connection conn = null;
 		Connection nconn = null;
 		Statement grs_msg = null;
 		int totalcnt = 0;
 		try {
-			Class.forName(JDBC_DRIVER);
-			conn = DriverManager.getConnection(DB_URL, USER_NAME, PASSWORD);
+			//Class.forName(JDBC_DRIVER);
+			//conn = DriverManager.getConnection(DB_URL, USER_NAME, PASSWORD);
 
 			grs_msg = conn.createStatement();
 			String grs_str    = "select cgm.cb_msg_id as msgid" + 
@@ -134,7 +135,7 @@ public class Nano_GRS_Proc implements Runnable {
 				float admin_amt = 0;
 				
 				if(pre_mem_id != mem_id) {
-					price = new Price_info(DB_URL, Integer.valueOf(mem_id));
+					price = new Price_info(conn, Integer.valueOf(mem_id));
 					pre_mem_id = mem_id;
 				}
 				// 성공 혹은 5일이 지나 기간만료 오류는 성공 처리 함.
@@ -235,13 +236,13 @@ public class Nano_GRS_Proc implements Runnable {
 				grs_msg.close();
 			}
 		} catch(Exception e) {}
-
-		try {
-			if(conn!=null) {
-				conn.close();
-			}
-		} catch(Exception e) {}
-		
+//
+//		try {
+//			if(conn!=null) {
+//				conn.close();
+//			}
+//		} catch(Exception e) {}
+//		
 		isRunning[div_str] = false;
 		
 		//log.info("Nano it summary 끝");

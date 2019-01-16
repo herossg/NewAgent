@@ -19,9 +19,10 @@ public class Nano_it_summary implements Runnable {
 	
 	public static boolean isRunning = false;
 	public Logger log;
-	
-	public Nano_it_summary(String _db_url, Logger _log) {
-		DB_URL = _db_url;
+	private Connection conn = null;
+
+	public Nano_it_summary(Connection _conn, Logger _log) {
+		conn = _conn;
 		log = _log;
 	}
 	
@@ -35,13 +36,13 @@ public class Nano_it_summary implements Runnable {
 		Nano_it_summary.isRunning = true;	
 		//log.info("Nano it summary 실행");  수정 테스트...
 		
-		Connection conn = null;
+		//Connection conn = null;
 		Connection nconn = null;
 		Statement nano_msg = null;
 
 		try {
-			Class.forName(JDBC_DRIVER);
-			conn = DriverManager.getConnection(DB_URL, USER_NAME, PASSWORD);
+			//Class.forName(JDBC_DRIVER);
+			//conn = DriverManager.getConnection(DB_URL, USER_NAME, PASSWORD);
 
 			nano_msg = conn.createStatement();
 			String nanomsg_str = "select cnm.remark4" + 
@@ -109,7 +110,7 @@ public class Nano_it_summary implements Runnable {
 				float admin_amt = 0;
 				
 				if(pre_mem_id != mem_id) {
-					price = new Price_info(DB_URL, Integer.valueOf(mem_id));
+					price = new Price_info(conn, Integer.valueOf(mem_id));
 					pre_mem_id = mem_id;
 				}
 				
@@ -393,12 +394,12 @@ public class Nano_it_summary implements Runnable {
 			}
 		} catch(Exception e) {}
 
-		try {
-			if(conn!=null) {
-				conn.close();
-			}
-		} catch(Exception e) {}
-		
+//		try {
+//			if(conn!=null) {
+//				conn.close();
+//			}
+//		} catch(Exception e) {}
+//		
 		Nano_it_summary.isRunning = false;
 		//log.info("Nano it summary 끝");
 	}

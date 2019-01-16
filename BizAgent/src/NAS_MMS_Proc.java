@@ -18,9 +18,10 @@ public class NAS_MMS_Proc implements Runnable {
 	public static boolean isPreRunning = false;
 	public Logger log;
 	public String monthStr;
-	
-	public NAS_MMS_Proc(String _db_url, Logger _log) {
-		DB_URL = _db_url;
+	private Connection conn = null;
+
+	public NAS_MMS_Proc(Connection _conn, Logger _log) {
+		conn = _conn;
 		log = _log;
 	}
 	
@@ -45,12 +46,12 @@ public class NAS_MMS_Proc implements Runnable {
 
 		//log.info("Nano it summary 실행");  수정 테스트...
 		
-		Connection conn = null;
+		//Connection conn = null;
 		Statement bkgmms_msg = null;
 		int totalcnt = 0;
 		try {
-			Class.forName(JDBC_DRIVER);
-			conn = DriverManager.getConnection(DB_URL, USER_NAME, PASSWORD);
+			//Class.forName(JDBC_DRIVER);
+			//conn = DriverManager.getConnection(DB_URL, USER_NAME, PASSWORD);
 
 			bkgmms_msg = conn.createStatement();
 			String bkgmms_str = "SELECT   cml.ETC1 AS MSGID," + 
@@ -111,7 +112,7 @@ public class NAS_MMS_Proc implements Runnable {
 				float admin_amt = 0;
 				
 				if(pre_mem_id != mem_id) {
-					price = new Price_info(DB_URL, Integer.valueOf(mem_id));
+					price = new Price_info(conn, Integer.valueOf(mem_id));
 					pre_mem_id = mem_id;
 				}
 				//성공 혹은 기간만료 오류는 성공 처리 함.
@@ -200,11 +201,11 @@ public class NAS_MMS_Proc implements Runnable {
 			}
 		} catch(Exception e) {}
 
-		try {
-			if(conn!=null) {
-				conn.close();
-			}
-		} catch(Exception e) {}
+//		try {
+//			if(conn!=null) {
+//				conn.close();
+//			}
+//		} catch(Exception e) {}
 		
 		if(isPremonth) {
 			isPreRunning = false;
