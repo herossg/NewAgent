@@ -21,8 +21,8 @@ public class Price_info  {
 		DB_URL = db_url;
 
 		try {
-			Class.forName(JDBC_DRIVER);
-			conn = DriverManager.getConnection(DB_URL, USER_NAME, PASSWORD);
+			//Class.forName(JDBC_DRIVER);
+			conn =  BizDBCPInit.getConnection(); //DriverManager.getConnection(DB_URL, USER_NAME, PASSWORD);
 			bstate = conn.createStatement();
 			
 			String sql;

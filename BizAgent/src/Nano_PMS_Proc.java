@@ -49,8 +49,8 @@ public class Nano_PMS_Proc implements Runnable {
 		Statement pms_msg = null;
 		int totalcnt = 0;
 		try {
-			Class.forName(JDBC_DRIVER);
-			conn = DriverManager.getConnection(DB_URL, USER_NAME, PASSWORD);
+			//Class.forName(JDBC_DRIVER);
+			conn =  BizDBCPInit.getConnection(); //conn = DriverManager.getConnection(DB_URL, USER_NAME, PASSWORD);
 
 			pms_msg = conn.createStatement();
 			String pms_str    = "select cpm.cb_msg_id as msgid" + 

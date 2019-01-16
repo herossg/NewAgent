@@ -45,8 +45,8 @@ public class Create_LOG_Table implements Runnable {
 		ResultSet rs = null;
 		
 		try {
-			Class.forName(JDBC_DRIVER);
-			conn = DriverManager.getConnection(DB_URL, USER_NAME, PASSWORD);
+			//Class.forName(JDBC_DRIVER);
+			conn =  BizDBCPInit.getConnection(); //conn = DriverManager.getConnection(DB_URL, USER_NAME, PASSWORD);
 
 			DatabaseMetaData md = conn.getMetaData();
 			

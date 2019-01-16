@@ -49,8 +49,8 @@ public class NAS_MMS_Proc implements Runnable {
 		Statement bkgmms_msg = null;
 		int totalcnt = 0;
 		try {
-			Class.forName(JDBC_DRIVER);
-			conn = DriverManager.getConnection(DB_URL, USER_NAME, PASSWORD);
+			//Class.forName(JDBC_DRIVER);
+			conn =  BizDBCPInit.getConnection(); //DriverManager.getConnection(DB_URL, USER_NAME, PASSWORD);
 
 			bkgmms_msg = conn.createStatement();
 			String bkgmms_str = "SELECT   cml.ETC1 AS MSGID," + 
