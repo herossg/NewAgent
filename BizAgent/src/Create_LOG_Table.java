@@ -15,10 +15,10 @@ public class Create_LOG_Table implements Runnable {
 	public static boolean isRunning = false;
 	public Logger log;
 	public String monthStr;
-	private Connection conn = null;
+	//private Connection conn = null;
 	
-	public Create_LOG_Table(Connection _conn, Logger _log) {
-		conn = _conn;
+	public Create_LOG_Table(String _db_url, Logger _log) {
+		DB_URL = _db_url;
 		log = _log;
 	}
 	
@@ -38,15 +38,15 @@ public class Create_LOG_Table implements Runnable {
 		isRunning = true;	
 		//log.info("Nano it summary 실행");  수정 테스트...
 		
-		//Connection conn = null;
+		Connection conn = null;
 		Statement ShowTable = null;
 		Statement CRTTable = null;
 		String CreateSTR = "";
 		ResultSet rs = null;
 		
 		try {
-			//Class.forName(JDBC_DRIVER);
-			//conn = DriverManager.getConnection(DB_URL, USER_NAME, PASSWORD);
+			Class.forName(JDBC_DRIVER);
+			conn = DriverManager.getConnection(DB_URL, USER_NAME, PASSWORD);
 
 			DatabaseMetaData md = conn.getMetaData();
 			
@@ -325,12 +325,12 @@ public class Create_LOG_Table implements Runnable {
 			}
 		} catch(Exception e) {}
 
-//		try {
-//			if(conn!=null) {
-//				conn.close();
-//			}
-//		} catch(Exception e) {}
-//		
+		try {
+			if(conn!=null) {
+				conn.close();
+			}
+		} catch(Exception e) {}
+		
 		isRunning = false;
 		//log.info("Nano it summary 끝");
 	}

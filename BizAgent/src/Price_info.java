@@ -13,17 +13,16 @@ public class Price_info  {
 	public Price base_price = new Price();
 	public Price parent_price = new Price();
 	public Price member_price = new Price();
-	private Connection conn = null;
-
-	public Price_info(Connection _conn, int mem_id ) {
-		//Connection conn = null;
+	
+	public Price_info(String db_url, int mem_id ) {
+		Connection conn = null;
 		Statement bstate = null;
 		Statement pstate = null;
-		conn = _conn;
+		DB_URL = db_url;
 
 		try {
-			//Class.forName(JDBC_DRIVER);
-			//conn = DriverManager.getConnection(DB_URL, USER_NAME, PASSWORD);
+			Class.forName(JDBC_DRIVER);
+			conn = DriverManager.getConnection(DB_URL, USER_NAME, PASSWORD);
 			bstate = conn.createStatement();
 			
 			String sql;
@@ -159,11 +158,11 @@ public class Price_info  {
 			}
 		} catch(Exception e) {}
 
-//		try {
-//			if(conn!=null) {
-//				conn.close();
-//			}
-//		} catch(Exception e) {}
+		try {
+			if(conn!=null) {
+				conn.close();
+			}
+		} catch(Exception e) {}
 		//System.out.println("연결 종료!!!");
 	}
 	

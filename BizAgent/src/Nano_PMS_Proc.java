@@ -17,10 +17,9 @@ public class Nano_PMS_Proc implements Runnable {
 	public static boolean isPreRunning = false;
 	public Logger log;
 	public String monthStr;
-	private Connection conn = null;
-
-	public Nano_PMS_Proc(Connection _conn, Logger _log) {
-		conn = _conn;
+	
+	public Nano_PMS_Proc(String _db_url, Logger _log) {
+		DB_URL = _db_url;
 		log = _log;
 	}
 	
@@ -45,13 +44,13 @@ public class Nano_PMS_Proc implements Runnable {
 		
 		//log.info("Nano it summary 실행");  수정 테스트...
 		
-		// conn = null;
+		Connection conn = null;
 		Connection nconn = null;
 		Statement pms_msg = null;
 		int totalcnt = 0;
 		try {
-			//Class.forName(JDBC_DRIVER);
-			//conn = DriverManager.getConnection(DB_URL, USER_NAME, PASSWORD);
+			Class.forName(JDBC_DRIVER);
+			conn = DriverManager.getConnection(DB_URL, USER_NAME, PASSWORD);
 
 			pms_msg = conn.createStatement();
 			String pms_str    = "select cpm.cb_msg_id as msgid" + 
@@ -126,7 +125,7 @@ public class Nano_PMS_Proc implements Runnable {
 				float admin_amt = 0;
 				
 				if(pre_mem_id != mem_id) {
-					price = new Price_info(conn, Integer.valueOf(mem_id));
+					price = new Price_info(DB_URL, Integer.valueOf(mem_id));
 					pre_mem_id = mem_id;
 				}
 				
@@ -211,13 +210,13 @@ public class Nano_PMS_Proc implements Runnable {
 				pms_msg.close();
 			}
 		} catch(Exception e) {}
-//
-//		try {
-//			if(conn!=null) {
-//				conn.close();
-//			}
-//		} catch(Exception e) {}
-//		
+
+		try {
+			if(conn!=null) {
+				conn.close();
+			}
+		} catch(Exception e) {}
+		
 		if(isPremonth) {
 			isPreRunning = false;
 		} else {

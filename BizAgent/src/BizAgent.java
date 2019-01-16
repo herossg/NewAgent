@@ -1,8 +1,6 @@
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -23,11 +21,7 @@ public class BizAgent implements Daemon, Runnable {
     private final String DB_URL = "jdbc:mysql://210.114.225.53/dhn?characterEncoding=utf8";  
     //private final String DB_URL = "jdbc:mysql://222.122.203.68/dhn?characterEncoding=utf8";
     private boolean isStop = false;
-	private final String USER_NAME = "root";
-	private final String PASSWORD = "sjk4556!!22";
-	private Connection conn = null;
-	private final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-	
+    
     @Override
     public void init(DaemonContext context) throws DaemonInitException, Exception {
         System.out.println("init...");
@@ -48,10 +42,6 @@ public class BizAgent implements Daemon, Runnable {
             this.thread = new Thread(this);
             log.info("init OK.");
             //System.out.println();
-            
-            Class.forName(JDBC_DRIVER);
-			conn = DriverManager.getConnection(DB_URL, USER_NAME, PASSWORD);
-
         } catch(IOException e) {
         	log.info("../conf/log4j.properties 파일 없어");
         }
@@ -71,12 +61,6 @@ public class BizAgent implements Daemon, Runnable {
         status = "STOPED";
         //this.thread.join(10);
         isStop = true;
-		try {
-			if(conn!=null) {
-				conn.close();
-			}
-		} catch(Exception e) {}
-			
         log.info("Biz Agent stop OK.");
     }
  
@@ -106,7 +90,7 @@ public class BizAgent implements Daemon, Runnable {
 			if(!monthStr.equals(PreMonth))
 			{
 	        	// 매월 1일에는 Log Table 생성
-	        	Create_LOG_Table clt = new Create_LOG_Table(conn, log);
+	        	Create_LOG_Table clt = new Create_LOG_Table(DB_URL, log);
 	        	clt.log = log;
 	        	clt.monthStr = monthStr;
 	        	Thread clt_proc = new Thread(clt);
@@ -118,7 +102,7 @@ public class BizAgent implements Daemon, Runnable {
 			   
 			for(int i=0; i<10; i++) 
 			{
-	        	TBLReqProcess trp = new TBLReqProcess(conn, log, i);
+	        	TBLReqProcess trp = new TBLReqProcess(DB_URL, log, i);
 	        	Thread trp_proc = new Thread(trp);
 	        	if(!isStop)
 	        		trp_proc.start();
@@ -128,7 +112,7 @@ public class BizAgent implements Daemon, Runnable {
 			}
 			   
         	// 나노 아이티 동보 전송 처리
-        	Nano_it_summary nano = new Nano_it_summary(conn, log);
+        	Nano_it_summary nano = new Nano_it_summary(DB_URL, log);
         	Thread nano_sum_proc = new Thread(nano);
         	if(!isStop)
         		nano_sum_proc.start();
@@ -138,7 +122,7 @@ public class BizAgent implements Daemon, Runnable {
 
         	
 			// Nano 폰문자 처리
-        	Nano_PMS_Proc nanoPMS = new Nano_PMS_Proc(conn, log);
+        	Nano_PMS_Proc nanoPMS = new Nano_PMS_Proc(DB_URL, log);
 			nanoPMS.monthStr = monthStr;
 			Thread nano_PMS_proc = new Thread(nanoPMS);
 			if(!isStop)
@@ -148,7 +132,7 @@ public class BizAgent implements Daemon, Runnable {
         		isRunning = true;
 			
 			if(!monthStr.equals(PremonthStr)) {
-	        	Nano_PMS_Proc PrenanoPMS = new Nano_PMS_Proc(conn, log);
+	        	Nano_PMS_Proc PrenanoPMS = new Nano_PMS_Proc(DB_URL, log);
 	        	PrenanoPMS.monthStr = PremonthStr;
 	        	PrenanoPMS.isPremonth = true;
 				Thread Prenano_PMS_proc = new Thread(PrenanoPMS);
@@ -161,7 +145,7 @@ public class BizAgent implements Daemon, Runnable {
 			}
         	
 			// Nano FUN SMS 처리 ( GRS SMS )
-        	Nano_FUNSMS_Proc nanoFunsms = new Nano_FUNSMS_Proc(conn, log);
+        	Nano_FUNSMS_Proc nanoFunsms = new Nano_FUNSMS_Proc(DB_URL, log);
         	nanoFunsms.monthStr = monthStr;
 			Thread nanoFunsms_proc = new Thread(nanoFunsms);
 			if(!isStop)
@@ -170,7 +154,7 @@ public class BizAgent implements Daemon, Runnable {
         		isRunning = true;
         	
 			if(!monthStr.equals(PremonthStr)) {
-				Nano_FUNSMS_Proc PrenanoFunsms = new Nano_FUNSMS_Proc(conn, log);
+				Nano_FUNSMS_Proc PrenanoFunsms = new Nano_FUNSMS_Proc(DB_URL, log);
 	        	PrenanoFunsms.monthStr = PremonthStr;
 	        	PrenanoFunsms.isPremonth = true;
 				Thread PrenanoFunsms_proc = new Thread(PrenanoFunsms);
@@ -181,7 +165,7 @@ public class BizAgent implements Daemon, Runnable {
 			}
 
 			// Nano BKG LMS/MMS 처리
-        	Nano_BKGMMS_Proc nanoBkgmms = new Nano_BKGMMS_Proc(conn, log);
+        	Nano_BKGMMS_Proc nanoBkgmms = new Nano_BKGMMS_Proc(DB_URL, log);
         	nanoBkgmms.monthStr = monthStr;
 			Thread nanoBkgmms_proc = new Thread(nanoBkgmms);
 			if(!isStop)
@@ -190,7 +174,7 @@ public class BizAgent implements Daemon, Runnable {
         		isRunning = true;
 			
 			if(!monthStr.equals(PremonthStr)) {
-				Nano_BKGMMS_Proc PrenanoBkgmms = new Nano_BKGMMS_Proc(conn, log);
+				Nano_BKGMMS_Proc PrenanoBkgmms = new Nano_BKGMMS_Proc(DB_URL, log);
 	        	PrenanoBkgmms.monthStr = PremonthStr;
 	        	PrenanoBkgmms.isPremonth = true;
 				Thread PrenanoBkgmms_proc = new Thread(PrenanoBkgmms);
@@ -203,7 +187,7 @@ public class BizAgent implements Daemon, Runnable {
 			// Nano GRS 처리
 			for(int j=0; j<10; j++) 
 			{
-				Nano_GRS_Proc nanogrs = new Nano_GRS_Proc(conn, log, j);
+				Nano_GRS_Proc nanogrs = new Nano_GRS_Proc(DB_URL, log, j);
 				nanogrs.monthStr = monthStr;
 				Thread nanogrs_proc = new Thread(nanogrs);
 				if(!isStop)
@@ -213,7 +197,7 @@ public class BizAgent implements Daemon, Runnable {
 			}
 			
 			if(!monthStr.equals(PremonthStr)) {
-				Nano_PREGRS_Proc Prenanogrs = new Nano_PREGRS_Proc(conn, log);
+				Nano_PREGRS_Proc Prenanogrs = new Nano_PREGRS_Proc(DB_URL, log);
 				Prenanogrs.monthStr = PremonthStr;
 				Prenanogrs.isPremonth = true;
 				Thread Prenanogrs_proc = new Thread(Prenanogrs);
@@ -224,7 +208,7 @@ public class BizAgent implements Daemon, Runnable {
 			}
 
 			// Naself SMS 처리
-			NAS_SMS_Proc nassms = new NAS_SMS_Proc(conn, log);
+			NAS_SMS_Proc nassms = new NAS_SMS_Proc(DB_URL, log);
 			nassms.monthStr = monthStr;
 			Thread nassms_proc = new Thread(nassms);
 			if(!isStop)
@@ -233,7 +217,7 @@ public class BizAgent implements Daemon, Runnable {
         		isRunning = true;
 			
 			if(!monthStr.equals(PremonthStr)) {
-				NAS_SMS_Proc Prenassms = new NAS_SMS_Proc(conn, log);
+				NAS_SMS_Proc Prenassms = new NAS_SMS_Proc(DB_URL, log);
 				Prenassms.monthStr = PremonthStr;
 				Prenassms.isPremonth = true;
 				Thread Prenassms_proc = new Thread(Prenassms);
@@ -244,7 +228,7 @@ public class BizAgent implements Daemon, Runnable {
 			}
 			
 			// Naself MMS 처리
-			NAS_MMS_Proc nasmms = new NAS_MMS_Proc(conn, log);
+			NAS_MMS_Proc nasmms = new NAS_MMS_Proc(DB_URL, log);
 			nasmms.monthStr = monthStr;
 			Thread nasmms_proc = new Thread(nasmms);
 			if(!isStop)
@@ -253,7 +237,7 @@ public class BizAgent implements Daemon, Runnable {
         		isRunning = true;
 			
 			if(!monthStr.equals(PremonthStr)) {
-				NAS_MMS_Proc Prenasmms = new NAS_MMS_Proc(conn, log);
+				NAS_MMS_Proc Prenasmms = new NAS_MMS_Proc(DB_URL, log);
 				Prenasmms.monthStr = PremonthStr;
 				Prenasmms.isPremonth = true;
 				Thread Prenasmms_proc = new Thread(Prenasmms);

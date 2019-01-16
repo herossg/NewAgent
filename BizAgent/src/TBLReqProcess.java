@@ -17,13 +17,12 @@ public class TBLReqProcess implements Runnable {
 	private final String NUSER_NAME = "bizsms";
 	private final String NPASSWORD = "!@nanum0915";
 	public int div_str;
-	private Connection conn = null;
 	
 	public static boolean[] isRunning = {false,false,false,false,false,false,false,false,false,false,};
 	public Logger log;
 	
-	public TBLReqProcess(Connection _conn, Logger _log, int _div) {
-		conn = _conn;
+	public TBLReqProcess(String _db_url, Logger _log, int _div) {
+		DB_URL = _db_url;
 		log = _log;
 		div_str = _div;
 	}
@@ -38,13 +37,13 @@ public class TBLReqProcess implements Runnable {
 		TBLReqProcess.isRunning[div_str] = true;	
 		
 		//log.info("TBL RESULT PROC 실행");
-		//Connection conn = null;
+		Connection conn = null;
 		Connection nconn = null;
 		Statement tbl_result = null;
 		boolean isPass = false; // 전체 Loop 를 그냥 지나 가기 위한 변수 Loop 가 시작시에는 무조건 False
 		try {
-			//Class.forName(JDBC_DRIVER);
-			//conn = DriverManager.getConnection(DB_URL, USER_NAME, PASSWORD);
+			Class.forName(JDBC_DRIVER);
+			conn = DriverManager.getConnection(DB_URL, USER_NAME, PASSWORD);
 
 			tbl_result = conn.createStatement();
 						
@@ -120,7 +119,7 @@ public class TBLReqProcess implements Runnable {
 				
 				// 사용자별 단가를 불러 옴.
 				if(pre_mem_id != mem_id) {
-					price = new Price_info(conn, Integer.valueOf(mem_id));
+					price = new Price_info(DB_URL, Integer.valueOf(mem_id));
 					pre_mem_id = mem_id;
 				}
 				
@@ -831,13 +830,13 @@ public class TBLReqProcess implements Runnable {
 				tbl_result.close();
 			}
 		} catch(Exception e) {}
-/*
+
 		try {
 			if(conn!=null) {
 				conn.close();
 			}
 		} catch(Exception e) {}
-			*/
+			
 //		try {
 //			//Thread.sleep(10000);
 //		} catch (InterruptedException e) {
