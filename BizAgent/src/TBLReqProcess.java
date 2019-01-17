@@ -59,7 +59,7 @@ public class TBLReqProcess implements Runnable {
 					"              ,b.mem_sms_agent" + 
 					"              ,b.mem_2nd_send" + 
 					"              ,(select mst_mms_content from cb_wt_msg_sent wms where wms.mst_id = a.remark4) as mms_id" + 
-					"          from TBL_REQUEST_RESULT a inner join cb_member b on SPLIT(a.MSGID, '_', 1)=b.mem_id" + 
+					"          from TBL_REQUEST_RESULT a inner join cb_member b on b.mem_id = a.REMARK2" + 
 					"         where REMARK3 = '" + div_str + "'" +
 					"           and ( a.reserve_dt < '" + rd.format(reserve_dt) + "'" + 
 					"              or a.reserve_dt = '00000000000000')" +
