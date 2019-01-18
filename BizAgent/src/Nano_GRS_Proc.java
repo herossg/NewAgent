@@ -84,7 +84,7 @@ public class Nano_GRS_Proc implements Runnable {
 								"  from cb_grs_msg_bk cgm" + 
 								" inner join cb_grs_broadcast_"+ monthStr +" cgb" + 
 								"    on cgm.msg_id = cgb.msg_id" + 
-								"   and cgm.msg_rcv_phn regexp CONCAT( '^', cgb.bc_rcv_phn, ',|,', cgb.BC_RCV_PHN, '$', '|,', cgb.BC_RCV_PHN, ',' )" + 
+								"   and cgm.msg_rcv_phn regexp CONCAT( '^', cgb.bc_rcv_phn, ',|,', cgb.BC_RCV_PHN, '$', '|,', cgb.BC_RCV_PHN, ',|^',cgb.BC_RCV_PHN,'$')" + 
 								" inner join cb_member cm" + 
 								"    on cm.mem_id = cgm.cb_msg_id" + 
 								" where cgm.msg_st in ('1', '0')" + 
