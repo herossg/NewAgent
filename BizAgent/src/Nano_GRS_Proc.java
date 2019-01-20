@@ -90,7 +90,7 @@ public class Nano_GRS_Proc implements Runnable {
 								" where cgm.msg_st in ('1', '0')" + 
 								"   and cgb.bc_snd_st in( '3', '4') " + 
 								"   and length(cgb.bc_rcv_phn) >= 8 " +
-								"   and (cgb.bc_msg_id % 10) = " + div_str +
+								"   and (cgm.msg_id % 10) = " + div_str +
 								" order by cgm.msg_id limit 0" + 
 								"         ,1000";
 			
