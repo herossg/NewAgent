@@ -54,7 +54,7 @@ public class Nano_PMS_Proc implements Runnable {
 			conn = BizDBCPInit.getConnection();
 
 			pms_msg = conn.createStatement();
-			String pms_str    = "select cpm.cb_msg_id as msgid" + 
+			String pms_str    = "select  SQL_NO_CACHE cpm.cb_msg_id as msgid" + 
 								"      ,'M103' as code" + 
 								"      ,'pn' as message_type" + 
 								"      ,cpm.REMARK4" + 

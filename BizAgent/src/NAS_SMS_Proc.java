@@ -53,7 +53,7 @@ public class NAS_SMS_Proc implements Runnable {
 			conn = BizDBCPInit.getConnection();
 
 			funsms_msg = conn.createStatement();
-			String funsms_str = "SELECT   cml.TR_ETC1 AS MSGID," + 
+			String funsms_str = "SELECT SQL_NO_CACHE  cml.TR_ETC1 AS MSGID," + 
 								"         cml.tr_num as MSGKEY," + 
 								"         cml.tr_rsltstat as RSLT," + 
 								"         cml.TR_ETC2 AS REMARK4," + 

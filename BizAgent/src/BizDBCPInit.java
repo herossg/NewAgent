@@ -1,5 +1,8 @@
+import java.io.FileInputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.util.Properties;
+import org.apache.log4j.Logger;
 
 import org.apache.commons.dbcp2.ConnectionFactory;
 import org.apache.commons.dbcp2.DriverManagerConnectionFactory;
@@ -12,11 +15,12 @@ import com.mysql.jdbc.Driver;
 
 public class BizDBCPInit {
 	private static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-	private static final String USER_NAME = "root";
-	private static final String PASSWORD = "sjk4556!!22";
-	private static final String DB_URL = "jdbc:mysql://210.114.225.53/dhn?characterEncoding=utf8";  
+	private static String USER_NAME = "root";
+	private static String PASSWORD = "sjk4556!!22";
+	private static String DB_URL = "jdbc:mysql://210.114.225.53/dhn?characterEncoding=utf8";  
 	//private static final String DB_URL = "jdbc:mysql://222.122.203.68/dhn?characterEncoding=utf8";
-	 
+	private static Logger log;
+	
 	private BizDBCPInit() {
 		initConnectionPool();
 	}
@@ -25,15 +29,25 @@ public class BizDBCPInit {
 		private static final BizDBCPInit instance = new BizDBCPInit();
 	}
 	
-	public static BizDBCPInit getInstance() {
+	public static BizDBCPInit getInstance(Logger _log) {
+		BizDBCPInit.log = _log;
 		return Singleton.instance;
 	}
 	
 	public void initConnectionPool() {
-		
+		Properties p = new Properties();
 		try {
+			
+			p.load(new FileInputStream("/root/BizAgent/conf/db.properties"));
+			BizDBCPInit.DB_URL = p.getProperty("DB_URL");
+			BizDBCPInit.USER_NAME = p.getProperty("USER_NAME");
+			BizDBCPInit.PASSWORD = p.getProperty("PASSWORD");
+			
 			Class.forName(BizDBCPInit.JDBC_DRIVER);
 		
+			BizDBCPInit.log.info("DB URL : " + BizDBCPInit.DB_URL);
+			BizDBCPInit.log.info("USER NAME : " + BizDBCPInit.USER_NAME);
+			
 			ConnectionFactory connFactory = new DriverManagerConnectionFactory(BizDBCPInit.DB_URL, BizDBCPInit.USER_NAME, BizDBCPInit.PASSWORD);
 
 			//close 할경우 종료하지 않고 커넥션 풀에 반환

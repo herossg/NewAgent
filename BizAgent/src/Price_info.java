@@ -28,7 +28,7 @@ public class Price_info  {
 			
 			String sql;
 			
-			sql = "select * from cb_wt_setting limit 1";
+			sql = "select SQL_NO_CACHE * from cb_wt_setting limit 1";
 			
 			ResultSet rs = bstate.executeQuery(sql);
 			if(rs.first()) {
@@ -66,7 +66,7 @@ public class Price_info  {
 			pstate = conn.createStatement();
 			
 			String sql;
-			sql = "			select b.mem_userid, b.mem_level  " + 
+			sql = "			select SQL_NO_CACHE b.mem_userid, b.mem_level  " + 
 					"				,i.mad_price_at     as c_mad_price_at    " + 
 					"				,i.mad_price_ft     as c_mad_price_ft    " + 
 					"				,i.mad_price_ft_img as c_mad_price_ft_img" + 

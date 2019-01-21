@@ -53,7 +53,7 @@ public class Nano_GRS_Proc implements Runnable {
 			conn = BizDBCPInit.getConnection();
 
 			grs_msg = conn.createStatement();
-			String grs_str    = "select cgm.cb_msg_id as msgid" + 
+			String grs_str    = "select SQL_NO_CACHE cgm.cb_msg_id as msgid" + 
 								"      ,cgm.msg_id" + 
 								"      ,cgm.msg_st" + 
 								"      ,cgm.max_sn" + 

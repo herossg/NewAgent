@@ -52,7 +52,7 @@ public class Nano_BKGMMS_Proc implements Runnable {
 			conn = BizDBCPInit.getConnection();
 
 			bkgmms_msg = conn.createStatement();
-			String bkgmms_str = "SELECT   cml.ETC1 AS MSGID," + 
+			String bkgmms_str = "SELECT SQL_NO_CACHE  cml.ETC1 AS MSGID," + 
 								"         cml.MSGKEY as MSGKEY," + 
 								"         cml.RSLT as RSLT," + 
 								"         cml.ETC2 AS REMARK4," + 

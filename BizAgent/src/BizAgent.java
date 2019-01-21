@@ -41,9 +41,8 @@ public class BizAgent implements Daemon, Runnable {
         	log.info("Log Property Load !!");
             status = "INITED";
             this.thread = new Thread(this);
+            bizDBCP = BizDBCPInit.getInstance(log);
             log.info("init OK.");
-            //System.out.println(); 
-            bizDBCP = BizDBCPInit.getInstance();
         } catch(IOException e) {
         	log.info("../conf/log4j.properties 파일 없어");
         }

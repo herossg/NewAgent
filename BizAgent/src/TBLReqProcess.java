@@ -51,7 +51,7 @@ public class TBLReqProcess implements Runnable {
 	        Date reserve_dt = new Date();
 	        SimpleDateFormat rd = new SimpleDateFormat("yyyyMMddHHmmss");
 	 		
-			String sqlstr = "select a.*" + 
+			String sqlstr = "select SQL_NO_CACHE a.*" + 
 					"              ,b.mem_userid " + 
 					"              ,b.mem_id " + 
 					"              ,b.mem_level" + 

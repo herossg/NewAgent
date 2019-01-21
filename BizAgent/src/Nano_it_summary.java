@@ -45,7 +45,7 @@ public class Nano_it_summary implements Runnable {
 			conn = BizDBCPInit.getConnection();
 
 			nano_msg = conn.createStatement();
-			String nanomsg_str = "select cnm.remark4" + 
+			String nanomsg_str = "select SQL_NO_CACHE cnm.remark4" + 
 									"   ,(sn div 50) as part" + 
 									"     ,group_concat(cnm.phn) as PHN" + 
 									"     ,group_concat(concat('''','82', right(phn, length(phn)-1)), '''') as msg_phn" + 
