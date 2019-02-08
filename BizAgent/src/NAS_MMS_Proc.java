@@ -52,6 +52,16 @@ public class NAS_MMS_Proc implements Runnable {
 			//Class.forName(JDBC_DRIVER);
 			//conn =  DriverManager.getConnection(DB_URL, USER_NAME, PASSWORD);
 			conn = BizDBCPInit.getConnection();
+			
+//			String updateStr = "update cb_grs_broadcast_201901 cgb " + 
+//		              "set cgb.BC_SND_ST = '3' " + 
+//		            "WHERE cgb.bc_snd_st = '2' " + 
+//		              "and date_add(cgb.BC_SND_DTTM, interval 12 HOUR) < now()";
+//			
+//			Statement updateExe = conn.createStatement();
+//			updateExe.execute(updateStr);
+//			
+//			updateExe.close();			
 
 			bkgmms_msg = conn.createStatement();
 			String bkgmms_str = "SELECT  SQL_NO_CACHE cml.ETC1 AS MSGID," + 

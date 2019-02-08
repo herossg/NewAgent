@@ -381,20 +381,22 @@ public class TBLReqProcess implements Runnable {
 							
 							switch(mem_resend) {
 							case "015":
-								nanoit = "insert into cb_nanoit_msg(msg_type, remark4, phn) values(?, ?, ?)";
+								nanoit = "insert into cb_nanoit_msg(msg_type, remark4, phn, cb_msg_id) values(?, ?, ?, ?)";
 								nanoins = conn.prepareStatement(nanoit);
 								nanoins.setString(1, "015");
 								nanoins.setString(2, sent_key);
 								nanoins.setString(3, phn);
+								nanoins.setString(4, rs.getString("MSGID"));
 								nanoins.executeUpdate();
 								nanoins.close();
 								break;
 							case "PHONE":
-								nanoit = "insert into cb_nanoit_msg(msg_type, remark4, phn) values(?, ?, ?)";
+								nanoit = "insert into cb_nanoit_msg(msg_type, remark4, phn, cb_msg_id) values(?, ?, ?, ?)";
 								nanoins = conn.prepareStatement(nanoit);
 								nanoins.setString(1, "PHONE");
 								nanoins.setString(2, sent_key);
 								nanoins.setString(3, phn);
+								nanoins.setString(4, rs.getString("MSGID"));
 								nanoins.executeUpdate();
 								nanoins.close();
 								break;			
@@ -549,11 +551,12 @@ public class TBLReqProcess implements Runnable {
 									amtins.close();
 									
 								}else if(msgtype.equals("LMS")) {
-									nanoit = "insert into cb_nanoit_msg(msg_type, remark4, phn) values(?, ?, ?)";
+									nanoit = "insert into cb_nanoit_msg(msg_type, remark4, phn, cb_msg_id) values(?, ?, ?, ?)";
 									nanoins = conn.prepareStatement(nanoit);
 									nanoins.setString(1, "GRS");
 									nanoins.setString(2, sent_key);
 									nanoins.setString(3, phn);
+									nanoins.setString(4, rs.getString("MSGID"));
 									nanoins.executeUpdate();
 									nanoins.close();
 									break;		

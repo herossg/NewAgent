@@ -38,7 +38,9 @@ public class BizDBCPInit {
 		Properties p = new Properties();
 		try {
 			
-			p.load(new FileInputStream("/root/BizAgent/conf/db.properties"));
+//			p.load(new FileInputStream("/root/BizAgent/conf/db.properties"));
+        	p.load(new FileInputStream("E:\\Git\\BizAgent\\conf\\db.properties")); 
+
 			BizDBCPInit.DB_URL = p.getProperty("DB_URL");
 			BizDBCPInit.USER_NAME = p.getProperty("USER_NAME");
 			BizDBCPInit.PASSWORD = p.getProperty("PASSWORD");
@@ -74,7 +76,7 @@ public class BizDBCPInit {
 		    poolConfig.setMaxIdle(30);
 
 			//커넥션 최대 갯수 설정
-			poolConfig.setMaxTotal(30);
+			poolConfig.setMaxTotal(60);
 
 			GenericObjectPool<PoolableConnection> connectionPool = new GenericObjectPool<PoolableConnection>(poolableConnFactory,poolConfig);
 

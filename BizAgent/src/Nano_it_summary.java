@@ -59,6 +59,7 @@ public class Nano_it_summary implements Runnable {
 									"     ,wms.mst_reserved_dt as RESERVE_DT" + 
 									"     ,max(sn) as max_sn" + 
 									"     ,wms.mst_mms_content" + 
+									"     ,group_concat(cnm.cb_msg_id) as cb_msg_id" + 
 									" from cb_nanoit_msg cnm " + 
 									"inner join cb_wt_msg_sent wms" + 
 									"   on cnm.remark4 = wms.mst_id " + 
@@ -119,9 +120,37 @@ public class Nano_it_summary implements Runnable {
 				nanodel.executeUpdate();
 				nanodel.close();
 				
+				/*
+				 * 나노 동보전송에 대한 개별 전화 번호 저장
+				 */
+				String nano_bc_ins = "insert into cb_nano_broadcast_list(msg_id, "
+						                                              + "type, "
+						                                              + "rcv_phone, "
+						                                              + "mst_id, "
+						                                              + "mem_id,"
+						                                              + "max_sn,"
+						                                              + "FILE_PATH1,"
+						                                              + "FILE_PATH2,"
+						                                              + "FILE_PATH3,"
+						                                              + "cb_msg_id)"
+						                                       + "values(?,"
+						                                              + "?,"
+						                                              + "?,"
+						                                              + "?,"
+						                                              + "?,"
+						                                              + "?,"
+						                                              + "?,"
+						                                              + "?,"
+						                                              + "?,"
+						                                              + "?)";
+				
+				int msg_id = 0;
+				String msg_type = "";
+				String mms1="", mms2="", mms3="";
+				
 				switch(mem_resend) {
 				case "015":
-					
+					msg_type = "015";
 					String _015 = "insert into cb_pms_msg(rcv_phone"
 													  + ",subject"
 													  + ",text"
@@ -140,7 +169,7 @@ public class Nano_it_summary implements Runnable {
 													  + ",?"
 													  + ",?"
 													  + ",?)";
-					PreparedStatement _015ins = conn.prepareStatement(_015);
+					PreparedStatement _015ins = conn.prepareStatement(_015, Statement.RETURN_GENERATED_KEYS);
 					_015ins.setString(1, rs.getString("PHN"));
 					if( rs.getString("MSG_SMS").replaceAll("\\r\\n|\\r|\\n", "").length()>40) {
 						_015ins.setString(2, rs.getString("MSG_SMS").replaceAll("\\r\\n|\\r|\\n", "").substring(0, 40));
@@ -154,8 +183,19 @@ public class Nano_it_summary implements Runnable {
 					_015ins.setString(7, mem_id);
 					_015ins.setString(8, sent_key);
 					_015ins.setString(9, rs.getString("max_sn"));
-					_015ins.executeUpdate();
-					_015ins.close();
+					//_015ins.executeUpdate();
+					
+					int rowAffected = _015ins.executeUpdate();
+		            if(rowAffected == 1)
+		            {
+		                // get candidate id
+		            	ResultSet rstemp = null;
+		            	rstemp = _015ins.getGeneratedKeys();
+		                if(rstemp.next())
+		                	msg_id = rstemp.getInt(1);
+		            }
+
+		            _015ins.close();
 					
 					wtudstr = "update cb_wt_msg_sent set mst_wait=ifnull(mst_wait,0)+" + ins_cnt + " where mst_id=?";
 					wtud = conn.prepareStatement(wtudstr);
@@ -193,6 +233,7 @@ public class Nano_it_summary implements Runnable {
 					
 					break;
 				case "PHONE":
+					msg_type = "PHN";
 					String phonestr = "insert into cb_pms_msg(rcv_phone"
 													  + ",subject"
 													  + ",text"
@@ -211,7 +252,7 @@ public class Nano_it_summary implements Runnable {
 													  + ",?"
 													  + ",?"
 													  + ",?)";
-					PreparedStatement Phoneins = conn.prepareStatement(phonestr);
+					PreparedStatement Phoneins = conn.prepareStatement(phonestr, Statement.RETURN_GENERATED_KEYS);
 					Phoneins.setString(1, rs.getString("PHN"));
 					if(rs.getString("MSG_SMS").replaceAll("\\r\\n|\\r|\\n", "").length()>40) {
 						Phoneins.setString(2, rs.getString("MSG_SMS").replaceAll("\\r\\n|\\r|\\n", "").substring(0, 40));
@@ -225,7 +266,17 @@ public class Nano_it_summary implements Runnable {
 					Phoneins.setString(7, mem_id);
 					Phoneins.setString(8, sent_key);
 					Phoneins.setString(9, rs.getString("max_sn"));
-					Phoneins.executeUpdate();
+					//Phoneins.executeUpdate();
+					
+					int rowa = Phoneins.executeUpdate();
+		            if(rowa == 1)
+		            {
+		                // get candidate id
+		            	ResultSet rstemp = null;
+		            	rstemp = Phoneins.getGeneratedKeys();
+		                if(rstemp.next())
+		                	msg_id = rstemp.getInt(1);
+		            }
 					Phoneins.close();
 					
 					wtudstr = "update cb_wt_msg_sent set mst_wait=ifnull(mst_wait,0)+" + ins_cnt + " where mst_id=?";
@@ -264,8 +315,7 @@ public class Nano_it_summary implements Runnable {
 					
 					break;	 
 				case "GRS":
-					
-					String mms1="", mms2="", mms3="";
+					msg_type = "GRS";
 					String msgtype = "LMS";
 					
 					if(rs.getString("mst_mms_content").length()>5) {
@@ -309,7 +359,7 @@ public class Nano_it_summary implements Runnable {
 													  + ",?"
 													  + ",?"
 													  + ",?)";
-					PreparedStatement grsins = conn.prepareStatement(grsstr);
+					PreparedStatement grsins = conn.prepareStatement(grsstr, Statement.RETURN_GENERATED_KEYS);
 					grsins.setString(1, msgtype);
 					grsins.setString(2, "0");
 					grsins.setString(3, rs.getString("SMS_SENDER") );
@@ -328,8 +378,19 @@ public class Nano_it_summary implements Runnable {
 					grsins.setString(12, rs.getString("max_sn"));
 					grsins.setTimestamp(13, new java.sql.Timestamp(System.currentTimeMillis())); 
 					grsins.setTimestamp(14, new java.sql.Timestamp(System.currentTimeMillis())); 
-					grsins.executeUpdate();
-					grsins.close();
+					//grsins.executeUpdate();
+					
+					int rowgrs = grsins.executeUpdate();
+		            if(rowgrs == 1)
+		            {
+		                // get candidate id
+		            	ResultSet rstemp = null;
+		            	rstemp = grsins.getGeneratedKeys();
+		                if(rstemp.next())
+		                	msg_id = rstemp.getInt(1);
+		            }
+					
+		            grsins.close();
 					
 					wtudstr = "update cb_wt_msg_sent set mst_wait=ifnull(mst_wait,0)+" + ins_cnt + " where mst_id=?";
 					wtud = conn.prepareStatement(wtudstr);
@@ -378,6 +439,27 @@ public class Nano_it_summary implements Runnable {
 					amtins.close();
 					
 					break;	  
+				}
+				
+				String[] rcv_phn = rs.getString("PHN").split(",");
+				String[] cb_msg_id = rs.getString("cb_msg_id").split(",");
+				int idx=0;
+				for(String rp : rcv_phn) {
+					
+					PreparedStatement nanomsgbc = conn.prepareStatement(nano_bc_ins);
+					nanomsgbc.setInt(1, msg_id);
+					nanomsgbc.setString(2, msg_type);
+					nanomsgbc.setString(3, rp);
+					nanomsgbc.setString(4, rs.getString("remark4"));
+					nanomsgbc.setString(5, rs.getString("mem_id"));
+					nanomsgbc.setString(6, rs.getString("max_sn"));
+					nanomsgbc.setString(7, mms1);
+					nanomsgbc.setString(8, mms2);
+					nanomsgbc.setString(9, mms3);
+					nanomsgbc.setString(10, cb_msg_id[idx]);
+					nanomsgbc.executeUpdate();
+					nanomsgbc.close();
+					idx++;
 				}
 				
 			}
