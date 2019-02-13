@@ -34,9 +34,9 @@ public class BizAgent implements Daemon, Runnable {
         }
         
         try {
-        	p.load(new FileInputStream("E:\\Git\\BizAgent\\conf\\log4j.properties")); 
+        	//p.load(new FileInputStream("E:\\Git\\BizAgent\\conf\\log4j.properties")); 
         	//p.load(new FileInputStream("D:\\BIZ\\BizAgent\\BizAgent\\conf\\log4j.properties")); 
-        	//p.load(new FileInputStream("/root/BizAgent/conf/log4j.properties"));
+        	p.load(new FileInputStream("/root/BizAgent/conf/log4j.properties"));
         	PropertyConfigurator.configure(p);
         	log.info("Log Property Load !!");
             status = "INITED";
@@ -87,7 +87,7 @@ public class BizAgent implements Daemon, Runnable {
 			String PremonthStr = transFormat.format(cal.getTime());
 
 			isRunning = !isStop;
-/*			
+			
 			if(!monthStr.equals(PreMonth))
 			{
 	        	// 매월 1일에는 Log Table 생성
@@ -98,7 +98,7 @@ public class BizAgent implements Daemon, Runnable {
 	        	clt_proc.start();
 	        	PreMonth = monthStr;
 			}
-*/			
+			
         	// 2차 발신 분류 처리
 			   
 			for(int i=0; i<10; i++) 
@@ -121,7 +121,7 @@ public class BizAgent implements Daemon, Runnable {
         	if(Nano_it_summary.isRunning)
         		isRunning = true;
 
-        	/*
+        	
 			// Nano 폰문자 처리
         	Nano_PMS_Proc nanoPMS = new Nano_PMS_Proc(DB_URL, log);
 			nanoPMS.monthStr = monthStr;
@@ -184,14 +184,14 @@ public class BizAgent implements Daemon, Runnable {
 				if(Nano_BKGMMS_Proc.isPreRunning)
 	        		isRunning = true;
 			}
-*/
+
 			// Nano GRS 처리
 			//for(int j=0; j<10; j++)
 			Nano_GRS_Proc nanogrs = new Nano_GRS_Proc(DB_URL, log);
 			nanogrs.monthStr = monthStr;
 			Thread nanogrs_proc = new Thread(nanogrs);
 			nanogrs_proc.start();
-			/*
+			
 			if(!monthStr.equals(PremonthStr)) {
 				Nano_PREGRS_Proc Prenanogrs = new Nano_PREGRS_Proc(DB_URL, log);
 				Prenanogrs.monthStr = PremonthStr;
@@ -201,8 +201,8 @@ public class BizAgent implements Daemon, Runnable {
 					Prenanogrs_proc.start();
 				if(Nano_GRS_Proc.isPreRunning)
 	        		isRunning = true;
-			}*/
-/*
+			}
+
 			// Naself SMS 처리
 			NAS_SMS_Proc nassms = new NAS_SMS_Proc(DB_URL, log);
 			nassms.monthStr = monthStr;
@@ -242,7 +242,7 @@ public class BizAgent implements Daemon, Runnable {
 				if(NAS_MMS_Proc.isPreRunning)
 	        		isRunning = true;
 			}
-			*/
+			
             try {
                 //log.info("Biz Agent Call OK.");
                 Thread.sleep(3000);

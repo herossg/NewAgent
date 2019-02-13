@@ -22,6 +22,7 @@ public class Nano_GRS_Proc implements Runnable {
 	public String monthStr;
 	public boolean isRunning = false;
 	public String div_str;
+	static int proc_cnt = 0;
 	
 	public Nano_GRS_Proc(String _db_url, Logger _log) {
 		DB_URL = _db_url;
@@ -34,13 +35,15 @@ public class Nano_GRS_Proc implements Runnable {
 	}
 	
 	public void run() {
-		if(monthStr == null || monthStr.isEmpty()) {
-			Date month = new Date();
-			SimpleDateFormat transFormat = new SimpleDateFormat("yyyyMM");
-			monthStr = transFormat.format(month);
+		if(proc_cnt <= 20) {
+			if(monthStr == null || monthStr.isEmpty()) {
+				Date month = new Date();
+				SimpleDateFormat transFormat = new SimpleDateFormat("yyyyMM");
+				monthStr = transFormat.format(month);
+			}
+			
+			Proc();
 		}
-		
-		Proc();
 	}
 	
 	private synchronized  void Proc() {
@@ -49,6 +52,7 @@ public class Nano_GRS_Proc implements Runnable {
 		Connection conn = null;
 		Statement grs_msg = null;
 		int totalcnt = 0;
+		proc_cnt ++;
 		try {
 			//Class.forName(JDBC_DRIVER);
 			//conn =  DriverManager.getConnection(DB_URL, USER_NAME, PASSWORD);
@@ -59,10 +63,10 @@ public class Nano_GRS_Proc implements Runnable {
 					            "WHERE cgb.bc_snd_st = '2' " + 
 					              "and date_add(cgb.BC_SND_DTTM, interval 12 HOUR) < now()";
 			
-			Statement updateExe = conn.createStatement();
-			updateExe.execute(updateStr);
+			//Statement updateExe = conn.createStatement();
+			//updateExe.execute(updateStr);
 			
-			updateExe.close();
+			//updateExe.close();
 
 			String grs_proc_str = "SELECT count(1) as cnt" + 
 		              "  FROM cb_nano_broadcast_list b " + 
@@ -96,14 +100,8 @@ public class Nano_GRS_Proc implements Runnable {
 				String grs_str    = "select SQL_NO_CACHE cgm.msg_id" + 
 									"      ,cgm.max_sn" + 
 									"      ,cgb.BC_RSLT_NO" + 
-									"      ,(case" + 
-									"         when cgb.bc_snd_st = '2' and cgb.bc_rslt_no = '0' and" + 
-									"              addtime(cgb.bc_snd_dttm, '00:10:00') < now() then" + 
-									"          '성공'" + 
-									"         else" + 
-									"          cgb.bc_rslt_text" + 
-									"       end) as BC_RSLT_TEXT" + 
-									"	  ,cgb.bc_rcv_phn" + 
+									"      ,cgb.bc_rslt_text as BC_RSLT_TEXT" + 
+									"	   ,cgb.bc_rcv_phn" + 
 									"      ,(case when cgb.bc_rcv_phn like '01%' then " +
 									"                concat('82', right(cgb.bc_rcv_phn, length(cgb.bc_rcv_phn) - 1)) " +
 									"             else " +
@@ -120,6 +118,7 @@ public class Nano_GRS_Proc implements Runnable {
 									"      ,cgm.FILE_PATH2 as mms2" + 
 									"      ,cgm.FILE_PATH3 as mms3" + 
 									"      ,cgm.cb_msg_id " + 
+									"      ,cgb.msg_gb " +
 									"  from cb_nano_broadcast_list cgm" + 
 									" inner join cb_grs_broadcast_"+ monthStr +" cgb" + 
 									"    on cgm.msg_id = cgb.msg_id" + 
@@ -175,10 +174,16 @@ public class Nano_GRS_Proc implements Runnable {
 						price = new Price_info(DB_URL, Integer.valueOf(mem_id));
 						pre_mem_id = mem_id;
 					}
+					
+					int mst_grs_biz_qty = 0;
+					
 					// 성공 혹은 5일이 지나 기간만료 오류는 성공 처리 함.
 					if(rs.getString("BC_RSLT_NO").equals("0") || rs.getString("BC_RSLT_NO").equals("111")) {
 						
-						wtudstr = "update cb_wt_msg_sent set mst_grs = ifnull(mst_grs,0) + 1, mst_wait = mst_wait - 1  where mst_id=?";
+						if(rs.getString("msg_gb").equals("LMS")) 
+							mst_grs_biz_qty = 1;
+						
+						wtudstr = "update cb_wt_msg_sent set mst_grs = ifnull(mst_grs,0) + 1, mst_wait = mst_wait - 1, mst_grs_biz_qty = ifnull(mst_grs_biz_qty,0) + " + mst_grs_biz_qty + "   where mst_id=?";
 						wtud = conn.prepareStatement(wtudstr);
 						wtud.setString(1, sent_key);
 						wtud.executeUpdate();
@@ -283,11 +288,24 @@ public class Nano_GRS_Proc implements Runnable {
 			grs_proc_ud_st.close();
 
 		}catch(Exception ex) {
-			log.info("Nano GRS 오류 - " + ex.toString());
+			log.info("" + div_str + " 처리 오류 - " + ex.toString());
+			
+			String grs_proc_ud = "update cb_nano_broadcast_list b set proc_str = null " + 
+                    " where proc_str = '" + div_str + "'" ;
+			
+			try {
+				Statement grs_err_ud_st = conn.createStatement();
+				grs_err_ud_st.execute(grs_proc_ud);
+				grs_err_ud_st.close();
+			} catch(Exception e) {
+				log.info("" + div_str + " 초기화 실패");
+			} finally {
+				log.info("" + div_str + " 초기화 성공 ");
+			}
 		}
 		
 		if(totalcnt > 0) {
-			log.info("Nano GRS " + totalcnt + " 건 처리 함.( " + div_str + " )");
+			log.info("Nano GRS " + totalcnt + " 건 처리 함.( " + div_str + " )_Total Proc : " + proc_cnt);
 		}
 		
 		try {
@@ -302,6 +320,7 @@ public class Nano_GRS_Proc implements Runnable {
 			}
 		} catch(Exception e) {}
 		
+		proc_cnt --;
 		//isRunning[div_str] = false;
 		
 		//log.info("Nano it summary 끝");
