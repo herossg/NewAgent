@@ -63,10 +63,10 @@ public class Nano_GRS_Proc implements Runnable {
 					            "WHERE cgb.bc_snd_st = '2' " + 
 					              "and date_add(cgb.BC_SND_DTTM, interval 12 HOUR) < now()";
 			
-			//Statement updateExe = conn.createStatement();
-			//updateExe.execute(updateStr);
+			Statement updateExe = conn.createStatement();
+			updateExe.execute(updateStr);
 			
-			//updateExe.close();
+			updateExe.close();
 
 			String grs_proc_str = "SELECT count(1) as cnt" + 
 		              "  FROM cb_nano_broadcast_list b " + 
@@ -82,7 +82,7 @@ public class Nano_GRS_Proc implements Runnable {
 							            "                        where  a.MSG_ID = b.msg_id and a.BC_RCV_PHN = b.rcv_phone  " +
 							                                     " and  a.bc_snd_st in ('3', '4') ) " +
 							            "    and b.proc_str is null " +
-							            "  order by b.msg_id limit 1000";
+							            "  order by b.msg_id limit 500";
 					
 					Statement grs_proc_ud_st = conn.createStatement();
 					grs_proc_ud_st.execute(grs_proc_ud);
