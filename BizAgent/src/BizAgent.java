@@ -193,14 +193,11 @@ public class BizAgent implements Daemon, Runnable {
 			nanogrs_proc.start();
 			
 			if(!monthStr.equals(PremonthStr)) {
-				Nano_PREGRS_Proc Prenanogrs = new Nano_PREGRS_Proc(DB_URL, log);
+				Nano_GRS_Proc Prenanogrs = new Nano_GRS_Proc(DB_URL, log);
 				Prenanogrs.monthStr = PremonthStr;
 				Prenanogrs.isPremonth = true;
 				Thread Prenanogrs_proc = new Thread(Prenanogrs);
-				if(!isStop)
-					Prenanogrs_proc.start();
-				if(Nano_GRS_Proc.isPreRunning)
-	        		isRunning = true;
+				Prenanogrs_proc.start();
 			}
 
 			// Naself SMS 처리
