@@ -317,9 +317,9 @@ public class Nano_it_summary implements Runnable {
 				case "GRS":
 					msg_type = "GRS";
 					String msgtype = "LMS";
-					String mms_content = rs.getString("msg_mms_content");
+					String mms_content = rs.getString("mst_mms_content");
 					if(mms_content != null && mms_content.length()>5) {
-						String mmsinfostr = "select * from cb_mms_images cmi where cmi.mem_id = '" + mem_id + "' and mms_id = '" + rs.getString("mst_mms_content") + "'";
+						String mmsinfostr = "select * from cb_mms_images cmi where cmi.mem_id = '" + mem_id + "' and mms_id = '" + mms_content + "'";
 						Statement mmsinfo = conn.createStatement();
 						ResultSet mmsrs = mmsinfo.executeQuery(mmsinfostr);
 						mmsrs.first();
