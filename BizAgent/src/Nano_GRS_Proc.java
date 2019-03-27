@@ -119,6 +119,7 @@ public class Nano_GRS_Proc implements Runnable {
 									"      ,cgm.FILE_PATH3 as mms3" + 
 									"      ,cgm.cb_msg_id " + 
 									"      ,cgb.msg_gb " +
+									"      ,cgb.BC_MSG_ID " +
 									"  from cb_nano_broadcast_list cgm" + 
 									" inner join cb_grs_broadcast_"+ monthStr +" cgb" + 
 									"    on cgm.msg_id = cgb.msg_id" + 
@@ -253,7 +254,13 @@ public class Nano_GRS_Proc implements Runnable {
 					st_nanobc_del.setString(2, rs.getString("bc_rcv_phn"));
 					st_nanobc_del.executeUpdate();
 					st_nanobc_del.close();
-					
+
+					String nanobc_st_ud = "update cb_grs_broadcast_"+ monthStr +" set bc_snd_st = bc_snd_st + 2 where bc_msg_id = ?";
+					PreparedStatement st_nanobc_st_ud = conn.prepareStatement(nanobc_st_ud);
+					st_nanobc_st_ud.setString(1,  rs.getString("BC_MSG_ID"));
+					st_nanobc_st_ud.executeUpdate();
+					st_nanobc_st_ud.close();
+
 					/*
 					 * broadcast 를 이용하는 방법으로 재 개발 예정 적용시 아래 내용은 삭제 예정
 					 */
