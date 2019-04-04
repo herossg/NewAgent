@@ -22,7 +22,7 @@ public class Nano_GRS_Proc implements Runnable {
 	public String monthStr;
 	public boolean isRunning = false;
 	public String div_str;
-	static int proc_cnt = 0;
+	static int proc_cnt;
 	
 	public Nano_GRS_Proc(String _db_url, Logger _log) {
 		DB_URL = _db_url;

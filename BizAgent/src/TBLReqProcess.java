@@ -563,6 +563,18 @@ public class TBLReqProcess implements Runnable {
 								}
 									
 								break;
+							case "IMC":
+								String imc;
+								PreparedStatement imcins;
+								imc = "insert into cb_imc_msg(msg_type, remark4, phn, cb_msg_id) values(?, ?, ?, ?)";
+								imcins = conn.prepareStatement(imc);
+								imcins.setString(1, "IMC");
+								imcins.setString(2, sent_key);
+								imcins.setString(3, phn);
+								imcins.setString(4, rs.getString("MSGID"));
+								imcins.executeUpdate();
+								imcins.close();
+								break;		
 							case "NASELF":
 								if(nconn == null) {
 									nconn = DriverManager.getConnection(NURL, NUSER_NAME, NPASSWORD);

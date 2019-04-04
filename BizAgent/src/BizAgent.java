@@ -76,6 +76,7 @@ public class BizAgent implements Daemon, Runnable {
     	
     	String PreMonth = "";
     	boolean isRunning = true;
+    	Nano_GRS_Proc.proc_cnt = 0;
         while(isRunning) {
 
 			Date month = new Date();
