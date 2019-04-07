@@ -38,8 +38,8 @@ public class BizDBCPInit {
 		Properties p = new Properties();
 		try {
 			
-			p.load(new FileInputStream("/root/BizAgent/conf/db.properties"));
-//        	p.load(new FileInputStream("E:\\Git\\BizAgent\\conf\\db.properties")); 
+			//p.load(new FileInputStream("/root/BizAgent/conf/db.properties"));
+        	p.load(new FileInputStream("E:\\Git\\BizAgent\\conf\\db.properties")); 
 
 			BizDBCPInit.DB_URL = p.getProperty("DB_URL");
 			BizDBCPInit.USER_NAME = p.getProperty("USER_NAME");

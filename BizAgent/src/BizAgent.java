@@ -34,9 +34,9 @@ public class BizAgent implements Daemon, Runnable {
         }
         
         try {
-        	//p.load(new FileInputStream("E:\\Git\\BizAgent\\conf\\log4j.properties")); 
+        	p.load(new FileInputStream("E:\\Git\\BizAgent\\conf\\log4j.properties")); 
         	//p.load(new FileInputStream("D:\\BIZ\\BizAgent\\BizAgent\\conf\\log4j.properties")); 
-        	p.load(new FileInputStream("/root/BizAgent/conf/log4j.properties"));
+        	//p.load(new FileInputStream("/root/BizAgent/conf/log4j.properties"));
         	PropertyConfigurator.configure(p);
         	log.info("Log Property Load !!");
             status = "INITED";
@@ -120,6 +120,14 @@ public class BizAgent implements Daemon, Runnable {
         		nano_sum_proc.start();
 
         	if(Nano_it_summary.isRunning)
+        		isRunning = true;
+
+        	Imc_summary imc = new Imc_summary(DB_URL, log);
+        	Thread imc_sum_proc = new Thread(imc);
+        	if(!isStop)
+        		imc_sum_proc.start();
+
+        	if(Imc_summary.isRunning)
         		isRunning = true;
 
         	

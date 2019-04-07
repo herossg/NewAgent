@@ -113,6 +113,9 @@ public class TBLReqProcess implements Runnable {
 					case "NASELF":
 						mem_2nd_type = "ns";
 						break;
+					case "SMART":
+						mem_2nd_type = "sm";
+						break;
 					}
 				} else {
 					mem_2nd_type = rs.getString("MESSAGE_TYPE");
