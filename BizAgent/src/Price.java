@@ -15,6 +15,9 @@ public class Price {
 	public float price_dooit  ;
 	public float price_grs_mms  ;
 	public float price_nas_mms  ;
+	public float price_smt ;
+	public float price_smt_sms  ;
+	public float price_smt_mms  ;
 	
 	public Price() {
 		
@@ -34,7 +37,10 @@ public class Price {
 					  float tprice_nas_sms,
 					  float tprice_dooit,
 					  float tprice_grs_mms,
-					  float tprice_nas_mms
+					  float tprice_nas_mms,
+					  float tprice_smt,
+					  float tprice_smt_sms,
+					  float tprice_smt_mms
 						) 
 	{
 		this.price_ft      = tprice_ft     ;
@@ -52,6 +58,9 @@ public class Price {
 		this.price_dooit   = tprice_dooit ; 
 		this.price_grs_mms   = tprice_grs_mms ; 
 		this.price_nas_mms   = tprice_nas_mms ; 
+		this.price_smt       = tprice_smt ; 
+		this.price_smt_sms   = tprice_smt_sms ; 
+		this.price_smt_mms   = tprice_smt_mms ; 
 	}
 	
 }

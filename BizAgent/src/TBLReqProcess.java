@@ -479,6 +479,191 @@ public class TBLReqProcess implements Runnable {
 								amtins.close();
 								
 								break;
+							case "SMART":
+								Date month = new Date();
+								SimpleDateFormat transFormat = new SimpleDateFormat("yyyyMM");
+								String monthStr = transFormat.format(month);
+								
+								if(msgtype.equals("SMS")) {
+
+									String smtquery = "insert into OShotSMS_" + monthStr + "( Sender "          
+																			+ ",Receiver "         
+																			+ ",Msg "             
+																			+ ",URL "             
+																			+ ",ReserveDT "
+																			+ ",TimeoutDT "       
+																			+ ",SendResult )"
+																			+ "values( ? "           
+																			+ ",? "      
+																			+ ",? "      
+																			+ ",? "      
+																			+ ",? "      
+																			+ ",? "      
+																			+ ",? )"; 
+									PreparedStatement smtins = conn.prepareStatement(smtquery);
+									smtins.setString(1, rs.getString("SMS_SENDER"));
+									smtins.setString(2, phn);
+									smtins.setString(3, msg_sms);
+									smtins.setString(4, null);
+									
+									if(rs.getString("RESERVE_DT").equals("00000000000000")) {
+										smtins.setString(5, null);
+									}else {
+										smtins.setString(5, rs.getString("RESERVE_DT"));
+									} 
+									
+									smtins.setString(6, null);
+									smtins.setString(7, "0");
+
+									smtins.executeUpdate();
+									smtins.close();
+									
+									wtudstr = "update cb_wt_msg_sent set mst_wait=ifnull(mst_wait,0)+1 where mst_id=?";
+									wtud = conn.prepareStatement(wtudstr);
+									wtud.setString(1, sent_key);
+									wtud.executeUpdate();
+									wtud.close();
+									
+									msgudstr = "update cb_msg_" + userid + " set MESSAGE_TYPE='sm',CODE='SMT', MESSAGE = '결과 수신대기', SMS_KIND='S' where MSGID=?";
+									msgud = conn.prepareStatement(msgudstr);
+									msgud.setString(1, msg_id);
+									msgud.executeUpdate();
+									msgud.close();
+																					
+									kind = "P";
+									amount = price.member_price.price_smt_sms;
+									payback = price.member_price.price_smt_sms - price.parent_price.price_smt_sms;
+									admin_amt = price.base_price.price_smt_sms;
+									memo = "웹(C) SMS";
+									if(amount == 0 || amount == 0.0f) {
+										amount = admin_amt;
+									}
+	
+									amtins = conn.prepareStatement(amtStr);
+									amtins.setTimestamp(1, new java.sql.Timestamp(System.currentTimeMillis())); 
+									amtins.setString(2, kind); 
+									amtins.setFloat(3, amount); 
+									amtins.setString(4, memo); 
+									amtins.setString(5, msg_id); 
+									amtins.setFloat(6, payback); 
+									amtins.setFloat(7, admin_amt); 
+									
+									amtins.executeUpdate();
+									amtins.close();
+									
+								}else if(msgtype.equals("LMS")) {
+
+									String smtmmsquery = "insert into OShotMMS_" + monthStr 
+																+ "(MsgGroupID "     
+							                                    + ",Sender "          
+							                                    + ",Receiver "        
+							                                    + ",Subject "         
+							                                    + ",Msg "             
+							                                    + ",ReserveDT "       
+							                                    + ",TimeoutDT "       
+							                                    + ",SendResult "      
+							                                    + ",File_Path1 "      
+							                                    + ",File_Path2 "     
+							                                    + ",File_Path3 )"      
+																+ "values"           
+																+ "(? "     
+							                                    + ",? "          
+							                                    + ",? "        
+							                                    + ",? "         
+							                                    + ",? "             
+							                                    + ",? "       
+							                                    + ",? "       
+							                                    + ",? "          
+							                                    + ",? "      
+							                                    + ",? "      
+							                                    + ",?) ";
+									PreparedStatement smtmmsins = conn.prepareStatement(smtmmsquery);
+									smtmmsins.setString(1, sent_key);
+									smtmmsins.setString(2, rs.getString("SMS_SENDER"));
+									smtmmsins.setString(3, phn);
+									smtmmsins.setString(4, rs.getString("SMS_LMS_TIT").replaceAll("\\r\\n|\\r|\\n", ""));
+									smtmmsins.setString(5, msg_sms);
+									
+									if(rs.getString("RESERVE_DT").equals("00000000000000")) {
+										smtmmsins.setString(6, null);
+									}else {
+										smtmmsins.setString(6, rs.getString("RESERVE_DT"));
+									} 
+									
+									smtmmsins.setString(7, null);
+									smtmmsins.setString(8, "0");
+									String mms1 = null;
+									String mms2 = null;
+									String mms3 = null;
+									
+									if(rs.getString("mms_id").length()>5) {
+										String mmsinfostr = "select * from cb_mms_images cmi where cmi.mem_id = '" + mem_id + "' and mms_id = '" + rs.getString("mms_id") + "'";
+										Statement mmsinfo = conn.createStatement();
+										ResultSet mmsrs = mmsinfo.executeQuery(mmsinfostr);
+										mmsrs.first();
+										
+										mms1 = mmsrs.getString("origin1_path");
+										mms2 = mmsrs.getString("origin2_path");
+										mms3 = mmsrs.getString("origin3_path");
+	
+										//file_cnt = 1;
+									}
+									
+									smtmmsins.setString(9, mms1);
+									smtmmsins.setString(10, mms2);
+									smtmmsins.setString(11, mms3);
+									
+									
+									smtmmsins.executeUpdate();
+									smtmmsins.close();
+									
+									wtudstr = "update cb_wt_msg_sent set mst_wait=ifnull(mst_wait,0)+1 where mst_id=?";
+									wtud = conn.prepareStatement(wtudstr);
+									wtud.setString(1, sent_key);
+									wtud.executeUpdate();
+									wtud.close();
+									
+									msgudstr = "update cb_msg_" + userid + " set MESSAGE_TYPE='sm',CODE='SMT', MESSAGE = '결과 수신대기', SMS_KIND='L' where MSGID=?";
+									msgud = conn.prepareStatement(msgudstr);
+									msgud.setString(1, msg_id);
+									msgud.executeUpdate();
+									msgud.close();
+													
+									kind = "P";
+
+									if(mms1 != null) {
+										amount = price.member_price.price_smt_mms;
+										payback = price.member_price.price_smt_mms - price.parent_price.price_smt_mms;
+										admin_amt = price.base_price.price_smt_mms;
+										memo = "웹(C) MMS";
+										if(amount == 0 || amount == 0.0f) {
+											amount = admin_amt;
+										}
+										
+									} else {
+										amount = price.member_price.price_smt;
+										payback = price.member_price.price_smt - price.parent_price.price_smt;
+										admin_amt = price.base_price.price_smt;
+										memo = "웹(C) LMS";
+										if(amount == 0 || amount == 0.0f) {
+											amount = admin_amt;
+										}
+									}
+	
+									amtins = conn.prepareStatement(amtStr);
+									amtins.setTimestamp(1, new java.sql.Timestamp(System.currentTimeMillis())); 
+									amtins.setString(2, kind); 
+									amtins.setFloat(3, amount); 
+									amtins.setString(4, memo); 
+									amtins.setString(5, msg_id); 
+									amtins.setFloat(6, payback); 
+									amtins.setFloat(7, admin_amt); 
+									
+									amtins.executeUpdate();
+									amtins.close();	
+								}
+									
+								break;								
 							case "GREEN_SHOT":
 								if(msgtype.equals("SMS")) {
 									String funsmsstr = "insert into cb_sms_msg(TR_PHONE"

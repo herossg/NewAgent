@@ -47,7 +47,10 @@ public class Price_info  {
 								rs.getFloat("wst_price_nas_sms"),
 								0.0f,
 								rs.getFloat("wst_price_grs_mms"),
-								rs.getFloat("wst_price_nas_mms")
+								rs.getFloat("wst_price_nas_mms"),
+								rs.getFloat("wst_price_smt"),
+								rs.getFloat("wst_price_smt_sms"),
+								rs.getFloat("wst_price_smt_mms")
 						    );
 				
 			}
@@ -81,6 +84,9 @@ public class Price_info  {
 					"				,i.mad_price_mms    as c_mad_price_mms   " + 
 					"				,i.mad_price_grs_mms    as c_mad_price_grs_mms   " + 
 					"				,i.mad_price_nas_mms    as c_mad_price_nas_mms   " + 
+					"				,i.mad_price_smt    as c_mad_price_smt   " + 
+					"				,i.mad_price_smt_sms    as c_mad_price_smt_sms   " + 
+					"				,i.mad_price_smt_mms    as c_mad_price_smt_mms   " + 
 					"				,a.mad_price_at     as p_mad_price_at    " + 
 					"				,a.mad_price_ft     as p_mad_price_ft    " + 
 					"				,a.mad_price_ft_img as p_mad_price_ft_img" + 
@@ -95,6 +101,9 @@ public class Price_info  {
 					"				,a.mad_price_mms    as p_mad_price_mms   " + 
 					"				,a.mad_price_grs_mms    as p_mad_price_grs_mms   " + 
 					"				,a.mad_price_nas_mms    as p_mad_price_nas_mms   " + 
+					"				,a.mad_price_smt    as p_mad_price_smt   " + 
+					"				,a.mad_price_smt_sms    as p_mad_price_smt_sms   " + 
+					"				,a.mad_price_smt_mms    as p_mad_price_smt_mms   " + 
 					"			from" + 
 					"				cb_wt_member_addon i left join" + 
 					"				cb_wt_member_addon a on 1=1 inner join" + 
@@ -126,7 +135,10 @@ public class Price_info  {
 								rs1.getFloat("p_mad_price_nas_sms"),
 								0.0f,
 								rs1.getFloat("p_mad_price_grs_mms"),
-								rs1.getFloat("p_mad_price_nas_mms")
+								rs1.getFloat("p_mad_price_nas_mms"),
+								rs1.getFloat("p_mad_price_smt"),
+								rs1.getFloat("p_mad_price_smt_sms"),
+								rs1.getFloat("p_mad_price_smt_mms")
 						    );
 				
 				member_price.set_price(
@@ -144,7 +156,10 @@ public class Price_info  {
 						rs1.getFloat("c_mad_price_nas_sms"),
 						0.0f,
 						rs1.getFloat("c_mad_price_grs_mms"),
-						rs1.getFloat("c_mad_price_nas_mms")
+						rs1.getFloat("c_mad_price_nas_mms"),
+						rs1.getFloat("c_mad_price_smt"),
+						rs1.getFloat("c_mad_price_smt_sms"),
+						rs1.getFloat("c_mad_price_smt_mms")
 				    );				
 				
 			}
