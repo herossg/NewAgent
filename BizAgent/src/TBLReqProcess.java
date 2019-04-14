@@ -1,3 +1,9 @@
+import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CodingErrorAction;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -89,7 +95,7 @@ public class TBLReqProcess implements Runnable {
 				String mem_sms = rs.getString("mem_sms_agent");
 				String mem_p_invoice = rs.getString("P_INVOICE");
 				String mem_resend = rs.getString("mem_2nd_send");
-				String msg_sms = rs.getString("MSG_SMS");
+				String msg_sms = rs.getString("MSG_SMS").replaceAll("\\xC2\\xA0", " ") ;
 				String sent_key = rs.getString("REMARK4");
 				String phn = "";
 				String mem_2nd_type = "";
@@ -224,7 +230,7 @@ public class TBLReqProcess implements Runnable {
 				insSt.setString(21, rs.getString("REG_DT"));
 				insSt.setString(22, rs.getString("REMARK1"));
 				insSt.setString(23, rs.getString("REMARK2"));
-				insSt.setString(24, rs.getString("REMARK3"));
+				insSt.setString(24, null);
 				insSt.setString(25, rs.getString("REMARK4"));
 				insSt.setString(26, rs.getString("REMARK5"));
 				insSt.setString(27, rs.getString("RES_DT"));
@@ -752,17 +758,160 @@ public class TBLReqProcess implements Runnable {
 									
 								break;
 							case "IMC":
-								String imc;
-								PreparedStatement imcins;
-								imc = "insert into cb_imc_msg(msg_type, remark4, phn, cb_msg_id) values(?, ?, ?, ?)";
-								imcins = conn.prepareStatement(imc);
-								imcins.setString(1, "IMC");
-								imcins.setString(2, sent_key);
-								imcins.setString(3, phn);
-								imcins.setString(4, rs.getString("MSGID"));
-								imcins.executeUpdate();
-								imcins.close();
-								break;		
+//                              동보 전송 필요시 								
+//								String imc;
+//								PreparedStatement imcins;
+//								imc = "insert into cb_imc_msg(msg_type, remark4, phn, cb_msg_id) values(?, ?, ?, ?)";
+//								imcins = conn.prepareStatement(imc);
+//								imcins.setString(1, "IMC");
+//								imcins.setString(2, sent_key);
+//								imcins.setString(3, phn);
+//								imcins.setString(4, rs.getString("MSGID"));
+//								imcins.executeUpdate();
+//								imcins.close();
+//								break;
+								
+								String imc_mms1="", imc_mms2="", imc_mms3="";
+								String msg_type = "IMC";
+								msgtype = "PMS";
+								if(rs.getString("mms_id").length()>5) {
+									String mmsinfostr = "select * from cb_mms_images cmi where cmi.mem_id = '" + mem_id + "' and mms_id = '" + rs.getString("mms_id") + "'";
+									Statement mmsinfo = conn.createStatement();
+									ResultSet mmsrs = mmsinfo.executeQuery(mmsinfostr);
+									mmsrs.first();
+									
+									imc_mms1 = mmsrs.getString("origin1_path");
+									imc_mms2 = mmsrs.getString("origin2_path");
+									imc_mms3 = mmsrs.getString("origin3_path");
+									
+									msgtype = "MMS";
+								}
+								
+								String imcstr = "insert into IMC.IMC_SEND(user_id"
+																  + ",sub_id"
+																  + ",send_type"
+																  + ",sender"
+																  + ",subject"
+																  + ",message"
+																  + ",file_url"
+																  + ",receivers"
+																  + ",reserve_yn"
+																  + ",reserve_dt"
+																  + ",request_id"
+																  + ",request_dt"
+																  + ",send_status)"
+															+ "values(?"
+																  + ",?"
+																  + ",?"
+																  + ",?"
+																  + ",?"
+																  + ",?"
+																  + ",?"
+																  + ",?"
+																  + ",?"
+																  + ",?"
+																  + ",?"
+																  + ",?"
+																  + ",?)";
+								PreparedStatement imcins = conn.prepareStatement(imcstr, Statement.RETURN_GENERATED_KEYS);
+								imcins.setString(1,  "dhn7985" ); //rs.getString("user_id"));
+								imcins.setString(2, null); //  폰문자 일때는 sub_id 는 Null 처리 함.   rs.getString("mem_id"));
+								imcins.setString(3, msgtype);
+								imcins.setString(4, rs.getString("SMS_SENDER") );
+								if(length(rs.getString("SMS_LMS_TIT").replaceAll("\\r\\n|\\r|\\n", ""))>36) {
+									imcins.setString(5, substring(rs.getString("SMS_LMS_TIT").replaceAll("\\r\\n|\\r|\\n", ""), 36));
+								}else {
+									imcins.setString(5, rs.getString("SMS_LMS_TIT").replaceAll("\\r\\n|\\r|\\n", ""));
+								}
+								imcins.setString(6, msg_sms );
+								imcins.setString(7, "");
+								imcins.setString(8, phn);
+								if(rs.getString("RESERVE_DT").equals("00000000000000")) {
+									imcins.setString(9, "N");
+									imcins.setString(10, null);
+								} else {
+									imcins.setString(9, "Y");
+									imcins.setString(10, rd.format(rs.getString("RESERVE_DT")));
+								}
+								imcins.setLong(11,  System.currentTimeMillis() );
+								imcins.setTimestamp(12, new java.sql.Timestamp(System.currentTimeMillis()));
+								imcins.setString(13, "READY");
+								
+								int rowgrs = imcins.executeUpdate();
+								int imc_msg_id = 0;
+					            if(rowgrs == 1)
+					            {
+					                // get candidate id
+					            	ResultSet imc_rstemp = null;
+					            	imc_rstemp = imcins.getGeneratedKeys();
+					                if(imc_rstemp.next())
+					                	imc_msg_id = imc_rstemp.getInt(1);
+					            }
+								
+					            imcins.close();
+
+					            String imcsub = "insert into IMC.IMC_MART_SUB" 
+											            		+"(request_id" 
+											            		+",user_id"    									
+											            		+",sub_id"
+											            		+ ",name)"
+											            		+"values"
+																+"(?" 
+																+",?"    									
+																+",?"
+																+",?)";
+							    
+							    PreparedStatement imcmsins = conn.prepareStatement(imcsub );
+							    imcmsins.setInt(1, imc_msg_id);
+							    imcmsins.setString(2, userid );//rs.getString("user_id"));
+							    imcmsins.setString(3, sent_key);
+							    imcmsins.setString(4, msg_id);
+							    imcmsins.executeUpdate();
+							    imcmsins.close();
+					            
+								wtudstr = "update cb_wt_msg_sent set mst_wait=ifnull(mst_wait,0) + 1 where mst_id=?";
+								wtud = conn.prepareStatement(wtudstr);
+								wtud.setString(1, sent_key);
+								wtud.executeUpdate();
+								wtud.close();
+								
+								msgudstr = "update cb_msg_" + userid + " set MESSAGE_TYPE='im',CODE='IMC', MESSAGE = '결과 수신대기', remark3 = '" + imc_msg_id +"' where MSGID=?";
+								msgud = conn.prepareStatement(msgudstr);
+								msgud.setString(1, msg_id);
+								msgud.executeUpdate();
+								msgud.close();
+													
+								kind = "P";
+								
+								if( ( imc_mms1 == null || imc_mms1.isEmpty())  && ( imc_mms2 == null || imc_mms2.isEmpty()) && ( imc_mms3 == null || imc_mms3.isEmpty())) {
+									amount = price.member_price.price_grs;
+									payback = price.member_price.price_grs - price.parent_price.price_grs;
+									admin_amt = price.base_price.price_grs;
+									memo = "IMC";
+								} else {
+									amount = price.member_price.price_grs_mms;
+									payback = price.member_price.price_grs_mms - price.parent_price.price_grs_mms;
+									admin_amt = price.base_price.price_grs_mms;
+									memo = "IMC MMS";
+								}
+								
+								if(amount == 0 || amount == 0.0f) {
+									amount = admin_amt;
+								}
+			
+								amtins = conn.prepareStatement(amtStr);
+								amtins.setTimestamp(1, new java.sql.Timestamp(System.currentTimeMillis())); 
+								amtins.setString(2, kind); 
+								amtins.setFloat(3, amount ); 
+								amtins.setString(4, memo); 
+								amtins.setString(5, msg_id); 
+								amtins.setFloat(6, payback ); 
+								amtins.setFloat(7, admin_amt ); 
+								
+								amtins.executeUpdate();
+								amtins.close();
+								
+								break;	 								
 							case "NASELF":
 								if(nconn == null) {
 									nconn = DriverManager.getConnection(NURL, NUSER_NAME, NPASSWORD);
@@ -1051,6 +1200,48 @@ public class TBLReqProcess implements Runnable {
 		TBLReqProcess.isRunning[div_str] = false;
 		//log.info("TBL RESULT PROC 끝 : " + div_str);
 	}
-	
+
+    public static String substring(String parameterName, int maxLength) {
+        int DB_FIELD_LENGTH = maxLength;
+ 
+        Charset utf8Charset = Charset.forName("UTF-8");
+        CharsetDecoder cd = utf8Charset.newDecoder();
+ 
+        try {
+            byte[] sba = parameterName.getBytes("UTF-8");
+            // Ensure truncating by having byte buffer = DB_FIELD_LENGTH
+            ByteBuffer bb = ByteBuffer.wrap(sba, 0, DB_FIELD_LENGTH); // len in [B]
+            CharBuffer cb = CharBuffer.allocate(DB_FIELD_LENGTH); // len in [char] <= # [B]
+            // Ignore an incomplete character
+            cd.onMalformedInput(CodingErrorAction.IGNORE);
+            cd.decode(bb, cb, true);
+            cd.flush(cb);
+            parameterName = new String(cb.array(), 0, cb.position());
+        } catch (UnsupportedEncodingException e) {
+            System.err.println("### 지원하지 않는 인코딩입니다." + e);
+        }
+ 
+        return parameterName;
+    }
+ 
+    // 문자열 인코딩에 따라서 글자수 체크
+    public static int length(CharSequence sequence) {
+        int count = 0;
+        for (int i = 0, len = sequence.length(); i < len; i++) {
+            char ch = sequence.charAt(i);
+ 
+            if (ch <= 0x7F) {
+                count++;
+            } else if (ch <= 0x7FF) {
+                count += 2;
+            } else if (Character.isHighSurrogate(ch)) {
+                count += 4;
+                ++i;
+            } else {
+                count += 3;
+            }
+        }
+        return count;
+    }
 	 
 }

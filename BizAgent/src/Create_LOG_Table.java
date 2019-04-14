@@ -6,11 +6,6 @@ import com.mysql.jdbc.Driver;
 import java.util.Date;
 
 public class Create_LOG_Table implements Runnable {
-	private final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-
-	private String DB_URL;
-	private final String USER_NAME = "root";
-	private final String PASSWORD = "sjk4556!!22";
 	
 	public static boolean isRunning = false;
 	public Logger log;
@@ -18,7 +13,6 @@ public class Create_LOG_Table implements Runnable {
 	//private Connection conn = null;
 	
 	public Create_LOG_Table(String _db_url, Logger _log) {
-		DB_URL = _db_url;
 		log = _log;
 	}
 	
@@ -253,7 +247,7 @@ public class Create_LOG_Table implements Runnable {
 			}
 			rs.close();			
 
-			log.info("Nas Log 생성 시작");
+			//log.info("Nas Log 생성 시작");
 			rs = md.getTables(null, "dhn", "cb_nas_mms_msg_log_"+ monthStr, types);
 			
 			if(!rs.next()) {
@@ -311,14 +305,14 @@ public class Create_LOG_Table implements Runnable {
 						"                                COLLATE='utf8_general_ci'" + 
 						"                                ENGINE=InnoDB";
 				
-				log.info("Nas Log Create = " + CreateSTR);
+				log.info("Log Table Create : " + CreateSTR);
 				CRTTable.executeUpdate(CreateSTR);
 				CRTTable.close();
 			}
 			rs.close();			
 
 		}catch(Exception ex) {
-			log.info("Create Nas Table 오류 - " + ex.toString() );
+			log.info("Create Log Table 오류 - " + ex.toString() );
 		}
 		
 		try {
