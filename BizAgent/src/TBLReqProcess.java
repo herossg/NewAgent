@@ -849,6 +849,8 @@ public class TBLReqProcess implements Runnable {
 					            }
 								
 					            imcins.close();
+					            
+					            Thread.sleep(1);
 
 					            String imcsub = "insert into IMC.IMC_MART_SUB" 
 											            		+"(request_id" 
