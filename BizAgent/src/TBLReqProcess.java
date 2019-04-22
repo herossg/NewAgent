@@ -787,6 +787,21 @@ public class TBLReqProcess implements Runnable {
 									msgtype = "MMS";
 								}
 								
+								String req_query = "insert into IMC.imc_send_idx(req) values(0)";
+								PreparedStatement req_id_st = conn.prepareStatement(req_query, Statement.RETURN_GENERATED_KEYS);
+								int req_id_ins = req_id_st.executeUpdate();
+								int req_id = 0;
+					            if(req_id_ins == 1)
+					            {
+					                // get candidate id
+					            	ResultSet imc_req = null;
+					            	imc_req = req_id_st.getGeneratedKeys();
+					                if(imc_req.next())
+					                	req_id = imc_req.getInt(1);
+					                imc_req.close();
+					            }
+					            req_id_st.close();
+					            
 								String imcstr = "insert into IMC.IMC_SEND(user_id"
 																  + ",sub_id"
 																  + ",send_type"
@@ -833,7 +848,7 @@ public class TBLReqProcess implements Runnable {
 									imcins.setString(9, "Y");
 									imcins.setString(10, rd.format(rs.getString("RESERVE_DT")));
 								}
-								imcins.setLong(11,  System.currentTimeMillis() );
+								imcins.setLong(11,  req_id );
 								imcins.setTimestamp(12, new java.sql.Timestamp(System.currentTimeMillis()));
 								imcins.setString(13, "READY");
 								
@@ -846,11 +861,12 @@ public class TBLReqProcess implements Runnable {
 					            	imc_rstemp = imcins.getGeneratedKeys();
 					                if(imc_rstemp.next())
 					                	imc_msg_id = imc_rstemp.getInt(1);
+					                imc_rstemp.close();
 					            }
 								
 					            imcins.close();
 					            
-					            Thread.sleep(1);
+					            //Thread.sleep(5);
 
 					            String imcsub = "insert into IMC.IMC_MART_SUB" 
 											            		+"(request_id" 
@@ -886,14 +902,14 @@ public class TBLReqProcess implements Runnable {
 								kind = "P";
 								
 								if( ( imc_mms1 == null || imc_mms1.isEmpty())  && ( imc_mms2 == null || imc_mms2.isEmpty()) && ( imc_mms3 == null || imc_mms3.isEmpty())) {
-									amount = price.member_price.price_grs;
-									payback = price.member_price.price_grs - price.parent_price.price_grs;
-									admin_amt = price.base_price.price_grs;
+									amount = price.member_price.price_imc;
+									payback = price.member_price.price_imc - price.parent_price.price_imc;
+									admin_amt = price.base_price.price_imc;
 									memo = "IMC";
 								} else {
-									amount = price.member_price.price_grs_mms;
-									payback = price.member_price.price_grs_mms - price.parent_price.price_grs_mms;
-									admin_amt = price.base_price.price_grs_mms;
+									amount = price.member_price.price_imc;
+									payback = price.member_price.price_imc - price.parent_price.price_imc;
+									admin_amt = price.base_price.price_imc;
 									memo = "IMC MMS";
 								}
 								
