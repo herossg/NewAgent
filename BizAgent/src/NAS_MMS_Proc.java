@@ -19,6 +19,8 @@ public class NAS_MMS_Proc implements Runnable {
 	public Logger log;
 	public String monthStr;
 	
+	public boolean isRefund = true;
+	
 	public NAS_MMS_Proc(String _db_url, Logger _log) {
 		DB_URL = _db_url;
 		log = _log;
@@ -139,7 +141,7 @@ public class NAS_MMS_Proc implements Runnable {
 					msgud.setString(1, msgid);
 					msgud.executeUpdate();
 					msgud.close();
-				} else {
+				} else if(this.isRefund){
 					wtudstr = "update cb_wt_msg_sent set mst_err_nas = ifnull(mst_err_nas,0) + 1, mst_wait = mst_wait - 1  where mst_id=?";
 					wtud = conn.prepareStatement(wtudstr);
 					wtud.setString(1, sent_key);

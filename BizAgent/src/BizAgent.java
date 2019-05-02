@@ -87,6 +87,8 @@ public class BizAgent implements Daemon, Runnable {
     	String PreMonth = "";
     	boolean isRunning = true;
     	Nano_GRS_Proc.proc_cnt = 0;
+    	Smt_Proc.isRunning = false;
+    	
         while(isRunning) {
 
 			Date month = new Date();
@@ -148,6 +150,16 @@ public class BizAgent implements Daemon, Runnable {
 				if(!isStop)
 					imc_proc.start();
 				if(Imc_Proc.isRunning)
+	        		isRunning = true;
+        	}
+
+        	// SMT PHN 처리 
+        	if(init_p.get("SMTPHN").equals("1")) {
+	        	Smt_Proc smtproc = new Smt_Proc(DB_URL, log);
+				Thread smt_proc = new Thread(smtproc);
+				if(!isStop)
+					smt_proc.start();
+				if(Smt_Proc.isRunning)
 	        		isRunning = true;
         	}
         	
@@ -226,6 +238,7 @@ public class BizAgent implements Daemon, Runnable {
         	if(init_p.get("GRS").equals("1")) {
 				Nano_GRS_Proc nanogrs = new Nano_GRS_Proc(DB_URL, log);
 				nanogrs.monthStr = monthStr;
+				nanogrs.isRefund = Boolean.parseBoolean( init_p.getProperty("REFUND") );
 				Thread nanogrs_proc = new Thread(nanogrs);
 				nanogrs_proc.start();
 				
@@ -242,6 +255,7 @@ public class BizAgent implements Daemon, Runnable {
         	if(init_p.get("NAS").equals("1")) {
 				NAS_SMS_Proc nassms = new NAS_SMS_Proc(DB_URL, log);
 				nassms.monthStr = monthStr;
+				nassms.isRefund = Boolean.parseBoolean( init_p.getProperty("REFUND") );
 				Thread nassms_proc = new Thread(nassms);
 				if(!isStop)
 					nassms_proc.start();
@@ -262,6 +276,7 @@ public class BizAgent implements Daemon, Runnable {
 				// Naself MMS 처리
 				NAS_MMS_Proc nasmms = new NAS_MMS_Proc(DB_URL, log);
 				nasmms.monthStr = monthStr;
+				nasmms.isRefund = Boolean.parseBoolean( init_p.getProperty("REFUND") );
 				Thread nasmms_proc = new Thread(nasmms);
 				if(!isStop)
 					nasmms_proc.start();

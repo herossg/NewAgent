@@ -929,7 +929,125 @@ public class TBLReqProcess implements Runnable {
 								amtins.executeUpdate();
 								amtins.close();
 								
-								break;	 								
+								break;
+							case "SMT_PHN":
+//                              동보 전송 필요시 								
+//								String imc;
+//								PreparedStatement imcins;
+//								imc = "insert into cb_imc_msg(msg_type, remark4, phn, cb_msg_id) values(?, ?, ?, ?)";
+//								imcins = conn.prepareStatement(imc);
+//								imcins.setString(1, "IMC");
+//								imcins.setString(2, sent_key);
+//								imcins.setString(3, phn);
+//								imcins.setString(4, rs.getString("MSGID"));
+//								imcins.executeUpdate();
+//								imcins.close();
+//								break;
+								
+//								String smt_req_query = "insert into IMC.imc_send_idx(req) values(0)";
+//								PreparedStatement smt_req_id_st = conn.prepareStatement(smt_req_query, Statement.RETURN_GENERATED_KEYS);
+//								int smt_req_id_ins = smt_req_id_st.executeUpdate();
+//								int smt_req_id = 0;
+//					            if(smt_req_id_ins == 1)
+//					            {
+//					                // get candidate id
+//					            	ResultSet smt_req = null;
+//					            	smt_req = smt_req_id_st.getGeneratedKeys();
+//					                if(smt_req.next())
+//					                	req_id = smt_req.getInt(1);
+//					                smt_req.close();
+//					            }
+//					            smt_req_id_st.close();
+					            
+								String smtstr = "insert into SMT_SEND(user_id"
+																  + ",sub_id"
+																  + ",send_type"
+																  + ",sender"
+																  + ",subject"
+																  + ",message"
+																  + ",file_url"
+																  + ",receivers"
+																  + ",reserve_yn"
+																  + ",reserve_dt"
+																  + ",request_id"
+																  + ",request_dt"
+																  + ",send_status)"
+															+ "values(?"
+																  + ",?"
+																  + ",?"
+																  + ",?"
+																  + ",?"
+																  + ",?"
+																  + ",?"
+																  + ",?"
+																  + ",?"
+																  + ",?"
+																  + ",?"
+																  + ",?"
+																  + ",?)";
+								PreparedStatement smtins = conn.prepareStatement(smtstr, Statement.RETURN_GENERATED_KEYS);
+								smtins.setString(1,  "dhn7985" ); //rs.getString("user_id"));
+								smtins.setString(2, null); //  폰문자 일때는 sub_id 는 Null 처리 함.   rs.getString("mem_id"));
+								smtins.setString(3, msgtype);
+								smtins.setString(4, rs.getString("SMS_SENDER") );
+								if(length(rs.getString("SMS_LMS_TIT").replaceAll("\\r\\n|\\r|\\n", ""))>36) {
+									smtins.setString(5, substring(rs.getString("SMS_LMS_TIT").replaceAll("\\r\\n|\\r|\\n", ""), 36));
+								}else {
+									smtins.setString(5, rs.getString("SMS_LMS_TIT").replaceAll("\\r\\n|\\r|\\n", ""));
+								}
+								smtins.setString(6, msg_sms );
+								smtins.setString(7, "");
+								smtins.setString(8, phn);
+								if(rs.getString("RESERVE_DT").equals("00000000000000")) {
+									smtins.setString(9, "N");
+									smtins.setString(10, null);
+								} else {
+									smtins.setString(9, "Y");
+									smtins.setString(10, rd.format(rs.getString("RESERVE_DT")));
+								}
+								smtins.setString(11,  sent_key );
+								smtins.setTimestamp(12, new java.sql.Timestamp(System.currentTimeMillis()));
+								smtins.setString(13, "READY");
+								
+								smtins.executeUpdate();
+					            smtins.close();
+					            
+								wtudstr = "update cb_wt_msg_sent set mst_imc=ifnull(mst_imc,0) + 1 where mst_id=?";
+								wtud = conn.prepareStatement(wtudstr);
+								wtud.setString(1, sent_key);
+								wtud.executeUpdate();
+								wtud.close();
+								
+								msgudstr = "update cb_msg_" + userid + " set MESSAGE_TYPE='sm',CODE='SMT', MESSAGE = '폰 성공', RESULT='Y' where MSGID=?";
+								msgud = conn.prepareStatement(msgudstr);
+								msgud.setString(1, msg_id);
+								msgud.executeUpdate();
+								msgud.close();
+													
+								kind = "P";
+								
+								amount = price.member_price.price_imc;
+								payback = price.member_price.price_imc - price.parent_price.price_imc;
+								admin_amt = price.base_price.price_imc;
+								memo = "SMT PHN";
+								
+								if(amount == 0 || amount == 0.0f) {
+									amount = admin_amt;
+								}
+			
+								amtins = conn.prepareStatement(amtStr);
+								amtins.setTimestamp(1, new java.sql.Timestamp(System.currentTimeMillis())); 
+								amtins.setString(2, kind); 
+								amtins.setFloat(3, amount ); 
+								amtins.setString(4, memo); 
+								amtins.setString(5, msg_id); 
+								amtins.setFloat(6, payback ); 
+								amtins.setFloat(7, admin_amt ); 
+								
+								amtins.executeUpdate();
+								amtins.close();
+								
+								break;	 									
 							case "NASELF":
 								if(nconn == null) {
 									nconn = DriverManager.getConnection(NURL, NUSER_NAME, NPASSWORD);

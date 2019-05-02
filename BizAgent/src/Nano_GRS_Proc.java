@@ -23,7 +23,9 @@ public class Nano_GRS_Proc implements Runnable {
 	public boolean isRunning = false;
 	public String div_str;
 	static int proc_cnt;
-	
+
+	public boolean isRefund;
+
 	public Nano_GRS_Proc(String _db_url, Logger _log) {
 		DB_URL = _db_url;
 		log = _log;
@@ -197,7 +199,7 @@ public class Nano_GRS_Proc implements Runnable {
 						msgud.setString(2, rs.getString("cb_msg_id"));
 						msgud.executeUpdate();
 						msgud.close();
-					} else {
+					} else if(this.isRefund){
 						wtudstr = "update cb_wt_msg_sent set mst_err_grs = ifnull(mst_err_grs,0) + 1, mst_wait = mst_wait - 1  where mst_id=?";
 						wtud = conn.prepareStatement(wtudstr);
 						wtud.setString(1, sent_key);
