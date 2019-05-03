@@ -9,11 +9,8 @@ import java.util.Date;
 import javax.net.ssl.SSLEngineResult.Status;
 
 public class Nano_GRS_Proc implements Runnable {
-	private final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
 
 	private String DB_URL;
-	private final String USER_NAME = "root";
-	private final String PASSWORD = "sjk4556!!22";
 	
 	//public static boolean isRunning = false;
 	public boolean isPremonth = false;
@@ -56,8 +53,7 @@ public class Nano_GRS_Proc implements Runnable {
 		int totalcnt = 0;
 		proc_cnt ++;
 		try {
-			//Class.forName(JDBC_DRIVER);
-			//conn =  DriverManager.getConnection(DB_URL, USER_NAME, PASSWORD);
+ 
 			conn = BizDBCPInit.getConnection();
 
 			String updateStr = "update cb_grs_broadcast_"+ monthStr +" cgb " + 
@@ -84,7 +80,7 @@ public class Nano_GRS_Proc implements Runnable {
 							            "                        where  a.MSG_ID = b.msg_id and a.BC_RCV_PHN = b.rcv_phone  " +
 							                                     " and  a.bc_snd_st in ('3', '4') ) " +
 							            "    and b.proc_str is null " +
-							            "  order by b.msg_id limit 500";
+							            "  order by b.msg_id limit 300";
 					
 					Statement grs_proc_ud_st = conn.createStatement();
 					grs_proc_ud_st.execute(grs_proc_ud);

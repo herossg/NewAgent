@@ -73,10 +73,10 @@ public class BizDBCPInit {
 			//커넥션 최소갯수 설정
 			poolConfig.setMinIdle(10);
 
-		    poolConfig.setMaxIdle(30);
+		    poolConfig.setMaxIdle(10);
 
 			//커넥션 최대 갯수 설정
-			poolConfig.setMaxTotal(60);
+			poolConfig.setMaxTotal(30);
 
 			GenericObjectPool<PoolableConnection> connectionPool = new GenericObjectPool<PoolableConnection>(poolableConnFactory,poolConfig);
 

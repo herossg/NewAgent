@@ -1,6 +1,8 @@
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -88,6 +90,22 @@ public class BizAgent implements Daemon, Runnable {
     	boolean isRunning = true;
     	Nano_GRS_Proc.proc_cnt = 0;
     	Smt_Proc.isRunning = false;
+
+    	if(init_p.get("GRS").equals("1")) {
+	    	Connection conn = null;
+			
+			try {
+				conn = BizDBCPInit.getConnection();
+				String upStr = "UPDATE cb_nano_broadcast_list SET a.proc_str = NULL WHERE proc_str IS NOT null";
+				Statement updateExe = conn.createStatement();
+				updateExe.execute(upStr);
+				updateExe.close();
+				conn.close();
+				log.info("Nano Broadcast List 초기화 성공");
+			} catch(Exception ex) {
+				log.info("Nano Broadcast List 초기화 실패");
+			}
+		}
     	
         while(isRunning) {
 
