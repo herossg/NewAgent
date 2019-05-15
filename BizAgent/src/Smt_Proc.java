@@ -52,7 +52,8 @@ public class Smt_Proc implements Runnable {
 									"       group_concat(message_id) as msg_ids," + 
 									"       max(request_id) as REMARK4, " +
 									"       max(message) as msg, " +
-									"       max(sender) as sender " +
+									"       max(sender) as sender, " +
+									"       max(subject) as subject " +
 									"  from SMT_SEND " + 
 									" where SEND_STATUS = 'READY' " + 
 									" group by request_id, (message_id div 1000)";
@@ -76,7 +77,7 @@ public class Smt_Proc implements Runnable {
 					list.put("sender", rs.getString("sender"));
 					list.put("receiver", rs.getString("PHN"));
 					list.put("msg", rs.getString("msg"));
-					list.put("title", rs.getString("msg").substring(0, 40).replaceAll("(\r\n|\r|\n|\n\r)", " "));
+					list.put("title", rs.getString("subject"));
 					JSONArray lists = new JSONArray();
 					
 					lists.add(list);
@@ -95,6 +96,8 @@ public class Smt_Proc implements Runnable {
 					os.write(msg.toJSONString().getBytes("UTF-8"));
 					os.flush();
 
+					//log.info(msg.toJSONString());
+					
 					BufferedReader in = new BufferedReader(new InputStreamReader(postconn.getInputStream(), "UTF-8"));
 					StringBuffer outRes = new StringBuffer();
 					while((inputline = in.readLine()) != null ) {
