@@ -90,13 +90,13 @@ public class BizAgent implements Daemon, Runnable {
     	boolean isRunning = true;
     	Nano_GRS_Proc.proc_cnt = 0;
     	Smt_Proc.isRunning = false;
-
+    	log.info(" GRS" + init_p.get("GRS") + ".");
     	if(init_p.get("GRS").equals("1")) {
 	    	Connection conn = null;
 			
 			try {
 				conn = BizDBCPInit.getConnection();
-				String upStr = "UPDATE cb_nano_broadcast_list SET a.proc_str = NULL WHERE proc_str IS NOT null";
+				String upStr = "UPDATE cb_nano_broadcast_list SET proc_str = NULL WHERE proc_str IS NOT null";
 				Statement updateExe = conn.createStatement();
 				updateExe.execute(upStr);
 				updateExe.close();
@@ -114,7 +114,7 @@ public class BizAgent implements Daemon, Runnable {
 			String monthStr = transFormat.format(month);
 
 			Calendar cal = Calendar.getInstance();
-			cal.add(Calendar.DATE, -5);
+			cal.add(Calendar.DATE, -1);
 			String PremonthStr = transFormat.format(cal.getTime());
 
 			isRunning = !isStop;

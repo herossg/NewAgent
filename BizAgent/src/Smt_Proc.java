@@ -76,7 +76,7 @@ public class Smt_Proc implements Runnable {
 					list.put("sender", rs.getString("sender"));
 					list.put("receiver", rs.getString("PHN"));
 					list.put("msg", rs.getString("msg"));
-					
+					list.put("title", rs.getString("msg").substring(0, 40).replaceAll("(\r\n|\r|\n|\n\r)", " "));
 					JSONArray lists = new JSONArray();
 					
 					lists.add(list);
