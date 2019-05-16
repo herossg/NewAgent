@@ -77,7 +77,7 @@ public class Smt_Proc implements Runnable {
 					list.put("sender", rs.getString("sender"));
 					list.put("receiver", rs.getString("PHN"));
 					list.put("msg", rs.getString("msg"));
-					list.put("title", rs.getString("subject"));
+					list.put("title", "(광고)" + rs.getString("subject"));
 					JSONArray lists = new JSONArray();
 					
 					lists.add(list);

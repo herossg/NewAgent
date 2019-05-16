@@ -86,7 +86,7 @@ public class Create_LOG_Table implements Runnable {
 						"								`BC_SND_DTTM` DATETIME NULL DEFAULT NULL," + 
 						"								`BC_RCV_DTTM` DATETIME NULL DEFAULT NULL," + 
 						"								PRIMARY KEY (`BC_MSG_ID`)," + 
-						"                                INDEX `idx_cb_grs_broadcast_" + monthStr + "_MSG_ID` (`MSG_ID`), " + 
+						"                                INDEX `idx_cb_grs_broadcast_" + monthStr + "_MSG_ID` (`MSG_ID`, `BC_SND_ST`), " + 
 						"                                INDEX `idx_cb_grs_broadcast_" + monthStr + "_ST` (`BC_SND_ST`) " + 
 						"							)" + 
 						"							COLLATE='utf8_general_ci'" + 
