@@ -990,8 +990,8 @@ public class TBLReqProcess implements Runnable {
 								smtins.setString(2, null); //  폰문자 일때는 sub_id 는 Null 처리 함.   rs.getString("mem_id"));
 								smtins.setString(3, msgtype);
 								smtins.setString(4, rs.getString("SMS_SENDER") );
-								if(length(rs.getString("SMS_LMS_TIT").replaceAll("\\r\\n|\\r|\\n", ""))>36) {
-									smtins.setString(5, substring(rs.getString("SMS_LMS_TIT").replaceAll("\\r\\n|\\r|\\n", ""), 36));
+								if(length(rs.getString("SMS_LMS_TIT").replaceAll("\\r\\n|\\r|\\n", ""))>30) {
+									smtins.setString(5, substring(rs.getString("SMS_LMS_TIT").replaceAll("\\r\\n|\\r|\\n", ""), 30));
 								}else {
 									smtins.setString(5, rs.getString("SMS_LMS_TIT").replaceAll("\\r\\n|\\r|\\n", ""));
 								}
