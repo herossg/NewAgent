@@ -66,13 +66,13 @@ public class SMART_Proc implements Runnable {
 							 "      ,a.SendResult" + 
 							 "      ,a.Receiver AS PHN" + 
 							 "      ,b.mst_id AS REMARK4" + 
-							 "      ,b.send_mem_user_id AS mem_userid" + 
+							 "      ,(select mem_userid from cb_member cm where cm.mem_id = b.mst_mem_id) AS mem_userid " + 
 							 "      ,b.mst_mem_id AS mem_id" + 
 							 "      ,a.cb_msg_id " + 
-							 " from OShotSMS_201905 a INNER JOIN " + 
-							 "        cb_wt_msg_sent b ON a.mst_id = b.mst_id" + 
-							 "WHERE a.proc_flag = 'Y'"
-							 + "order by a.mst_id" ;
+							 " from " + SMSTable + " a INNER JOIN " + 
+							 "        cb_wt_msg_sent b ON a.mst_id = b.mst_id " + 
+							 "WHERE a.proc_flag = 'Y' " +
+							 " order by a.mst_id" ;
 				
 			ResultSet rs = smtsms_msg.executeQuery(sms_str);
 			
@@ -177,7 +177,7 @@ public class SMART_Proc implements Runnable {
 					
 				} 
 
-				String smtsms_st_ud = "update OShotSMS_201905 set prog_flag = 'N' where msgid = ?";
+				String smtsms_st_ud = "update " + SMSTable + " set proc_flag = 'N' where msgid = ?";
 				PreparedStatement st_smtsms_st_ud = conn.prepareStatement(smtsms_st_ud);
 				st_smtsms_st_ud.setInt(1,  rs.getInt("MsgID"));
 				st_smtsms_st_ud.executeUpdate();
@@ -195,16 +195,16 @@ public class SMART_Proc implements Runnable {
 							 "      ,a.SendResult" + 
 							 "      ,a.Receiver AS PHN" + 
 							 "      ,b.mst_id AS REMARK4" + 
-							 "      ,b.send_mem_user_id AS mem_userid" + 
+							 "      ,(select mem_userid from cb_member cm where cm.mem_id = b.mst_mem_id) AS mem_userid" + 
 							 "      ,b.mst_mem_id AS mem_id" + 
 							 "      ,a.cb_msg_id " + 
 							 "      ,a.File_Path1 as mms1 " + 
 							 "      ,a.File_Path2 as mms2 " + 
 							 "      ,a.File_Path3 as mms3 " + 
-							 " from OShotMMS_201905 a INNER JOIN " + 
-							 "        cb_wt_msg_sent b ON a.mst_id = b.mst_id" + 
-							 "WHERE a.proc_flag = 'Y'"
-							 + "order by a.mst_id" ;
+							 " from " + MMSTable + " a INNER JOIN " + 
+							 "        cb_wt_msg_sent b ON a.mst_id = b.mst_id " + 
+							 "WHERE a.proc_flag = 'Y' " +
+							 " order by a.mst_id" ;
 				
 			ResultSet mmsrs = smtmms_msg.executeQuery(mms_str);
 			
@@ -317,7 +317,7 @@ public class SMART_Proc implements Runnable {
 					
 				} 
 
-				String smtmms_st_ud = "update OShotMMS_201905 set prog_flag = 'N' where msgid = ?";
+				String smtmms_st_ud = "update " + MMSTable + " set proc_flag = 'N' where msgid = ?";
 				PreparedStatement st_smtmms_st_ud = conn.prepareStatement(smtmms_st_ud);
 				st_smtmms_st_ud.setInt(1,  mmsrs.getInt("MsgID"));
 				st_smtmms_st_ud.executeUpdate();

@@ -315,7 +315,7 @@ public class Create_LOG_Table implements Runnable {
 			
 			if(!rs.next()) {
 				CRTTable = conn.createStatement();
-				CreateSTR = "CREATE TABLE 'OShotSMS_' " + monthStr + " LIKE OShotSMS";
+				CreateSTR = "CREATE TABLE OShotSMS_" + monthStr + " LIKE OShotSMS";
 				
 				log.info("Log Table Create : " + CreateSTR);
 				CRTTable.executeUpdate(CreateSTR);
@@ -327,7 +327,7 @@ public class Create_LOG_Table implements Runnable {
 			
 			if(!rs.next()) {
 				CRTTable = conn.createStatement();
-				CreateSTR = "CREATE TABLE 'OShotSMS_' " + monthStr + " LIKE OShotMMS";
+				CreateSTR = "CREATE TABLE OShotMMS_" + monthStr + " LIKE OShotMMS";
 				
 				log.info("Log Table Create : " + CreateSTR);
 				CRTTable.executeUpdate(CreateSTR);

@@ -603,6 +603,8 @@ public class TBLReqProcess implements Runnable {
 							                                    + ",? "          
 							                                    + ",? "      
 							                                    + ",? "      
+							                                    + ",? "      
+							                                    + ",? "      
 							                                    + ",?) ";
 									PreparedStatement smtmmsins = conn.prepareStatement(smtmmsquery, Statement.RETURN_GENERATED_KEYS);
 									smtmmsins.setString(1, sent_key);
