@@ -492,7 +492,7 @@ public class TBLReqProcess implements Runnable {
 								
 								if(msgtype.equals("SMS")) {
 
-									String smtquery = "insert into OShotSMS_" + monthStr + "( Sender "          
+									String smtquery = "insert into OShotSMS( Sender "          
 																			+ ",Receiver "         
 																			+ ",Msg "             
 																			+ ",URL "             
@@ -559,7 +559,7 @@ public class TBLReqProcess implements Runnable {
 									
 								}else if(msgtype.equals("LMS")) {
 
-									String smtmmsquery = "insert into OShotMMS_" + monthStr 
+									String smtmmsquery = "insert into OShotMMS" 
 																+ "(MsgGroupID "     
 							                                    + ",Sender "          
 							                                    + ",Receiver "        
