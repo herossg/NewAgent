@@ -90,6 +90,7 @@ public class BizAgent implements Daemon, Runnable {
     	boolean isRunning = true;
     	Nano_GRS_Proc.proc_cnt = 0;
     	Smt_Proc.isRunning = false;
+    	SMART_Proc.isRunning = false;
     	log.info(" GRS" + init_p.get("GRS") + ".");
     	if(init_p.get("GRS").equals("1")) {
 	    	Connection conn = null;
@@ -268,7 +269,23 @@ public class BizAgent implements Daemon, Runnable {
 					Prenanogrs_proc.start();
 				}
         	}
-			
+
+			// Smart Me 처리
+        	if(init_p.get("SMT").equals("1")) {
+				SMART_Proc smt = new SMART_Proc(log);
+				smt.monthStr = monthStr;
+				smt.isRefund = Boolean.parseBoolean( init_p.getProperty("REFUND") );
+				Thread smt_proc = new Thread(smt);
+				smt_proc.start();
+				
+				if(!monthStr.equals(PremonthStr)) {
+					SMART_Proc Presmt = new SMART_Proc(log);
+					Presmt.monthStr = PremonthStr;
+					Thread Presmt_proc = new Thread(Presmt);
+					Presmt_proc.start();
+				}
+        	}
+        	
 			// Naself SMS 처리
         	if(init_p.get("NAS").equals("1")) {
 				NAS_SMS_Proc nassms = new NAS_SMS_Proc(DB_URL, log);

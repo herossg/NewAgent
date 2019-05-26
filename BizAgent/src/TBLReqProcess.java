@@ -498,15 +498,20 @@ public class TBLReqProcess implements Runnable {
 																			+ ",URL "             
 																			+ ",ReserveDT "
 																			+ ",TimeoutDT "       
-																			+ ",SendResult )"
+																			+ ",SendResult "
+																			+ ",mst_id "
+																			+ ",cb_msg_id )"
 																			+ "values( ? "           
 																			+ ",? "      
 																			+ ",? "      
 																			+ ",? "      
 																			+ ",? "      
 																			+ ",? "      
+																			+ ",? "      
+																			+ ",? "      
 																			+ ",? )"; 
-									PreparedStatement smtins = conn.prepareStatement(smtquery);
+									
+									PreparedStatement smtins = conn.prepareStatement(smtquery, Statement.RETURN_GENERATED_KEYS);
 									smtins.setString(1, rs.getString("SMS_SENDER"));
 									smtins.setString(2, phn);
 									smtins.setString(3, msg_sms);
@@ -520,8 +525,21 @@ public class TBLReqProcess implements Runnable {
 									
 									smtins.setString(6, null);
 									smtins.setString(7, "0");
+									smtins.setString(8, sent_key);
+									smtins.setString(9, rs.getString("MSGID"));
 
-									smtins.executeUpdate();
+									int sms_rows = smtins.executeUpdate();
+									
+									String sms_msg_id = "";
+						            if(sms_rows == 1)
+						            {
+						                // get candidate id
+						            	ResultSet sms_rstemp = null;
+						            	sms_rstemp = smtins.getGeneratedKeys();
+						                if(sms_rstemp.next())
+						                	sms_msg_id = sms_rstemp.getString(1);
+						                sms_rstemp.close();
+						            }
 									smtins.close();
 									
 									wtudstr = "update cb_wt_msg_sent set mst_wait=ifnull(mst_wait,0)+1 where mst_id=?";
@@ -530,9 +548,10 @@ public class TBLReqProcess implements Runnable {
 									wtud.executeUpdate();
 									wtud.close();
 									
-									msgudstr = "update cb_msg_" + userid + " set MESSAGE_TYPE='sm',CODE='SMT', MESSAGE = '결과 수신대기', SMS_KIND='S' where MSGID=?";
+									msgudstr = "update cb_msg_" + userid + " set MESSAGE_TYPE='sm',CODE='SMT', MESSAGE = '결과 수신대기', SMS_KIND='S', remark3 = ? where MSGID=?";
 									msgud = conn.prepareStatement(msgudstr);
-									msgud.setString(1, msg_id);
+									msgud.setString(1, sms_msg_id);
+									msgud.setString(2, msg_id);
 									msgud.executeUpdate();
 									msgud.close();
 																					
@@ -570,7 +589,9 @@ public class TBLReqProcess implements Runnable {
 							                                    + ",SendResult "      
 							                                    + ",File_Path1 "      
 							                                    + ",File_Path2 "     
-							                                    + ",File_Path3 )"      
+							                                    + ",File_Path3 "      
+							                                    + ",mst_id "      
+							                                    + ",cb_msg_id )"      
 																+ "values"           
 																+ "(? "     
 							                                    + ",? "          
@@ -583,7 +604,7 @@ public class TBLReqProcess implements Runnable {
 							                                    + ",? "      
 							                                    + ",? "      
 							                                    + ",?) ";
-									PreparedStatement smtmmsins = conn.prepareStatement(smtmmsquery);
+									PreparedStatement smtmmsins = conn.prepareStatement(smtmmsquery, Statement.RETURN_GENERATED_KEYS);
 									smtmmsins.setString(1, sent_key);
 									smtmmsins.setString(2, rs.getString("SMS_SENDER"));
 									smtmmsins.setString(3, phn);
@@ -618,9 +639,23 @@ public class TBLReqProcess implements Runnable {
 									smtmmsins.setString(9, mms1);
 									smtmmsins.setString(10, mms2);
 									smtmmsins.setString(11, mms3);
+									smtmmsins.setString(12, sent_key);
+									smtmmsins.setString(13, rs.getString("MSGID"));
 									
 									
-									smtmmsins.executeUpdate();
+									int mms_rows = smtmmsins.executeUpdate();
+									
+									String mms_msg_id = "";
+						            if(mms_rows == 1)
+						            {
+						                // get candidate id
+						            	ResultSet mms_rstemp = null;
+						            	mms_rstemp = smtmmsins.getGeneratedKeys();
+						                if(mms_rstemp.next())
+						                	mms_msg_id = mms_rstemp.getString(1);
+						                mms_rstemp.close();
+						            }
+						            
 									smtmmsins.close();
 									
 									wtudstr = "update cb_wt_msg_sent set mst_wait=ifnull(mst_wait,0)+1 where mst_id=?";
@@ -629,9 +664,10 @@ public class TBLReqProcess implements Runnable {
 									wtud.executeUpdate();
 									wtud.close();
 									
-									msgudstr = "update cb_msg_" + userid + " set MESSAGE_TYPE='sm',CODE='SMT', MESSAGE = '결과 수신대기', SMS_KIND='L' where MSGID=?";
+									msgudstr = "update cb_msg_" + userid + " set MESSAGE_TYPE='sm',CODE='SMT', MESSAGE = '결과 수신대기', SMS_KIND='L', remark3 = ? where MSGID=?";
 									msgud = conn.prepareStatement(msgudstr);
-									msgud.setString(1, msg_id);
+									msgud.setString(1, mms_msg_id);
+									msgud.setString(2, msg_id);
 									msgud.executeUpdate();
 									msgud.close();
 													

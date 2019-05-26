@@ -311,6 +311,32 @@ public class Create_LOG_Table implements Runnable {
 			}
 			rs.close();			
 
+			rs = md.getTables(null, "dhn", "OShotSMS_"+ monthStr, types);
+			
+			if(!rs.next()) {
+				CRTTable = conn.createStatement();
+				CreateSTR = "CREATE TABLE 'OShotSMS_' " + monthStr + " LIKE OShotSMS";
+				
+				log.info("Log Table Create : " + CreateSTR);
+				CRTTable.executeUpdate(CreateSTR);
+				CRTTable.close();
+			}
+			rs.close();		
+			
+			rs = md.getTables(null, "dhn", "OShotMMS_"+ monthStr, types);
+			
+			if(!rs.next()) {
+				CRTTable = conn.createStatement();
+				CreateSTR = "CREATE TABLE 'OShotSMS_' " + monthStr + " LIKE OShotMMS";
+				
+				log.info("Log Table Create : " + CreateSTR);
+				CRTTable.executeUpdate(CreateSTR);
+				CRTTable.close();
+			}
+			rs.close();		
+			
+			
+			
 		}catch(Exception ex) {
 			log.info("Create Log Table 오류 - " + ex.toString() );
 		}
