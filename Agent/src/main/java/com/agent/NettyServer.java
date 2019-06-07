@@ -44,12 +44,12 @@ public class NettyServer {
     		ServerBootstrap b = new ServerBootstrap();
     		b.group(bossGroup, workerGroup)
     		.channel(NioServerSocketChannel.class)
-    		.handler(new LoggingHandler(LogLevel.INFO))
+    		.handler(new LoggingHandler(LogLevel.ERROR))
         	.childHandler(new ChannelInitializer<SocketChannel>() {
         		@Override
         		protected void initChannel(SocketChannel ch) throws Exception {
         			ChannelPipeline pipeline = ch.pipeline();
-        			pipeline.addLast(new LoggingHandler(LogLevel.INFO));
+        			//pipeline.addLast(new LoggingHandler(LogLevel.ERROR));
         			pipeline.addLast(new ObjectEncoder());
         			pipeline.addLast(new ObjectDecoder(ClassResolvers.cacheDisabled(null)));
         			pipeline.addLast(SERVICE_HANDLER);

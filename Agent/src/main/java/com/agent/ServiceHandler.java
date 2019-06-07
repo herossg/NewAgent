@@ -35,9 +35,9 @@ public class ServiceHandler extends ChannelInboundHandlerAdapter {
 
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-		ByteBuf byteBuf = (ByteBuf) msg;
-		logger.debug("message : {} ",byteBuf.toString(Charset.defaultCharset()));
-		channels.writeAndFlush(msg);
+    	ClientMessage t = (ClientMessage)msg;
+    	//logger.error("Age : " + t.getAge());
+    	//t.SaveIMG1("");
 	}
 	
     @Override
