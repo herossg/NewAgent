@@ -37,7 +37,8 @@ public class ClientMessage implements Serializable {
     private byte[] mImg4;
     
     private String[] mPhoneList;
-
+    private int[] mDeatilMsgid;
+    
 	public String getmUserid() {
 		return mUserid;
 	}
@@ -253,6 +254,13 @@ public class ClientMessage implements Serializable {
 	public void setmPhoneList(String[] mPhoneList) {
 		this.mPhoneList = mPhoneList;
 	}
-    
+
+	public int[] getmDeatilMsgid() {
+		return mDeatilMsgid;
+	}
+
+	public void setmDeatilMsgid(int[] mDeatilMsgid) {
+		this.mDeatilMsgid = mDeatilMsgid;
+	}
     
 }
