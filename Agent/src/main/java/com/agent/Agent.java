@@ -6,8 +6,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
  
 @SpringBootApplication
+@EnableScheduling
 public class Agent {
 	
     @Autowired
@@ -18,5 +23,13 @@ public class Agent {
 
 		NettyServer nettyServer = context.getBean(NettyServer.class);
 		nettyServer.start();
+	}
+	
+	@Bean
+	public TaskScheduler taskScheduler() {
+		ThreadPoolTaskScheduler ts = new ThreadPoolTaskScheduler();
+		ts.setPoolSize(10);
+		
+		return ts;
 	}
 }
