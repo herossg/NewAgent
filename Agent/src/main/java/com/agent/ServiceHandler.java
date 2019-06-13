@@ -59,7 +59,7 @@ public class ServiceHandler extends ChannelInboundHandlerAdapter {
 			SimpleDateFormat dayTime = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss.SSS");
 			String str = dayTime.format(new Date(time));
  
-	    	msg.setmMessage("" + str +  ": Server °¡ º¸³»´Â ¸Ş¼¼Áö :" + c.attr(userid).get());
+	    	msg.setmMessage("" + str +  ": Server ë©”ì„¸ì§€ :" + c.attr(userid).get());
 			c.writeAndFlush(msg);
 		}
 	}
@@ -67,7 +67,7 @@ public class ServiceHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) {
     	ClientMessage msg = new ClientMessage();
-    	msg.setmMessage("¼­¹ö¿¡¼­ º¸³»´Â°Å´Ù.");
+    	msg.setmMessage("ì½ê¸° ì™„ë£Œ.");
     	ctx.writeAndFlush(msg);
         ctx.flush();
     }
