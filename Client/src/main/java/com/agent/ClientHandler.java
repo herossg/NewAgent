@@ -35,20 +35,21 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
     	
     	//StatusSending(ctx);
     	mCtx = ctx;
-    	objSending();
+    	//objSending();
     	
     }
  
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg)   {
     	try {
-			ClientMessage t = (ClientMessage)msg;
+    		TrxMessage tt = (TrxMessage) msg;
+			ServerMessage t = tt.sm;
 			long time = System.currentTimeMillis(); 
 			SimpleDateFormat dayTime = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss.SSS");
 			String str = dayTime.format(new Date(time));
-	    	System.out.println(str + " - MSG : " + t.getmMessage());
+	    	logger.info(str + " - MSG : " + t.getmResultMsg());
     	} catch(Exception ex ) {
-    		System.out.println(ex.toString());
+    		logger.error(ex.toString());
     	}
     	//t.SaveIMG1("");
 	}
@@ -61,10 +62,14 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
     
     public static void objSending() throws Exception {
     	if(mCtx != null) {
+    		final TrxMessage tt = new TrxMessage();
 	    	final ClientMessage user = new ClientMessage();
-	    	user.setmMessage("¸Þ¼¼Áö´Ù.");
+	    	user.setmMessage("Client ë©”ì„¸ì§€ë‹¤.");
 	    	user.setmUserid("dhn 3");
-	    	mCtx.writeAndFlush(user);
+	    	
+	    	tt.cm = user;
+	    	
+	    	mCtx.writeAndFlush(tt);
     	}
     }
 
