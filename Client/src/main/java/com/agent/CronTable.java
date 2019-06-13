@@ -7,7 +7,12 @@ import org.springframework.stereotype.Service;
 public class CronTable {
 	@Scheduled(initialDelay=1000, fixedDelay=5000)
 	public void serverJob() {
-		ClientHandler.resultProc();
+		try {
+			ClientHandler.objSending();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		//temp.resultProc();
 	}
 }

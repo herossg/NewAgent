@@ -24,57 +24,54 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 
 	Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	private final static ChannelGroup channels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
-  
-	private static final AtomicInteger count = new AtomicInteger(0);
-  
-	final AttributeKey<Integer> id = AttributeKey.newInstance("id");
-	final static AttributeKey<String> userid = AttributeKey.newInstance("userid");
+	private boolean isTransfer = false;
+	private boolean isShort = true;
+	private byte[] recData;
+	private static ChannelHandlerContext mCtx = null;
+	//Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@Override
-	public void channelActive(ChannelHandlerContext ctx) throws Exception {
-		int value = count.incrementAndGet();
-		ctx.channel().attr(id).set(value);
-		ctx.channel().attr(userid).set("");
-		channels.add(ctx.channel());
-	}
-
-	@Override
-	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-    	ClientMessage t = (ClientMessage)msg;
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
     	
-    	if(ctx.channel().attr(userid).get().isEmpty())
-    	{
-    		ctx.channel().attr(userid).set(t.getmUserid());
-    	}
+    	//StatusSending(ctx);
+    	mCtx = ctx;
+    	objSending();
     	
-    	logger.error("user id : " + t.getmUserid() + " / MSG : " + t.getmMessage());
-    	//t.SaveIMG1("");
-	}
-	
-	static public void resultProc() {
-		for(Channel c: channels) {
-			ClientMessage msg = new ClientMessage();
+    }
+ 
+	@Override
+	public void channelRead(ChannelHandlerContext ctx, Object msg)   {
+    	try {
+			ClientMessage t = (ClientMessage)msg;
 			long time = System.currentTimeMillis(); 
 			SimpleDateFormat dayTime = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss.SSS");
 			String str = dayTime.format(new Date(time));
- 
-	    	msg.setmMessage("" + str +  ": Server Î©îÏÑ∏Ïß? :" + c.attr(userid).get());
-			c.writeAndFlush(msg);
-		}
+	    	System.out.println(str + " - MSG : " + t.getmMessage());
+    	} catch(Exception ex ) {
+    		System.out.println(ex.toString());
+    	}
+    	//t.SaveIMG1("");
 	}
 	
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) {
-    	ClientMessage msg = new ClientMessage();
-    	msg.setmMessage("?ùΩÍ∏? ?ôÑÎ£?.");
-    	ctx.writeAndFlush(msg);
+    	
         ctx.flush();
-    }
+    }    
     
+    public static void objSending() throws Exception {
+    	if(mCtx != null) {
+	    	final ClientMessage user = new ClientMessage();
+	    	user.setmMessage("∏ﬁºº¡ˆ¥Ÿ.");
+	    	user.setmUserid("dhn 3");
+	    	mCtx.writeAndFlush(user);
+    	}
+    }
+
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         cause.printStackTrace();
         ctx.close();
-    }
+    }    
+
 }
