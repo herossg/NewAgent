@@ -41,34 +41,40 @@ public class ServiceHandler extends ChannelInboundHandlerAdapter {
 
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-    	ClientMessage t = (ClientMessage)msg;
+    	TrxMessage tt = (TrxMessage)msg;
+    	
+    	ClientMessage t = tt.cm;
     	
     	if(ctx.channel().attr(userid).get().isEmpty())
     	{
     		ctx.channel().attr(userid).set(t.getmUserid());
     	}
     	
-    	logger.error("user id : " + t.getmUserid() + " / MSG : " + t.getmMessage());
+    	logger.info("user id : " + t.getmUserid() + " / MSG : " + t.getmMessage());
     	//t.SaveIMG1("");
 	}
 	
 	static public void resultProc() {
 		for(Channel c: channels) {
-			ClientMessage msg = new ClientMessage();
+			TrxMessage tt = new TrxMessage();
+			ServerMessage msg = new ServerMessage();
 			long time = System.currentTimeMillis(); 
 			SimpleDateFormat dayTime = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss.SSS");
 			String str = dayTime.format(new Date(time));
  
-	    	msg.setmMessage("" + str +  ": Server 메세지 :" + c.attr(userid).get());
-			c.writeAndFlush(msg);
+	    	msg.setmResultMsg(str +  ": Server 메세지 :" + c.attr(userid).get());
+	    	
+	    	tt.sm = msg;
+	    	//System.out.println(msg.getmResultMsg());
+			c.writeAndFlush(tt);
 		}
 	}
 	
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) {
-    	ClientMessage msg = new ClientMessage();
-    	msg.setmMessage("읽기 완료.");
-    	ctx.writeAndFlush(msg);
+    	//ServerMessage msg = new ServerMessage();
+    	//msg.setmResultMsg("읽기 완료.");
+    	//ctx.writeAndFlush(msg);
         ctx.flush();
     }
     
