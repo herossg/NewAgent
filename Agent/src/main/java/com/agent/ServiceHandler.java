@@ -41,32 +41,28 @@ public class ServiceHandler extends ChannelInboundHandlerAdapter {
 
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-    	TrxMessage tt = (TrxMessage)msg;
-    	
-    	ClientMessage t = tt.cm;
+		ClientMessage t = (ClientMessage)msg; 
     	
     	if(ctx.channel().attr(userid).get().isEmpty())
     	{
-    		ctx.channel().attr(userid).set(t.getmUserid());
+    		ctx.channel().attr(userid).set(t.getUserid());
     	}
     	
-    	logger.info("user id : " + t.getmUserid() + " / MSG : " + t.getmMessage());
+    	logger.info("user id : " + t.getUserid() + " / MSG : " + t.getMessage());
     	//t.SaveIMG1("");
 	}
 	
 	static public void resultProc() {
 		for(Channel c: channels) {
-			TrxMessage tt = new TrxMessage();
-			ServerMessage msg = new ServerMessage();
+			ClientMessage msg = new ClientMessage();
 			long time = System.currentTimeMillis(); 
 			SimpleDateFormat dayTime = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss.SSS");
 			String str = dayTime.format(new Date(time));
  
-	    	msg.setmResultMsg(str +  ": Server 메세지 :" + c.attr(userid).get());
-	    	
-	    	tt.sm = msg;
+	    	msg.setMessage(str +  ": Server 메세지 :" + c.attr(userid).get());
+	    	 
 	    	//System.out.println(msg.getmResultMsg());
-			c.writeAndFlush(tt);
+			c.writeAndFlush(msg);
 		}
 	}
 	

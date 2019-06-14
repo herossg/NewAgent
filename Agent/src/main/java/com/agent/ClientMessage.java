@@ -39,227 +39,227 @@ public class ClientMessage implements Serializable {
     private String[] mPhoneList;
     private int[] mDeatilMsgid;
     
-	public String getmUserid() {
+	public String getUserid() {
 		return mUserid;
 	}
 
-	public void setmUserid(String mUserid) {
+	public void setUserid(String mUserid) {
 		this.mUserid = mUserid;
 	}
 
-	public int getmMsgid() {
+	public int getMsgid() {
 		return mMsgid;
 	}
 
-	public void setmMsgid(int mMsgid) {
+	public void setMsgid(int mMsgid) {
 		this.mMsgid = mMsgid;
 	}
 
-	public String getmAd_flag() {
+	public String getAd_flag() {
 		return mAd_flag;
 	}
 
-	public void setmAd_flag(String mAd_flag) {
+	public void setAd_flag(String mAd_flag) {
 		this.mAd_flag = mAd_flag;
 	}
 
-	public String getmBtn1() {
+	public String getBtn1() {
 		return mBtn1;
 	}
 
-	public void setmBtn1(String mBtn1) {
+	public void setBtn1(String mBtn1) {
 		this.mBtn1 = mBtn1;
 	}
 
-	public String getmBtn2() {
+	public String getBtn2() {
 		return mBtn2;
 	}
 
-	public void setmBtn2(String mBtn2) {
+	public void setBtn2(String mBtn2) {
 		this.mBtn2 = mBtn2;
 	}
 
-	public String getmBtn4() {
+	public String getBtn4() {
 		return mBtn4;
 	}
 
-	public void setmBtn4(String mBtn4) {
+	public void setBtn4(String mBtn4) {
 		this.mBtn4 = mBtn4;
 	}
 
-	public String getmBtn3() {
+	public String getBtn3() {
 		return mBtn3;
 	}
 
-	public void setmBtn3(String mBtn3) {
+	public void setBtn3(String mBtn3) {
 		this.mBtn3 = mBtn3;
 	}
 
-	public String getmBtn5() {
+	public String getBtn5() {
 		return mBtn5;
 	}
 
-	public void setmBtn5(String mBtn5) {
+	public void setBtn5(String mBtn5) {
 		this.mBtn5 = mBtn5;
 	}
 
-	public String getmImg_link() {
+	public String getImg_link() {
 		return mImg_link;
 	}
 
-	public void setmImg_link(String mImg_link) {
+	public void setImg_link(String mImg_link) {
 		this.mImg_link = mImg_link;
 	}
 
-	public String getmImg_url() {
+	public String getImg_url() {
 		return mImg_url;
 	}
 
-	public void setmImg_url(String mImg_url) {
+	public void setImg_url(String mImg_url) {
 		this.mImg_url = mImg_url;
 	}
 
-	public String getmMessage() {
+	public String getMessage() {
 		return mMessage;
 	}
 
-	public void setmMessage(String mMessage) {
+	public void setMessage(String mMessage) {
 		this.mMessage = mMessage;
 	}
 
-	public String getmProfile() {
+	public String getProfile() {
 		return mProfile;
 	}
 
-	public void setmProfile(String mProfile) {
+	public void setProfile(String mProfile) {
 		this.mProfile = mProfile;
 	}
 
-	public String getmTmpl_id() {
+	public String getTmpl_id() {
 		return mTmpl_id;
 	}
 
-	public void setmTmpl_id(String mTmpl_id) {
+	public void setTmpl_id(String mTmpl_id) {
 		this.mTmpl_id = mTmpl_id;
 	}
 
-	public String getM1stMessage_type() {
+	public String get1stMessage_type() {
 		return m1stMessage_type;
 	}
 
-	public void setM1stMessage_type(String m1stMessage_type) {
+	public void set1stMessage_type(String m1stMessage_type) {
 		this.m1stMessage_type = m1stMessage_type;
 	}
 
-	public String getM2ndMessage_type() {
+	public String get2ndMessage_type() {
 		return m2ndMessage_type;
 	}
 
-	public void setM2ndMessage_type(String m2ndMessage_type) {
+	public void set2ndMessage_type(String m2ndMessage_type) {
 		this.m2ndMessage_type = m2ndMessage_type;
 	}
 
-	public String getmMsg_title() {
+	public String getsg_title() {
 		return mMsg_title;
 	}
 
-	public void setmMsg_title(String mMsg_title) {
+	public void setMsg_title(String mMsg_title) {
 		this.mMsg_title = mMsg_title;
 	}
 
-	public String getmSender() {
+	public String getSender() {
 		return mSender;
 	}
 
-	public void setmSender(String mSender) {
+	public void setSender(String mSender) {
 		this.mSender = mSender;
 	}
 
-	public String getmReserve_date() {
+	public String getReserve_date() {
 		return mReserve_date;
 	}
 
-	public void setmReserve_date(String mReserve_date) {
+	public void setReserve_date(String mReserve_date) {
 		this.mReserve_date = mReserve_date;
 	}
 
-	public String getmMMS1() {
+	public String getMMS1() {
 		return mMMS1;
 	}
 
-	public void setmMMS1(String mMMS1) {
+	public void setMMS1(String mMMS1) {
 		this.mMMS1 = mMMS1;
 	}
 
-	public String getmMMS2() {
+	public String getMMS2() {
 		return mMMS2;
 	}
 
-	public void setmMMS2(String mMMS2) {
+	public void setMMS2(String mMMS2) {
 		this.mMMS2 = mMMS2;
 	}
 
-	public String getmMMS3() {
+	public String getMMS3() {
 		return mMMS3;
 	}
 
-	public void setmMMS3(String mMMS3) {
+	public void setMMS3(String mMMS3) {
 		this.mMMS3 = mMMS3;
 	}
 
-	public String getmMMS4() {
+	public String getMMS4() {
 		return mMMS4;
 	}
 
-	public void setmMMS4(String mMMS4) {
+	public void setMMS4(String mMMS4) {
 		this.mMMS4 = mMMS4;
 	}
 
-	public byte[] getmImg1() {
+	public byte[] getImg1() {
 		return mImg1;
 	}
 
-	public void setmImg1(byte[] mImg1) {
+	public void setImg1(byte[] mImg1) {
 		this.mImg1 = mImg1;
 	}
 
-	public byte[] getmImg2() {
+	public byte[] getImg2() {
 		return mImg2;
 	}
 
-	public void setmImg2(byte[] mImg2) {
+	public void setImg2(byte[] mImg2) {
 		this.mImg2 = mImg2;
 	}
 
-	public byte[] getmImg3() {
+	public byte[] getImg3() {
 		return mImg3;
 	}
 
-	public void setmImg3(byte[] mImg3) {
+	public void setImg3(byte[] mImg3) {
 		this.mImg3 = mImg3;
 	}
 
-	public byte[] getmImg4() {
+	public byte[] getImg4() {
 		return mImg4;
 	}
 
-	public void setmImg4(byte[] mImg4) {
+	public void setImg4(byte[] mImg4) {
 		this.mImg4 = mImg4;
 	}
 
-	public String[] getmPhoneList() {
+	public String[] getPhoneList() {
 		return mPhoneList;
 	}
 
-	public void setmPhoneList(String[] mPhoneList) {
+	public void setPhoneList(String[] mPhoneList) {
 		this.mPhoneList = mPhoneList;
 	}
 
-	public int[] getmDeatilMsgid() {
+	public int[] getDeatilMsgid() {
 		return mDeatilMsgid;
 	}
 
-	public void setmDeatilMsgid(int[] mDeatilMsgid) {
+	public void setDeatilMsgid(int[] mDeatilMsgid) {
 		this.mDeatilMsgid = mDeatilMsgid;
 	}
     

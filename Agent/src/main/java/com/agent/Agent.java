@@ -12,8 +12,10 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 @EnableScheduling
 public class Agent {
 	
+	public static ApplicationContext context;
+	
 	public static void main(String[] args) {
-		ApplicationContext context = SpringApplication.run(Agent.class, args);
+		context = SpringApplication.run(Agent.class, args);
 
 		NettyServer nettyServer = context.getBean(NettyServer.class);
 		nettyServer.start();
