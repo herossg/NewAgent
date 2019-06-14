@@ -82,6 +82,8 @@ public class DataSourceProperties {
 			log.info("User ID         : " + p.getProperty("LOGIN_ID"));
 			log.info("USer Password   : " + p.getProperty("LOGIN_PW"));
 			
+			DbInfo.dbSource = hds;
+			
 			return hds;
 			
 		} catch (IOException e) {

@@ -1,18 +1,9 @@
 package com.agent;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.log;
-
 import java.io.FileInputStream;
-import java.net.InetSocketAddress;
 import java.util.Properties;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
-
 import io.netty.bootstrap.Bootstrap;
-import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -20,7 +11,6 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
@@ -34,7 +24,7 @@ public class NettyServer {
 
 	private String tcpHost;
     private String tcpPort;
-
+    public static boolean isConnect = false;
 
     private static final ClientHandler SERVICE_HANDLER = new ClientHandler();
     
@@ -74,8 +64,10 @@ public class NettyServer {
 
     		ChannelFuture channelFuture = b.connect(tcpHost, 8080).sync();
     		channelFuture.channel().closeFuture().sync();
+    		isConnect = true;
     	} catch (InterruptedException e) {
     		e.printStackTrace();
+    		isConnect = false;
     	} finally {
     		bossGroup.shutdownGracefully();
     	}
