@@ -83,7 +83,6 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 	    				clientMsg.setMessage(rs.getString("TEXT"));  
 	    				clientMsg.setMsgid(rs.getInt("MSG_ID"));  
 	    				clientMsg.set1stMessage_type(rs.getString("MSG_GB"));  
-	    				clientMsg.setMsg_title(rs.getString("SUBJECT"));
 	    				clientMsg.setSender(rs.getString("MSG_SND_PHN"));
 	    				 
 	    		    	mCtx.writeAndFlush(clientMsg);

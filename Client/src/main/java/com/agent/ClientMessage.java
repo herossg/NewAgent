@@ -11,20 +11,16 @@ public class ClientMessage implements Serializable {
     private static final long serialVersionUID = 1L;
     private String mUserid;
     private int mMsgid;
-    private String mAd_flag;
     private String mBtn1;
     private String mBtn2;
     private String mBtn3;
     private String mBtn4;
     private String mBtn5;
-    private String mImg_link;
-    private String mImg_url;
+    private String m1stMessage_type;
+    private String m2ndMessage_type;
     private String mMessage;
     private String mProfile;
     private String mTmpl_id;
-    private String m1stMessage_type;
-    private String m2ndMessage_type;
-    private String mMsg_title;
     private String mSender;
     private String mReserve_date;
     private String mMMS1;
@@ -35,6 +31,13 @@ public class ClientMessage implements Serializable {
     private byte[] mImg2;
     private byte[] mImg3;
     private byte[] mImg4;
+    private String [] mPhnList;
+    
+    /* 수신결과 관련 */
+    private String mPhn;
+    private String mResultCode;
+    private String mResultDate;
+	private String mResultMsg;
     
     private String[] mPhoneList;
     private int[] mDeatilMsgid;
@@ -53,14 +56,6 @@ public class ClientMessage implements Serializable {
 
 	public void setMsgid(int mMsgid) {
 		this.mMsgid = mMsgid;
-	}
-
-	public String getAd_flag() {
-		return mAd_flag;
-	}
-
-	public void setAd_flag(String mAd_flag) {
-		this.mAd_flag = mAd_flag;
 	}
 
 	public String getBtn1() {
@@ -103,22 +98,6 @@ public class ClientMessage implements Serializable {
 		this.mBtn5 = mBtn5;
 	}
 
-	public String getImg_link() {
-		return mImg_link;
-	}
-
-	public void setImg_link(String mImg_link) {
-		this.mImg_link = mImg_link;
-	}
-
-	public String getImg_url() {
-		return mImg_url;
-	}
-
-	public void setImg_url(String mImg_url) {
-		this.mImg_url = mImg_url;
-	}
-
 	public String getMessage() {
 		return mMessage;
 	}
@@ -157,14 +136,6 @@ public class ClientMessage implements Serializable {
 
 	public void set2ndMessage_type(String m2ndMessage_type) {
 		this.m2ndMessage_type = m2ndMessage_type;
-	}
-
-	public String getsg_title() {
-		return mMsg_title;
-	}
-
-	public void setMsg_title(String mMsg_title) {
-		this.mMsg_title = mMsg_title;
 	}
 
 	public String getSender() {
@@ -261,6 +232,46 @@ public class ClientMessage implements Serializable {
 
 	public void setDeatilMsgid(int[] mDeatilMsgid) {
 		this.mDeatilMsgid = mDeatilMsgid;
+	}
+
+	public String [] getPhnList() {
+		return mPhnList;
+	}
+
+	public void setPhnList(String [] mPhnList) {
+		this.mPhnList = mPhnList;
+	}
+
+	public String getPhn() {
+		return mPhn;
+	}
+
+	public void setPhn(String mPhn) {
+		this.mPhn = mPhn;
+	}
+
+	public String getResultCode() {
+		return mResultCode;
+	}
+
+	public void setResultCode(String mResultCode) {
+		this.mResultCode = mResultCode;
+	}
+
+	public String getResultDate() {
+		return mResultDate;
+	}
+
+	public void setResultDate(String mResultDate) {
+		this.mResultDate = mResultDate;
+	}
+
+	public String getResultMsg() {
+		return mResultMsg;
+	}
+
+	public void setResultMsg(String mResultMsg) {
+		this.mResultMsg = mResultMsg;
 	}
     
 }
