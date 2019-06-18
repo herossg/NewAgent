@@ -51,12 +51,13 @@ public class DataSourceProperties {
 	public DataSource userDataSource() {
 		
 		HikariDataSource hds = new HikariDataSource();
+		String path;
 		String current;
+		String sql;
 
 		try {
-			current = new java.io.File( "." ).getCanonicalPath();
-			current = current + "/conf/db.properties";
-			//log.info("PWD : " + current);
+			path = new java.io.File( "." ).getCanonicalPath();
+			current = path + "/conf/db.properties";
 
 			Properties p = new Properties();
 			p.load(new FileInputStream(current));
@@ -75,6 +76,16 @@ public class DataSourceProperties {
 			DbInfo.SID = p.getProperty("SID");
 			DbInfo.MSG_TABLE = p.getProperty("MSG_TABLE");
 			DbInfo.BROADCAST_TABLE = p.getProperty("BROADCAST_TABLE");
+			
+			if(DbInfo.DBMS.equals("MYSQL") || DbInfo.DBMS.equals("MARIADB")) {
+				sql = path + "/SQL/mysql.xml";
+				SQL s = new SQL(sql);
+			} else if(DbInfo.DBMS.equals("ORACLE")) {
+				sql = path + "/SQL/oracle.xml";
+				SQL s = new SQL(sql);
+			}
+
+
 			
 			DataSourceProperties.isStart = true;
 			
