@@ -13,6 +13,7 @@ public class SQL {
 	static public String CreateDetail;
 	static public String SelectMaster;
 	static public String SelectDetail;
+	static public String CheckTable;
 	
 	public SQL(String file) 
 	{
@@ -24,6 +25,7 @@ public class SQL {
 			
 			Node node = doc.getElementsByTagName("SQL").item(0);
 			Element element = (Element)node;
+			SQL.CheckTable = getTagValue("CHECK_TABLE", element);
 			SQL.CreateMaster = getTagValue("MASTER_CREATE", element);
 			SQL.CreateDetail = getTagValue("DETAIL_CREATE", element);
 			SQL.SelectMaster = getTagValue("MASTER_SELECT", element);

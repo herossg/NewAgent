@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <SQL>
+	<CHECK_TABLE>
+		show tables like 'DHN_REQUEST%'
+	</CHECK_TABLE>
 	<MASTER_CREATE>
 		CREATE TABLE `DHN_REQUEST` (
 			`USERID` VARCHAR(20) NOT NULL,

@@ -32,15 +32,14 @@ public class NettyServer {
     	EventLoopGroup bossGroup = new NioEventLoopGroup();
     	
     	try {
-		String current = new java.io.File( "." ).getCanonicalPath();
-		current = current + "/conf/server.properties";
-		//log.info("PWD : " + current);
+			String current = new java.io.File( "." ).getCanonicalPath();
+			current = current + "/conf/server.properties";
+	
+			Properties p = new Properties();
+			p.load(new FileInputStream(current));
+			
+			tcpHost = p.getProperty("HOST");
 
-		Properties p = new Properties();
-		p.load(new FileInputStream(current));
-		
-		tcpHost = p.getProperty("HOST");
-		System.out.println("Host : " + tcpHost);
     	} catch(Exception ex) {
     		System.out.println(ex.toString());
     	}
@@ -65,8 +64,8 @@ public class NettyServer {
     		ChannelFuture channelFuture = b.connect(tcpHost, 8080).sync();
     		channelFuture.channel().closeFuture().sync();
     		isConnect = true;
-    	} catch (InterruptedException e) {
-    		e.printStackTrace();
+    	} catch (Exception e) {
+    		//e.printStackTrace();
     		isConnect = false;
     	} finally {
     		bossGroup.shutdownGracefully();

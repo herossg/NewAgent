@@ -18,7 +18,7 @@ public class Agent {
 		context = SpringApplication.run(Agent.class, args);
 
 		NettyServer nettyServer = context.getBean(NettyServer.class);
-		//nettyServer.start();
+		nettyServer.start();
 	}
 	
 	@Bean

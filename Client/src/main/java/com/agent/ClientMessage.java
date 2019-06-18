@@ -1,11 +1,9 @@
 package com.agent;
 
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.Serializable;
-
-import javax.imageio.ImageIO;
 
 public class ClientMessage implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -23,6 +21,7 @@ public class ClientMessage implements Serializable {
     private String mTmpl_id;
     private String mSender;
     private String mReserve_date;
+    private String mReg_dt;
     private String mMMS1;
     private String mMMS2;
     private String mMMS3;
@@ -31,16 +30,19 @@ public class ClientMessage implements Serializable {
     private byte[] mImg2;
     private byte[] mImg3;
     private byte[] mImg4;
-    private String [] mPhnList;
+    private String mAdd1;
+    private String mAdd2;
+    private String mAdd3;
+    private String mAdd4;
+    private String mAdd5;
+    
+    private StringBuffer mPhnList;
     
     /* 수신결과 관련 */
     private String mPhn;
     private String mResultCode;
     private String mResultDate;
 	private String mResultMsg;
-    
-    private String[] mPhoneList;
-    private int[] mDeatilMsgid;
     
 	public String getUserid() {
 		return mUserid;
@@ -160,6 +162,17 @@ public class ClientMessage implements Serializable {
 
 	public void setMMS1(String mMMS1) {
 		this.mMMS1 = mMMS1;
+		if(!this.mMMS1.isEmpty()) {
+			File imgfile = new File(mMMS1);
+			this.mImg1 = new byte[(int) imgfile.length()];
+			try {
+				DataInputStream imgis = new DataInputStream(new FileInputStream(imgfile));
+				imgis.readFully(this.mImg1);
+				imgis.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	public String getMMS2() {
@@ -168,6 +181,17 @@ public class ClientMessage implements Serializable {
 
 	public void setMMS2(String mMMS2) {
 		this.mMMS2 = mMMS2;
+		if(!this.mMMS2.isEmpty()) {
+			File imgfile = new File(mMMS2);
+			this.mImg2 = new byte[(int) imgfile.length()];
+			try {
+				DataInputStream imgis = new DataInputStream(new FileInputStream(imgfile));
+				imgis.readFully(this.mImg2);
+				imgis.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	public String getMMS3() {
@@ -176,6 +200,17 @@ public class ClientMessage implements Serializable {
 
 	public void setMMS3(String mMMS3) {
 		this.mMMS3 = mMMS3;
+		if(!this.mMMS3.isEmpty()) {
+			File imgfile = new File(mMMS3);
+			this.mImg3 = new byte[(int) imgfile.length()];
+			try {
+				DataInputStream imgis = new DataInputStream(new FileInputStream(imgfile));
+				imgis.readFully(this.mImg3);
+				imgis.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	public String getMMS4() {
@@ -184,6 +219,17 @@ public class ClientMessage implements Serializable {
 
 	public void setMMS4(String mMMS4) {
 		this.mMMS4 = mMMS4;
+		if(!this.mMMS4.isEmpty()) {
+			File imgfile = new File(mMMS4);
+			this.mImg4 = new byte[(int) imgfile.length()];
+			try {
+				DataInputStream imgis = new DataInputStream(new FileInputStream(imgfile));
+				imgis.readFully(this.mImg4);
+				imgis.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	public byte[] getImg1() {
@@ -218,30 +264,6 @@ public class ClientMessage implements Serializable {
 		this.mImg4 = mImg4;
 	}
 
-	public String[] getPhoneList() {
-		return mPhoneList;
-	}
-
-	public void setPhoneList(String[] mPhoneList) {
-		this.mPhoneList = mPhoneList;
-	}
-
-	public int[] getDeatilMsgid() {
-		return mDeatilMsgid;
-	}
-
-	public void setDeatilMsgid(int[] mDeatilMsgid) {
-		this.mDeatilMsgid = mDeatilMsgid;
-	}
-
-	public String [] getPhnList() {
-		return mPhnList;
-	}
-
-	public void setPhnList(String [] mPhnList) {
-		this.mPhnList = mPhnList;
-	}
-
 	public String getPhn() {
 		return mPhn;
 	}
@@ -272,6 +294,62 @@ public class ClientMessage implements Serializable {
 
 	public void setResultMsg(String mResultMsg) {
 		this.mResultMsg = mResultMsg;
+	}
+
+	public String getReg_dt() {
+		return mReg_dt;
+	}
+
+	public void setReg_dt(String mReg_dt) {
+		this.mReg_dt = mReg_dt;
+	}
+
+	public String getAdd1() {
+		return mAdd1;
+	}
+
+	public void setAdd1(String mAdd1) {
+		this.mAdd1 = mAdd1;
+	}
+
+	public String getAdd2() {
+		return mAdd2;
+	}
+
+	public void setAdd2(String mAdd2) {
+		this.mAdd2 = mAdd2;
+	}
+
+	public String getAdd3() {
+		return mAdd3;
+	}
+
+	public void setAdd3(String mAdd3) {
+		this.mAdd3 = mAdd3;
+	}
+
+	public String getAdd4() {
+		return mAdd4;
+	}
+
+	public void setAdd4(String mAdd4) {
+		this.mAdd4 = mAdd4;
+	}
+
+	public String getAdd5() {
+		return mAdd5;
+	}
+
+	public void setAdd5(String mAdd5) {
+		this.mAdd5 = mAdd5;
+	}
+
+	public StringBuffer getPhnList() {
+		return mPhnList;
+	}
+
+	public void setPhnList(StringBuffer mPhnList) {
+		this.mPhnList = mPhnList;
 	}
     
 }

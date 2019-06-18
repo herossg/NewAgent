@@ -3,6 +3,10 @@ package com.agent;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.Reader;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -77,6 +81,9 @@ public class DataSourceProperties {
 			DbInfo.MSG_TABLE = p.getProperty("MSG_TABLE");
 			DbInfo.BROADCAST_TABLE = p.getProperty("BROADCAST_TABLE");
 			
+			DbInfo.LOGIN_ID =  p.getProperty("LOGIN_ID");
+			DbInfo.LOGIN_PW = p.getProperty("LOGIN_PW");
+			
 			if(DbInfo.DBMS.equals("MYSQL") || DbInfo.DBMS.equals("MARIADB")) {
 				sql = path + "/SQL/mysql.xml";
 				SQL s = new SQL(sql);
@@ -84,16 +91,46 @@ public class DataSourceProperties {
 				sql = path + "/SQL/oracle.xml";
 				SQL s = new SQL(sql);
 			}
-
-
 			
 			DataSourceProperties.isStart = true;
-			
 
 			log.info("User ID         : " + p.getProperty("LOGIN_ID"));
 			log.info("USer Password   : " + p.getProperty("LOGIN_PW"));
 			
 			DbInfo.dbSource = hds;
+			
+			Connection con = null; 
+					
+					try {
+		    			
+		    			con = DbInfo.dbSource.getConnection();
+		    			DatabaseMetaData md = con.getMetaData();
+		    			
+		    			String[] types = {"TABLE"};
+		    			ResultSet rs = md.getTables(null, DbInfo.SID, "DHN_REQUEST", types);
+		    			
+		    			if(!rs.next()) {
+		    				Statement masterstm = con.createStatement();
+		    				masterstm.executeUpdate(SQL.CreateMaster);
+		    				masterstm.close();
+		    			}
+		    			rs.close();
+		    			ResultSet rss = md.getTables(null, DbInfo.SID, "DHN_REQUEST_PHN", types);
+		    			
+		    			if(!rss.next()) {
+		    				Statement detailstm = con.createStatement();
+		    				detailstm.executeUpdate(SQL.CreateDetail);
+		    				detailstm.close();
+		    			}
+		    			rss.close();
+		    			if(con!=null) 
+		    				con.close();
+		    		} catch(Exception ex )  {
+		    			ex.printStackTrace();
+		    		}
+					
+					
+		    		
 			
 			return hds;
 			

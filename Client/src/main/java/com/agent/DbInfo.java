@@ -10,4 +10,6 @@ public class DbInfo {
 	public static String MSG_TABLE;
 	public static String BROADCAST_TABLE;
 	public static HikariDataSource dbSource;
+	public static String LOGIN_ID;
+	public static String LOGIN_PW;
 }
