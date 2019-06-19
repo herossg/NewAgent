@@ -116,6 +116,11 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 	    				clientMsg.setMMS4(rs.getString("MMS4"));
 	    				clientMsg.setPhnList(sb);
 	    		    	mCtx.writeAndFlush(clientMsg);
+	    		    	
+	    		    	PreparedStatement udsql = con.prepareStatement("update DHN_REQUEST set proc_flag = 'Y' where MSGID = ?");
+	    		    	udsql.setInt(1, rs.getInt("MSGID"));
+	    		    	udsql.executeUpdate();
+	    		    	udsql.close();
 	    			}
 	    			
 	    		} catch(Exception ex )  {

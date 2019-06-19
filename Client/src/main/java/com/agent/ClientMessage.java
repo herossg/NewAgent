@@ -162,7 +162,7 @@ public class ClientMessage implements Serializable {
 
 	public void setMMS1(String mMMS1) {
 		this.mMMS1 = mMMS1;
-		if(!this.mMMS1.isEmpty()) {
+		if(this.mMMS1 != null && !this.mMMS1.isEmpty()) {
 			File imgfile = new File(mMMS1);
 			this.mImg1 = new byte[(int) imgfile.length()];
 			try {
@@ -181,7 +181,7 @@ public class ClientMessage implements Serializable {
 
 	public void setMMS2(String mMMS2) {
 		this.mMMS2 = mMMS2;
-		if(!this.mMMS2.isEmpty()) {
+		if(this.mMMS2 != null && !this.mMMS2.isEmpty()) {
 			File imgfile = new File(mMMS2);
 			this.mImg2 = new byte[(int) imgfile.length()];
 			try {
@@ -200,7 +200,7 @@ public class ClientMessage implements Serializable {
 
 	public void setMMS3(String mMMS3) {
 		this.mMMS3 = mMMS3;
-		if(!this.mMMS3.isEmpty()) {
+		if(this.mMMS3 != null && !this.mMMS3.isEmpty()) {
 			File imgfile = new File(mMMS3);
 			this.mImg3 = new byte[(int) imgfile.length()];
 			try {
@@ -219,7 +219,7 @@ public class ClientMessage implements Serializable {
 
 	public void setMMS4(String mMMS4) {
 		this.mMMS4 = mMMS4;
-		if(!this.mMMS4.isEmpty()) {
+		if(this.mMMS4 != null && !this.mMMS4.isEmpty()) {
 			File imgfile = new File(mMMS4);
 			this.mImg4 = new byte[(int) imgfile.length()];
 			try {
