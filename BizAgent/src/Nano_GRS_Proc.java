@@ -19,7 +19,7 @@ public class Nano_GRS_Proc implements Runnable {
 	public String monthStr;
 	public boolean isRunning = false;
 	public String div_str;
-	static int proc_cnt;
+	//static int proc_cnt;
 
 	public boolean isRefund;
 
@@ -34,7 +34,7 @@ public class Nano_GRS_Proc implements Runnable {
 	}
 	
 	public void run() {
-		if(proc_cnt <= 20) {
+		if(BizAgent.GRS_Proc_cnt <= 20) {
 			if(monthStr == null || monthStr.isEmpty()) {
 				Date month = new Date();
 				SimpleDateFormat transFormat = new SimpleDateFormat("yyyyMM");
@@ -51,7 +51,7 @@ public class Nano_GRS_Proc implements Runnable {
 		Connection conn = null;
 		Statement grs_msg = null;
 		int totalcnt = 0;
-		proc_cnt ++;
+		BizAgent.GRS_Proc_cnt ++;
 		try {
  
 			conn = BizDBCPInit.getConnection();
@@ -310,7 +310,7 @@ public class Nano_GRS_Proc implements Runnable {
 		}
 		
 		if(totalcnt > 0) {
-			log.info("Nano GRS " + totalcnt + " 건 처리 함.( " + div_str + " )_Total Proc : " + proc_cnt);
+			log.info("Nano GRS " + totalcnt + " 건 처리 함.( " + div_str + " )_Total Proc : " + BizAgent.GRS_Proc_cnt);
 		}
 		
 		try {
@@ -325,7 +325,7 @@ public class Nano_GRS_Proc implements Runnable {
 			}
 		} catch(Exception e) {}
 		
-		proc_cnt --;
+		BizAgent.GRS_Proc_cnt --;
 		//isRunning[div_str] = false;
 		
 		//log.info("Nano it summary 끝");

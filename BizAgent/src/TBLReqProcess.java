@@ -407,7 +407,7 @@ public class TBLReqProcess implements Runnable {
 												msg_type1 = "15";
 												msg_type2 = "015";
 											} else if(msgtype.equals("LMS")) {
-												if(!mc_mms1.isEmpty() || !mc_mms2.isEmpty() || !mc_mms3.isEmpty()) {
+												if(mc_mms1.isEmpty() && mc_mms2.isEmpty() && mc_mms3.isEmpty()) {
 													msgcnt_cal = " mst_err_015 = ifnull(mst_err_015, 0) + 1 ";
 													msg_type1 = "15";
 													msg_type2 = "015";
@@ -424,7 +424,7 @@ public class TBLReqProcess implements Runnable {
 											msg_type1 = "ph";
 											msg_type2 = "PHN";
 										} else if(msgtype.equals("LMS")) {
-											if(!mc_mms1.isEmpty() || !mc_mms2.isEmpty() || !mc_mms3.isEmpty()) {
+											if(mc_mms1.isEmpty() && mc_mms2.isEmpty() && mc_mms3.isEmpty()) {
 												msgcnt_cal = " mst_err_phn = ifnull(mst_err_phn, 0) + 1 ";
 												msg_type1 = "ph";
 												msg_type2 = "PHN";
@@ -441,7 +441,7 @@ public class TBLReqProcess implements Runnable {
 											msg_type1 = "gs";
 											msg_type2 = "GRS";
 										} else if(msgtype.equals("LMS")) {
-											if(!mc_mms1.isEmpty() || !mc_mms2.isEmpty() || !mc_mms3.isEmpty()) {
+											if(mc_mms1.isEmpty() && mc_mms2.isEmpty() && mc_mms3.isEmpty()) {
 												msgcnt_cal = " mst_err_bkg = ifnull(mst_err_bkg, 0) + 1 ";
 												msg_type1 = "gs";
 												msg_type2 = "GRS";
@@ -458,7 +458,7 @@ public class TBLReqProcess implements Runnable {
 											msg_type1 = "SM";
 											msg_type2 = "SMT";
 										} else if(msgtype.equals("LMS")) {
-											if(!mc_mms1.isEmpty() || !mc_mms2.isEmpty() || !mc_mms3.isEmpty()) {
+											if(mc_mms1.isEmpty() && mc_mms2.isEmpty() && mc_mms3.isEmpty()) {
 												msgcnt_cal = " mst_err_smt = ifnull(mst_err_smt, 0) + 1 ";
 												msg_type1 = "SM";
 												msg_type2 = "SMT";
@@ -475,7 +475,7 @@ public class TBLReqProcess implements Runnable {
 											msg_type1 = "gs";
 											msg_type2 = "GRS";
 										} else if(msgtype.equals("LMS")) {
-											if(!mc_mms1.isEmpty() || !mc_mms2.isEmpty() || !mc_mms3.isEmpty()) {
+											if(mc_mms1.isEmpty() && mc_mms2.isEmpty() && mc_mms3.isEmpty()) {
 												msgcnt_cal = " mst_err_grs = ifnull(mst_err_grs, 0) + 1 ";
 												msg_type1 = "gs";
 												msg_type2 = "GRS";
@@ -492,7 +492,7 @@ public class TBLReqProcess implements Runnable {
 											msg_type1 = "im";
 											msg_type2 = "IMC";
 										} else if(msgtype.equals("LMS")) {
-											if(!mc_mms1.isEmpty() || !mc_mms2.isEmpty() || !mc_mms3.isEmpty()) {
+											if(mc_mms1.isEmpty() && mc_mms2.isEmpty() && mc_mms3.isEmpty()) {
 												msgcnt_cal = " mst_err_imc = ifnull(mst_err_imc, 0) + 1 ";
 												msg_type1 = "im";
 												msg_type2 = "IMC";
@@ -509,7 +509,7 @@ public class TBLReqProcess implements Runnable {
 											msg_type1 = "SM";
 											msg_type2 = "SMT";
 										} else if(msgtype.equals("LMS")) {
-											if(!mc_mms1.isEmpty() || !mc_mms2.isEmpty() || !mc_mms3.isEmpty()) {
+											if(mc_mms1.isEmpty() && mc_mms2.isEmpty() && mc_mms3.isEmpty()) {
 												msgcnt_cal = " mst_err_imc = ifnull(mst_err_imc, 0) + 1 ";
 												msg_type1 = "SM";
 												msg_type2 = "SMT";
@@ -526,7 +526,7 @@ public class TBLReqProcess implements Runnable {
 											msg_type1 = "ns";
 											msg_type2 = "NAS";
 										} else if(msgtype.equals("LMS")) {
-											if(!mc_mms1.isEmpty() || !mc_mms2.isEmpty() || !mc_mms3.isEmpty()) {
+											if(mc_mms1.isEmpty() && mc_mms2.isEmpty() && mc_mms3.isEmpty()) {
 												msgcnt_cal = " mst_err_nas = ifnull(mst_err_nas, 0) + 1 ";
 												msg_type1 = "ns";
 												msg_type2 = "NAS";

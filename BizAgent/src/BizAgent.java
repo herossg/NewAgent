@@ -26,6 +26,7 @@ public class BizAgent implements Daemon, Runnable {
     private final String DB_URL = "jdbc:mysql://210.114.225.53/dhn?characterEncoding=utf8";  
     //private final String DB_URL = "jdbc:mysql://222.122.203.68/dhn?characterEncoding=utf8";
     private boolean isStop = false;
+    public static int GRS_Proc_cnt = 0;
     BizDBCPInit bizDBCP;
 
     @Override
@@ -88,7 +89,7 @@ public class BizAgent implements Daemon, Runnable {
     	
     	String PreMonth = "";
     	boolean isRunning = true;
-    	Nano_GRS_Proc.proc_cnt = 0;
+    	BizAgent.GRS_Proc_cnt = 0;
     	Smt_Proc.isRunning = false;
     	SMART_Proc.isRunning = false;
     	log.info(" GRS" + init_p.get("GRS") + ".");
