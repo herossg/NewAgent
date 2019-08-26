@@ -21,13 +21,14 @@ public class BizAgent implements Daemon, Runnable {
     public Logger log = Logger.getLogger(getClass());
     
     Properties p = new Properties();
-    Properties init_p = new Properties();
+    static Properties init_p = new Properties();
     
     private final String DB_URL = "jdbc:mysql://210.114.225.53/dhn?characterEncoding=utf8";  
     //private final String DB_URL = "jdbc:mysql://222.122.203.68/dhn?characterEncoding=utf8";
     private boolean isStop = false;
     public static int GRS_Proc_cnt = 0;
     BizDBCPInit bizDBCP;
+    //SmtDBCPInit smtDBCP;
 
     @Override
     public void init(DaemonContext context) throws DaemonInitException, Exception {
@@ -46,8 +47,12 @@ public class BizAgent implements Daemon, Runnable {
         	PropertyConfigurator.configure(p);
         	log.info("Log Property Load !!");
             status = "INITED";
+            
             this.thread = new Thread(this);
+            
             bizDBCP = BizDBCPInit.getInstance(log);
+            //smtDBCP = SmtDBCPInit.getInstance(log);
+            
             log.info("init OK.");
             
             //init_p.load(new FileInputStream("E:\\Git\\BizAgent\\conf\\init.properties")); 
@@ -83,6 +88,10 @@ public class BizAgent implements Daemon, Runnable {
         status = "DESTROIED";
         log.info("Biz Agent destory OK.");
     }
+    
+    public static Properties getProp() {
+    	return init_p;
+    }
  
     @Override
     public void run() {
@@ -93,6 +102,7 @@ public class BizAgent implements Daemon, Runnable {
     	Smt_Proc.isRunning = false;
     	SMART_Proc.isRunning = false;
     	log.info(" GRS" + init_p.get("GRS") + ".");
+    	
     	if(init_p.get("GRS").equals("1")) {
 	    	Connection conn = null;
 			

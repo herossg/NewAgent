@@ -61,6 +61,44 @@ public class SMART_Proc implements Runnable {
  
 			smtsms_msg = conn.createStatement();
 			
+			/*
+			 * SMS 6시간 지나면 자동 완료 처리 함.
+			 */
+			String sms_autostr = "UPDATE OShotSMS SET SendDT=now(), SendResult='6', Telecom='000' WHERE SendResult=1 and date_add(insertdt, interval 6 HOUR) < now()";
+			PreparedStatement sms_auto_finish = conn.prepareStatement(sms_autostr);
+			sms_auto_finish.executeUpdate();
+			sms_auto_finish.close(); 
+			
+			String sms_movestr = "INSERT INTO " + SMSTable + " SELECT * FROM OShotSMS WHERE SendResult>1 AND SendDT is not null and telecom = '000'";
+			PreparedStatement sms_movest = conn.prepareStatement(sms_movestr);
+			sms_movest.executeUpdate();
+			sms_movest.close(); 
+
+			String sms_delstr = "DELETE d FROM OShotSMS d WHERE EXISTS (SELECT * FROM " + SMSTable + " b WHERE b.MsgID = d.MsgID)";
+			PreparedStatement sms_delst = conn.prepareStatement(sms_delstr);
+			sms_delst.executeUpdate();
+			sms_delst.close(); 
+			
+			
+			/*
+			 * MMS 6시간 지나면 자동 성공 처리 함.
+			 */
+			String mms_autostr = "UPDATE OShotMMS SET SendDT=now(), SendResult='6', Telecom='000' WHERE SendResult=1 and date_add(insertdt, interval 6 HOUR) < now()";
+			PreparedStatement mms_auto_finish = conn.prepareStatement(mms_autostr);
+			mms_auto_finish.executeUpdate();
+			mms_auto_finish.close(); 
+			
+			String mms_movestr = "INSERT INTO " + MMSTable + " SELECT * FROM OShotMMS WHERE SendResult>1 AND SendDT is not null and telecom = '000'";
+			PreparedStatement mms_movest = conn.prepareStatement(mms_movestr);
+			mms_movest.executeUpdate();
+			mms_movest.close(); 
+
+			String mms_delstr = "DELETE d FROM OShotMMS d WHERE EXISTS (SELECT * FROM " + MMSTable + " b WHERE b.MsgID = d.MsgID)";
+			PreparedStatement mms_delst = conn.prepareStatement(mms_delstr);
+			mms_delst.executeUpdate();
+			mms_delst.close(); 
+			
+			
 			String sms_str = "SELECT SQL_NO_CACHE " + 
 							 "       a.MsgID " + 
 							 "      ,a.SendResult" + 

@@ -7,6 +7,7 @@ import java.nio.charset.CodingErrorAction;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -16,16 +17,18 @@ public class TBLReqProcess implements Runnable {
 	private final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
 	
 	private String DB_URL;
-	private final String USER_NAME = "root";
-	private final String PASSWORD = "sjk4556!!22";
+//	private final String USER_NAME = "root";
+//	private final String PASSWORD = "sjk4556!!22";
 	
-	private final String NURL = "jdbc:mysql://125.128.249.42/bizsms";
-	private final String NUSER_NAME = "bizsms";
-	private final String NPASSWORD = "!@nanum0915";
+//	private final String NURL = "jdbc:mysql://125.128.249.42/bizsms";
+//	private final String NUSER_NAME = "bizsms";
+//	private final String NPASSWORD = "!@nanum0915";
 	public int div_str;
 	
 	public static boolean[] isRunning = {false,false,false,false,false,false,false,false,false,false,};
 	public Logger log;
+	
+	Properties p = BizAgent.getProp();
 	
 	public TBLReqProcess(String _db_url, Logger _log, int _div) {
 		DB_URL = _db_url;
@@ -46,11 +49,16 @@ public class TBLReqProcess implements Runnable {
 		Connection conn = null;
 		Connection nconn = null;
 		Statement tbl_result = null;
+		Connection smtconn = null;
 		boolean isPass = false; // 전체 Loop 를 그냥 지나 가기 위한 변수 Loop 가 시작시에는 무조건 False
 		try {
 			//Class.forName(JDBC_DRIVER);
 			//conn =  DriverManager.getConnection(DB_URL, USER_NAME, PASSWORD);
 			conn = BizDBCPInit.getConnection();
+			
+			if(p.get("SMTPHNDB").equals("1")) {
+				smtconn = SmtDBCPInit.getConnection();
+			}
 			
 			tbl_result = conn.createStatement();
 						
@@ -503,7 +511,8 @@ public class TBLReqProcess implements Runnable {
 											}
 										}
 										break;
-									case "SMT_PHN":
+									case "SMT_PHN" :
+									case "SMT_PHN_DB" :
 										if(msgtype.equals("SMS")) {
 											msgcnt_cal = " mst_err_imc = ifnull(mst_err_imc, 0) + 1 ";
 											msg_type1 = "SM";
@@ -1231,19 +1240,109 @@ public class TBLReqProcess implements Runnable {
 									smtins.setString(6, msg_sms );
 									smtins.setString(7, "");
 									smtins.setString(8, phn);
-									if(rs.getString("RESERVE_DT").equals("00000000000000")) {
-										smtins.setString(9, "N");
-										smtins.setString(10, null);
-									} else {
-										smtins.setString(9, "Y");
-										smtins.setString(10, rd.format(rs.getString("RESERVE_DT")));
-									}
+									//if(rs.getString("RESERVE_DT").equals("00000000000000")) {
+									smtins.setString(9, "N");
+									smtins.setString(10, null);
+									//} else {
+									//	smtins.setString(9, "Y");
+									//	smtins.setString(10, rd.format(rs.getString("RESERVE_DT")));
+									//}
 									smtins.setString(11,  sent_key );
 									smtins.setTimestamp(12, new java.sql.Timestamp(System.currentTimeMillis()));
 									smtins.setString(13, "READY");
 									
 									smtins.executeUpdate();
 						            smtins.close();
+						            
+									wtudstr = "update cb_wt_msg_sent set mst_imc=ifnull(mst_imc,0) + 1 where mst_id=?";
+									wtud = conn.prepareStatement(wtudstr);
+									wtud.setString(1, sent_key);
+									wtud.executeUpdate();
+									wtud.close();
+									
+									msgudstr = "update cb_msg_" + userid + " set MESSAGE_TYPE='sm',CODE='SMT', MESSAGE = '폰 성공', RESULT='Y' where MSGID=?";
+									msgud = conn.prepareStatement(msgudstr);
+									msgud.setString(1, msg_id);
+									msgud.executeUpdate();
+									msgud.close();
+														
+									kind = "P";
+									
+									amount = price.member_price.price_imc;
+									payback = price.member_price.price_imc - price.parent_price.price_imc;
+									admin_amt = price.base_price.price_imc;
+									memo = "SMT PHN";
+									
+									if(amount == 0 || amount == 0.0f) {
+										amount = admin_amt;
+									}
+				
+									amtins = conn.prepareStatement(amtStr);
+									amtins.setTimestamp(1, new java.sql.Timestamp(System.currentTimeMillis())); 
+									amtins.setString(2, kind); 
+									amtins.setFloat(3, amount ); 
+									amtins.setString(4, memo); 
+									amtins.setString(5, msg_id); 
+									amtins.setFloat(6, payback ); 
+									amtins.setFloat(7, admin_amt ); 
+									
+									amtins.executeUpdate();
+									amtins.close();
+									
+									break;	 									
+								case "SMT_PHN_DB":
+									String smtdbstr = "insert into SMT_SEND(user_id"
+																	  + ",sub_id"
+																	  + ",send_type"
+																	  + ",sender"
+																	  + ",subject"
+																	  + ",message"
+																	  + ",file_url"
+																	  + ",receivers"
+																	  + ",reserve_yn"
+																	  + ",reserve_dt"
+																	  + ",request_id"
+																	  + ",request_dt"
+																	  + ",send_status)"
+																+ "values(?"
+																	  + ",?"
+																	  + ",?"
+																	  + ",?"
+																	  + ",?"
+																	  + ",?"
+																	  + ",?"
+																	  + ",?"
+																	  + ",?"
+																	  + ",?"
+																	  + ",?"
+																	  + ",?"
+																	  + ",?)";
+									PreparedStatement smtdbins = conn.prepareStatement(smtdbstr, Statement.RETURN_GENERATED_KEYS);
+									smtdbins.setString(1,  "dhn7985" ); //rs.getString("user_id"));
+									smtdbins.setString(2, null); //  폰문자 일때는 sub_id 는 Null 처리 함.   rs.getString("mem_id"));
+									smtdbins.setString(3, msgtype);
+									smtdbins.setString(4, rs.getString("SMS_SENDER") );
+									if(length(rs.getString("SMS_LMS_TIT").replaceAll("\\r\\n|\\r|\\n", ""))>30) {
+										smtdbins.setString(5, substring(rs.getString("SMS_LMS_TIT").replaceAll("\\r\\n|\\r|\\n", ""), 30));
+									}else {
+										smtdbins.setString(5, rs.getString("SMS_LMS_TIT").replaceAll("\\r\\n|\\r|\\n", ""));
+									}
+									smtdbins.setString(6, msg_sms );
+									smtdbins.setString(7, "");
+									smtdbins.setString(8, phn);
+									//if(rs.getString("RESERVE_DT").equals("00000000000000")) {
+									smtdbins.setString(9, "N");
+									smtdbins.setString(10, null);
+									//} else {
+									//	smtins.setString(9, "Y");
+									//	smtins.setString(10, rd.format(rs.getString("RESERVE_DT")));
+									//}
+									smtdbins.setString(11,  sent_key );
+									smtdbins.setTimestamp(12, new java.sql.Timestamp(System.currentTimeMillis()));
+									smtdbins.setString(13, "SMTDB");
+									
+									smtdbins.executeUpdate();
+									smtdbins.close();
 						            
 									wtudstr = "update cb_wt_msg_sent set mst_imc=ifnull(mst_imc,0) + 1 where mst_id=?";
 									wtud = conn.prepareStatement(wtudstr);

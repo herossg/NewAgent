@@ -59,7 +59,7 @@ public class Nano_GRS_Proc implements Runnable {
 			String updateStr = "update cb_grs_broadcast_"+ monthStr +" cgb " + 
 					              "set cgb.BC_SND_ST = '3' " + 
 					            "WHERE cgb.bc_snd_st = '2' " + 
-					              "and date_add(cgb.BC_SND_DTTM, interval 12 HOUR) < now()";
+					              "and date_add(cgb.BC_SND_DTTM, interval 6 HOUR) < now()";
 			
 			Statement updateExe = conn.createStatement();
 			updateExe.execute(updateStr);

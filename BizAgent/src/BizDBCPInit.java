@@ -18,7 +18,6 @@ public class BizDBCPInit {
 	private static String USER_NAME = "root";
 	private static String PASSWORD = "sjk4556!!22";
 	private static String DB_URL = "jdbc:mysql://210.114.225.53/dhn?characterEncoding=utf8";  
-	//private static final String DB_URL = "jdbc:mysql://222.122.203.68/dhn?characterEncoding=utf8";
 	private static Logger log;
 	
 	private BizDBCPInit() {
@@ -39,7 +38,6 @@ public class BizDBCPInit {
 		try {
 			
 			p.load(new FileInputStream("/root/BizAgent/conf/db.properties"));
-        	//p.load(new FileInputStream("E:\\Git\\BizAgent\\conf\\db.properties")); 
 
 			BizDBCPInit.DB_URL = p.getProperty("DB_URL");
 			BizDBCPInit.USER_NAME = p.getProperty("USER_NAME");
