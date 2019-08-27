@@ -54,6 +54,15 @@ public class NAS_SMS_Proc implements Runnable {
 			//conn =  DriverManager.getConnection(DB_URL, USER_NAME, PASSWORD);
 			conn = BizDBCPInit.getConnection();
 
+			String updateStr = "update cb_nas_sms_msg_log_" + monthStr + 
+		                         " set tr_sendstat = '2' " + 
+		                         "    ,tr_rsltstat = '110' " + 
+		                        "WHERE tr_sendstat not in ('2', '5') and tr_rsltstat is null and date_add(tr_senddate, interval 6 HOUR) < now()";
+			
+			Statement updateExe = conn.createStatement();
+			updateExe.execute(updateStr);
+			updateExe.close();	
+			
 			funsms_msg = conn.createStatement();
 			String funsms_str = "SELECT SQL_NO_CACHE  cml.TR_ETC1 AS MSGID," + 
 								"         cml.tr_num as MSGKEY," + 
@@ -69,6 +78,7 @@ public class NAS_SMS_Proc implements Runnable {
 								"         cb_member cm" + 
 								"   WHERE cml.tr_etc4 = cm.mem_id" + 
 								"     AND cml.tr_sendstat= '2'" + 
+								"     AND cml.tr_etc10 is null" + 
 								" order by tr_senddate" + 
 								"     limit 0, 1000";
 			ResultSet rs = funsms_msg.executeQuery(funsms_str);
@@ -164,7 +174,7 @@ public class NAS_SMS_Proc implements Runnable {
 					
 				}
 				
-				String udFUNsmsStr  = "update cb_nas_sms_msg_log_" + monthStr + " set tr_sendstat = '5' where tr_num =?";
+				String udFUNsmsStr  = "update cb_nas_sms_msg_log_" + monthStr + " set tr_sendstat = '5', tr_etc10 = 'Y' where tr_num =?";
 				PreparedStatement udFUNsms = conn.prepareStatement(udFUNsmsStr);
 				udFUNsms.setString(1, rs.getString("MSGKEY"));
 				udFUNsms.executeUpdate();

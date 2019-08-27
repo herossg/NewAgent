@@ -55,15 +55,14 @@ public class NAS_MMS_Proc implements Runnable {
 			//conn =  DriverManager.getConnection(DB_URL, USER_NAME, PASSWORD);
 			conn = BizDBCPInit.getConnection();
 			
-//			String updateStr = "update cb_grs_broadcast_201901 cgb " + 
-//		              "set cgb.BC_SND_ST = '3' " + 
-//		            "WHERE cgb.bc_snd_st = '2' " + 
-//		              "and date_add(cgb.BC_SND_DTTM, interval 12 HOUR) < now()";
-//			
-//			Statement updateExe = conn.createStatement();
-//			updateExe.execute(updateStr);
-//			
-//			updateExe.close();			
+			String updateStr = "update cb_nas_mms_msg_log_" + monthStr + 
+		              " set status = '3' " + 
+		              "    ,RSLT = '110' " + 
+		            "WHERE status not in ('3', '5') and RSLT is null and date_add(reqdate, interval 6 HOUR) < now()";
+			
+			Statement updateExe = conn.createStatement();
+			updateExe.execute(updateStr);
+			updateExe.close();			
 
 			bkgmms_msg = conn.createStatement();
 			String bkgmms_str = "SELECT  SQL_NO_CACHE cml.ETC1 AS MSGID," + 
@@ -84,6 +83,7 @@ public class NAS_MMS_Proc implements Runnable {
 								"         cb_member cm" + 
 								"   WHERE cml.etc4 = cm.mem_id" + 
 								"     AND cml.status= '3'" + 
+								"     AND cml.etc10 is null " + 
 								" order by msgkey" + 
 								"     limit 0, 1000";
 			ResultSet rs = bkgmms_msg.executeQuery(bkgmms_str);
@@ -189,7 +189,7 @@ public class NAS_MMS_Proc implements Runnable {
 					
 				}
 				
-				String udFUNsmsStr  = "update cb_nas_mms_msg_log_" + monthStr + " set status = '5' where msgkey =? and status = ?";
+				String udFUNsmsStr  = "update cb_nas_mms_msg_log_" + monthStr + " set status = '5', etc10 = 'Y' where msgkey =? and status = ?";
 				PreparedStatement udFUNsms = conn.prepareStatement(udFUNsmsStr);
 				udFUNsms.setString(1, rs.getString("MSGKEY"));
 				udFUNsms.setString(2, rs.getString("status"));
