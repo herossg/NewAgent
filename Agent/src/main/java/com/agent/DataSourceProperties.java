@@ -78,71 +78,17 @@ public class DataSourceProperties {
 			
 			DataSourceProperties.isStart = true;
 			
-
-			log.info("User ID         : " + p.getProperty("LOGIN_ID"));
-			log.info("USer Password   : " + p.getProperty("LOGIN_PW"));
-			
-			
 			DbInfo.dbSource = hds;
 			return hds;
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			log.error(e.toString());
-			
 		}
 
 	    System.exit(0);
 		
 		return null;
 	}
-	
-	private String check_login(String id, String pw) {
-		 
-		Map params = new HashMap<>();
-		params.put("id", id);
-		params.put("pw", pw);
-		
-		String res = post("http://onlineat.kr/api/login", params);
-		
-		return res;
-	}
-	
-	public String post(String url, Map params, String encoding){
-        HttpClient client = new DefaultHttpClient();
-         
-        try{
-            HttpPost post = new HttpPost(url);
-            //System.out.println("POST : " + post.getURI());
-             
-            List<NameValuePair> paramList = convertParam(params);
-            post.setEntity(new UrlEncodedFormEntity(paramList, encoding));
-             
-            ResponseHandler<String> rh = new BasicResponseHandler();
- 
-            return client.execute(post, rh);
-        }catch(Exception e){
-            e.printStackTrace();
-        }finally{
-            client.getConnectionManager().shutdown();
-        }
-         
-        return "error";
-    }
-     
-    public String post(String url, Map params){
-        return post(url, params, "UTF-8");
-    }
-
-    private List<NameValuePair> convertParam(Map params){
-        List<NameValuePair> paramList = new ArrayList<NameValuePair>();
-        Iterator<String> keys = params.keySet().iterator();
-        while(keys.hasNext()){
-            String key = keys.next();
-            paramList.add(new BasicNameValuePair(key, params.get(key).toString()));
-        }
-         
-        return paramList;
-    }  	
 	
 }

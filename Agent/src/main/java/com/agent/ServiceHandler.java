@@ -22,8 +22,9 @@ import io.netty.util.concurrent.GlobalEventExecutor;
 @Sharable
 public class ServiceHandler extends ChannelInboundHandlerAdapter {
 
-	Logger logger = LoggerFactory.getLogger(this.getClass());
+	Logger log = LoggerFactory.getLogger(getClass());
 
+	public static boolean SHisRunning = false;
 	private final static ChannelGroup channels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
   
 	private static final AtomicInteger count = new AtomicInteger(0);
@@ -48,11 +49,11 @@ public class ServiceHandler extends ChannelInboundHandlerAdapter {
     		ctx.channel().attr(userid).set(t.getUserid());
     	}
     	
-    	logger.info("user id : " + t.getUserid() + " / MSG : " + t.getMessage());
-    	//t.SaveIMG1("");
+    	log.info("user id : " + t.getUserid() + " / MSG : " + t.getMessage() + " / Phn : " + t.getPhnList().toString());
 	}
 	
 	static public void resultProc() {
+		SHisRunning = true;
 		for(Channel c: channels) {
 			ClientMessage msg = new ClientMessage();
 			long time = System.currentTimeMillis(); 
@@ -61,9 +62,10 @@ public class ServiceHandler extends ChannelInboundHandlerAdapter {
  
 	    	msg.setMessage(str +  ": Server 메세지 :" + c.attr(userid).get());
 	    	 
-	    	//System.out.println(msg.getmResultMsg());
+	    	System.out.println("User ID : " + c.attr(userid).get());
 			c.writeAndFlush(msg);
 		}
+		SHisRunning = false;
 	}
 	
     @Override
