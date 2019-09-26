@@ -18,7 +18,7 @@ public class CronTable {
 	
 	@Scheduled(initialDelay=10000, fixedDelay=5000)
 	public void Connectserver() {
-		System.out.println("호출 됨 :  " + NettyServer.isConnect);
+		//System.out.println("호출 됨 :  " + NettyServer.isConnect);
 		if(!NettyServer.isConnect) {
 			NettyServer nettyServer = Agent.context.getBean(NettyServer.class);
 			nettyServer.start();

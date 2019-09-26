@@ -46,9 +46,9 @@
 		ENGINE=InnoDB	
 	</DETAIL_CREATE>
 	<MASTER_SELECT>
-		select * from DHN_REQUEST where proc_flag = 'N' 
+		select * from DHN_REQUEST where proc_flag = 'N'
 	</MASTER_SELECT>
 	<DETAIL_SELECT>
-		select * from DHN_REQUEST_PHN where MSGID = ?	
+		select * from DHN_REQUEST_PHN where MSGID = ?
 	</DETAIL_SELECT>
 </SQL>

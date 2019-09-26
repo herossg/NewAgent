@@ -38,7 +38,6 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
     	
     	mCtx = ctx;
-    	
     }
  
 	@Override
@@ -48,7 +47,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 			long time = System.currentTimeMillis(); 
 			SimpleDateFormat dayTime = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss.SSS");
 			String str = dayTime.format(new Date(time));
-	    	//logger.info(str + " - MSG : " + t.getmMessage());
+	    	logger.info(str + " - MSG : " + t.getMessage());
     	} catch(Exception ex ) {
     		logger.error(ex.toString());
     	}
@@ -85,7 +84,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 	    				
 	    				StringBuffer sb = new StringBuffer();
 	    				while(detailrs.next()) {
-	    					sb.append(detailrs.getString("phn"));
+	    					sb.append(detailrs.getString("phn") + ",");
 	    				}
 	    				
 	    				final ClientMessage clientMsg = new ClientMessage();
