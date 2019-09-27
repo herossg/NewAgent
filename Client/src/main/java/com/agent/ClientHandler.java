@@ -28,6 +28,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 	Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	public static boolean isRunning = false;
+	public static boolean isFirst   = true;
 	private boolean isShort = true;
 	private byte[] recData;
 	private static ChannelHandlerContext mCtx = null;
@@ -62,6 +63,14 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
     
     public static void objSending() throws Exception {
     	if(mCtx != null) {
+    		
+    		if(ClientHandler.isFirst) {
+		    	ClientMessage _c = new ClientMessage();
+		    	_c.setUserid(DbInfo.LOGIN_ID);
+		    	mCtx.writeAndFlush(_c);
+    	    	ClientHandler.isFirst = false;
+    		}
+    		
     		if(!ClientHandler.isRunning) {
     			ClientHandler.isRunning = true;
 	    		

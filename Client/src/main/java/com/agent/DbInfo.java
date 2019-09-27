@@ -12,4 +12,5 @@ public class DbInfo {
 	public static HikariDataSource dbSource;
 	public static String LOGIN_ID;
 	public static String LOGIN_PW;
+	
 }
