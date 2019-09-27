@@ -49,13 +49,18 @@ public class ServiceHandler extends ChannelInboundHandlerAdapter {
     		ctx.channel().attr(userid).set(t.getUserid());
     	}
     	
-    	log.info("user id : " + t.getUserid() + " / MSG : " + t.getMessage() + " / Phn : " + t.getPhnList().toString());
+    	if( t.getMessage() != null && !t.getMessage().isEmpty() ) {
+    		log.info("메세지 왔다. : " + t.getMessage());
+    	}
+    	//log.info("user id : " + t.getUserid() + " / MSG : " + t.getMessage() + " / Phn : " + t.getPhnList().toString());
 	}
 	
 	static public void resultProc() {
 		SHisRunning = true;
 		for(Channel c: channels) {
 			ClientMessage msg = new ClientMessage();
+			String _userid = c.attr(userid).get();
+			
 			long time = System.currentTimeMillis(); 
 			SimpleDateFormat dayTime = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss.SSS");
 			String str = dayTime.format(new Date(time));
