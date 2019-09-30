@@ -1,5 +1,8 @@
 package com.agent;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -8,12 +11,18 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.sql.DataSource;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import com.mysql.cj.xdevapi.PreparableStatement;
 
@@ -48,7 +57,25 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 			long time = System.currentTimeMillis(); 
 			SimpleDateFormat dayTime = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss.SSS");
 			String str = dayTime.format(new Date(time));
-	    	logger.info(str + " - MSG : " + t.getMessage());
+			
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder builder = factory.newDocumentBuilder();
+			InputStream is = new ByteArrayInputStream(t.mServerXML.getBytes(StandardCharsets.UTF_8));
+			Document document = builder.parse(is);
+			document.getDocumentElement().normalize();
+			
+			Element root = document.getDocumentElement();
+			NodeList nList = document.getElementsByTagName("Row");
+			
+			for(int row = 0; row < nList.getLength(); row++) {
+				Node node = nList.item(row);
+				if(node.getNodeType() == Node.ELEMENT_NODE) {
+					Element rowEle  = (Element) node;
+					logger.info(str + " MST ID : " + rowEle.getElementsByTagName("mst_id").item(0).getTextContent());
+				}
+			}
+			
+//	    	logger.info(str + " - MSG : " + t.getMessage() + " / " + t.mServerXML);
     	} catch(Exception ex ) {
     		logger.error(ex.toString());
     	}
@@ -66,9 +93,11 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
     		
     		if(ClientHandler.isFirst) {
 		    	ClientMessage _c = new ClientMessage();
-		    	_c.setUserid(DbInfo.LOGIN_ID);
+		    	_c.setUserid("3");
+//		    	_c.setUserid(DbInfo.LOGIN_ID);
 		    	mCtx.writeAndFlush(_c);
     	    	ClientHandler.isFirst = false;
+    	    	return;
     		}
     		
     		if(!ClientHandler.isRunning) {
