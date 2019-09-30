@@ -35,7 +35,7 @@ public class ClientMessage implements Serializable {
     private String mAdd3;
     private String mAdd4;
     private String mAdd5;
-    private String mServerXML;
+    public String mServerXML;
     
     private StringBuffer mPhnList;
     
