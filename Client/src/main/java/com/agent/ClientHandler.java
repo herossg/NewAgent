@@ -32,7 +32,7 @@ import io.netty.channel.ChannelHandler.Sharable;
 
 @Sharable
 @Repository
-public class ClientHandler extends ChannelInboundHandlerAdapter {
+public class ClientHandler extends ChannelInboundHandlerAdapter { 
 
 	Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -176,7 +176,8 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        cause.printStackTrace();
+    	NettyServer.isConnect = false;
+    	logger.info("연결이 강제로 종료 되었습니다." + NettyServer.isConnect);
         ctx.close();
     }    
 

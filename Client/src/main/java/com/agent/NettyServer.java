@@ -2,6 +2,9 @@ package com.agent;
 
 import java.io.FileInputStream;
 import java.util.Properties;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
@@ -25,7 +28,9 @@ public class NettyServer {
 	private String tcpHost;
     private String tcpPort;
     public static boolean isConnect = false;
-
+    
+    Logger log = LoggerFactory.getLogger(getClass());
+    
     private static final ClientHandler SERVICE_HANDLER = new ClientHandler();
     
     public void start() {
@@ -62,11 +67,15 @@ public class NettyServer {
         	});
 
     		ChannelFuture channelFuture = b.connect(tcpHost, 8080).sync();
+    		
+    		NettyServer.isConnect = true;
+    		log.info("연결이 완료 되었습니다.");
+    		
     		channelFuture.channel().closeFuture().sync();
-    		isConnect = true;
+
     	} catch (Exception e) {
     		//e.printStackTrace();
-    		isConnect = false;
+    		NettyServer.isConnect = false;
     	} finally {
     		bossGroup.shutdownGracefully();
     	}
