@@ -159,7 +159,7 @@ public class SMART_Proc implements Runnable {
 				int mst_grs_biz_qty = 0;
 				
 				// 성공 혹은 5일이 지나 기간만료 오류는 성공 처리 함.
-				if(rs.getString("SendResult").equals("6")) {
+				if(rs.getString("SendResult").equals("6") || !this.isRefund) {
 					
 					wtudstr = "update cb_wt_msg_sent set mst_smt = ifnull(mst_smt,0) + 1, mst_wait = mst_wait - 1 where mst_id=?";
 					wtud = conn.prepareStatement(wtudstr);
@@ -288,7 +288,7 @@ public class SMART_Proc implements Runnable {
 					pre_mem_id = mem_id;
 				}
 				
-				if(mmsrs.getString("SendResult").equals("6")) {
+				if(mmsrs.getString("SendResult").equals("6") || !this.isRefund) {
 					
 					wtudstr = "update cb_wt_msg_sent set mst_smt = ifnull(mst_smt,0) + 1, mst_wait = mst_wait - 1 where mst_id=?";
 					wtud = conn.prepareStatement(wtudstr);

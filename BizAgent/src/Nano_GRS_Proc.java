@@ -177,7 +177,7 @@ public class Nano_GRS_Proc implements Runnable {
 					int mst_grs_biz_qty = 0;
 					
 					// 성공 혹은 5일이 지나 기간만료 오류는 성공 처리 함.
-					if(rs.getString("BC_RSLT_NO").equals("0") || rs.getString("BC_RSLT_NO").equals("111")) {
+					if(rs.getString("BC_RSLT_NO").equals("0") || rs.getString("BC_RSLT_NO").equals("111") || !this.isRefund ) {
 						
 						if(rs.getString("msg_gb").equals("LMS")) 
 							mst_grs_biz_qty = 1;

@@ -130,7 +130,7 @@ public class Nano_PREGRS_Proc implements Runnable {
 					pre_mem_id = mem_id;
 				}
 				// 성공 혹은 5일이 지나 기간만료 오류는 성공 처리 함.
-				if(rs.getString("BC_RSLT_NO").equals("0") || rs.getString("BC_RSLT_NO").equals("111")) {
+				if(rs.getString("BC_RSLT_NO").equals("0") || rs.getString("BC_RSLT_NO").equals("111") ) {
 					
 					wtudstr = "update cb_wt_msg_sent set mst_grs = ifnull(mst_grs,0) + 1, mst_wait = mst_wait - 1  where mst_id=?";
 					wtud = conn.prepareStatement(wtudstr);

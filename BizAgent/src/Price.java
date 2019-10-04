@@ -2,6 +2,7 @@
 public class Price {
 	public float price_ft  ;
 	public float price_ft_img ;
+	public float price_ft_w_img ;
 	public float price_at  ;
 	public float price_sms  ;
 	public float price_lms  ;
@@ -26,6 +27,7 @@ public class Price {
 	
 	public void set_price(float tprice_ft,
 					  float tprice_ft_img,
+					  float tprice_ft_w_img,
 				      float tprice_at,
 					  float tprice_sms,
 					  float tprice_lms,
@@ -47,6 +49,7 @@ public class Price {
 	{
 		this.price_ft      = tprice_ft     ;
 		this.price_ft_img  = tprice_ft_img ;
+		this.price_ft_w_img  = tprice_ft_w_img ;
 		this.price_at      = tprice_at  ;
 		this.price_sms     = tprice_sms  ;
 		this.price_lms     = tprice_lms  ;

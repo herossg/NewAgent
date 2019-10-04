@@ -35,6 +35,7 @@ public class Price_info  {
 				base_price.set_price(
 								rs.getFloat("wst_price_ft"),
 								rs.getFloat("wst_price_ft_img"),
+								rs.getFloat("wst_price_ft_w_img"),
 								rs.getFloat("wst_price_at"),
 								rs.getFloat("wst_price_sms"),
 								rs.getFloat("wst_price_lms"),
@@ -74,6 +75,7 @@ public class Price_info  {
 					"				,i.mad_price_at     as c_mad_price_at    " + 
 					"				,i.mad_price_ft     as c_mad_price_ft    " + 
 					"				,i.mad_price_ft_img as c_mad_price_ft_img" + 
+					"				,i.mad_price_ft_w_img as c_mad_price_ft_w_img" + 
 					"				,i.mad_price_grs    as c_mad_price_grs   " + 
 					"				,i.mad_price_nas    as c_mad_price_nas   " + 
 					"				,i.mad_price_grs_sms as c_mad_price_grs_sms   " + 
@@ -92,6 +94,7 @@ public class Price_info  {
 					"				,a.mad_price_at     as p_mad_price_at    " + 
 					"				,a.mad_price_ft     as p_mad_price_ft    " + 
 					"				,a.mad_price_ft_img as p_mad_price_ft_img" + 
+					"				,a.mad_price_ft_w_img as p_mad_price_ft_w_img" + 
 					"				,a.mad_price_grs    as p_mad_price_grs   " + 
 					"				,a.mad_price_nas    as p_mad_price_nas   " + 
 					"				,a.mad_price_grs_sms as p_mad_price_grs_sms   " + 
@@ -126,6 +129,7 @@ public class Price_info  {
 				parent_price.set_price(
 								rs1.getFloat("p_mad_price_ft"),
 								rs1.getFloat("p_mad_price_ft_img"),
+								rs1.getFloat("p_mad_price_ft_w_img"),
 								rs1.getFloat("p_mad_price_at"),
 								rs1.getFloat("p_mad_price_sms"),
 								rs1.getFloat("p_mad_price_lms"),
@@ -148,6 +152,7 @@ public class Price_info  {
 				member_price.set_price(
 						rs1.getFloat("c_mad_price_ft"),
 						rs1.getFloat("c_mad_price_ft_img"),
+						rs1.getFloat("c_mad_price_ft_w_img"),
 						rs1.getFloat("c_mad_price_at"),
 						rs1.getFloat("c_mad_price_sms"),
 						rs1.getFloat("c_mad_price_lms"),
@@ -170,7 +175,7 @@ public class Price_info  {
 			}
 			
 		} catch (Exception ex) {
-			System.out.println("cb_wt_member_addon 조회 오류"+ex.toString());
+			log.error("단가 정보 조회 중 오류 발생 : " + ex.toString());
 		}
 		
 		try {
