@@ -310,7 +310,7 @@ public class Nano_GRS_Proc implements Runnable {
 		}
 		
 		if(totalcnt > 0) {
-			log.info("Nano GRS " + totalcnt + " 건 처리 함.( " + div_str + " )_Total Proc : " + BizAgent.GRS_Proc_cnt);
+			log.info("Nano GRS " + totalcnt + " 건 처리 함.( " + div_str + " ) " );
 		}
 		
 		try {
