@@ -293,16 +293,16 @@ public class TBLReqProcess implements Runnable {
 							} else {
 								upstr = upstr + "set mst_ft_img = ifnull(mst_ft_img, 0) + 1 ";
 								kind = "I";
-								if(rs.getString("WIDE")== null || rs.getString("WIDE") == "N" ) {
-									amount = price.member_price.price_ft_img;
-									payback = price.member_price.price_ft_img - price.parent_price.price_ft_img;
-									admin_amt = price.base_price.price_ft_img;
-									memo = "친구톡(이미지)";
-								} else {
+								if(rs.getString("WIDE")!= null && rs.getString("WIDE").equals("Y")) {
 									amount = price.member_price.price_ft_w_img;
 									payback = price.member_price.price_ft_w_img - price.parent_price.price_ft_w_img;
 									admin_amt = price.base_price.price_ft_w_img;
 									memo = "친구톡(와이드이미지)";
+								} else {
+									amount = price.member_price.price_ft_img;
+									payback = price.member_price.price_ft_img - price.parent_price.price_ft_img;
+									admin_amt = price.base_price.price_ft_img;
+									memo = "친구톡(이미지)";
 								}
 							}
 							upstr = upstr + " where mst_id = " + sent_key;
