@@ -700,227 +700,238 @@ public class TBLReqProcess implements Runnable {
 									
 									break;
 								case "SMART":
-									Date month = new Date();
-									SimpleDateFormat transFormat = new SimpleDateFormat("yyyyMM");
-									String monthStr = transFormat.format(month);
 									
-									if(msgtype.equals("SMS")) {
-	
-										String smtquery = "insert into OShotSMS( Sender "          
-																				+ ",Receiver "         
-																				+ ",Msg "             
-																				+ ",URL "             
-																				+ ",ReserveDT "
-																				+ ",TimeoutDT "       
-																				+ ",SendResult "
-																				+ ",mst_id "
-																				+ ",cb_msg_id )"
-																				+ "values( ? "           
-																				+ ",? "      
-																				+ ",? "      
-																				+ ",? "      
-																				+ ",? "      
-																				+ ",? "      
-																				+ ",? "      
-																				+ ",? "      
-																				+ ",? )"; 
+										Date month = new Date();
+										SimpleDateFormat transFormat = new SimpleDateFormat("yyyyMM");
+										String monthStr = transFormat.format(month);
 										
-										PreparedStatement smtins = conn.prepareStatement(smtquery, Statement.RETURN_GENERATED_KEYS);
-										smtins.setString(1, rs.getString("SMS_SENDER"));
-										smtins.setString(2, phn);
-										smtins.setString(3, msg_sms);
-										smtins.setString(4, null);
-										
-										if(rs.getString("RESERVE_DT").equals("00000000000000")) {
-											smtins.setString(5, null);
-										}else {
-											smtins.setString(5, rs.getString("RESERVE_DT"));
-										} 
-										
-										smtins.setString(6, null);
-										smtins.setString(7, "0");
-										smtins.setString(8, sent_key);
-										smtins.setString(9, rs.getString("MSGID"));
-	
-										int sms_rows = smtins.executeUpdate();
-										
-										String sms_msg_id = "";
-							            if(sms_rows == 1)
-							            {
-							                // get candidate id
-							            	ResultSet sms_rstemp = null;
-							            	sms_rstemp = smtins.getGeneratedKeys();
-							                if(sms_rstemp.next())
-							                	sms_msg_id = sms_rstemp.getString(1);
-							                sms_rstemp.close();
-							            }
-										smtins.close();
-										
-										wtudstr = "update cb_wt_msg_sent set mst_wait=ifnull(mst_wait,0)+1 where mst_id=?";
-										wtud = conn.prepareStatement(wtudstr);
-										wtud.setString(1, sent_key);
-										wtud.executeUpdate();
-										wtud.close();
-										
-										msgudstr = "update cb_msg_" + userid + " set MESSAGE_TYPE='sm',CODE='SMT', MESSAGE = '결과 수신대기', SMS_KIND='S', remark3 = ? where MSGID=?";
-										msgud = conn.prepareStatement(msgudstr);
-										msgud.setString(1, sms_msg_id);
-										msgud.setString(2, msg_id);
-										msgud.executeUpdate();
-										msgud.close();
-																						
-										kind = "P";
-										amount = price.member_price.price_smt_sms;
-										payback = price.member_price.price_smt_sms - price.parent_price.price_smt_sms;
-										admin_amt = price.base_price.price_smt_sms;
-										memo = "웹(C) SMS";
-										if(amount == 0 || amount == 0.0f) {
-											amount = admin_amt;
-										}
-		
-										amtins = conn.prepareStatement(amtStr);
-										amtins.setTimestamp(1, new java.sql.Timestamp(System.currentTimeMillis())); 
-										amtins.setString(2, kind); 
-										amtins.setFloat(3, amount); 
-										amtins.setString(4, memo); 
-										amtins.setString(5, msg_id); 
-										amtins.setFloat(6, payback); 
-										amtins.setFloat(7, admin_amt); 
-										
-										amtins.executeUpdate();
-										amtins.close();
-										
-									}else if(msgtype.equals("LMS")) {
-	
-										String smtmmsquery = "insert into OShotMMS" 
-																	+ "(MsgGroupID "     
-								                                    + ",Sender "          
-								                                    + ",Receiver "        
-								                                    + ",Subject "         
-								                                    + ",Msg "             
-								                                    + ",ReserveDT "       
-								                                    + ",TimeoutDT "       
-								                                    + ",SendResult "      
-								                                    + ",File_Path1 "      
-								                                    + ",File_Path2 "     
-								                                    + ",File_Path3 "      
-								                                    + ",mst_id "      
-								                                    + ",cb_msg_id )"      
-																	+ "values"           
-																	+ "(? "     
-								                                    + ",? "          
-								                                    + ",? "        
-								                                    + ",? "         
-								                                    + ",? "             
-								                                    + ",? "       
-								                                    + ",? "       
-								                                    + ",? "          
-								                                    + ",? "      
-								                                    + ",? "      
-								                                    + ",? "      
-								                                    + ",? "      
-								                                    + ",?) ";
-										PreparedStatement smtmmsins = conn.prepareStatement(smtmmsquery, Statement.RETURN_GENERATED_KEYS);
-										smtmmsins.setString(1, sent_key);
-										smtmmsins.setString(2, rs.getString("SMS_SENDER"));
-										smtmmsins.setString(3, phn);
-										smtmmsins.setString(4, rs.getString("SMS_LMS_TIT").replaceAll("\\r\\n|\\r|\\n", ""));
-										smtmmsins.setString(5, msg_sms);
-										
-										if(rs.getString("RESERVE_DT").equals("00000000000000")) {
-											smtmmsins.setString(6, null);
-										}else {
-											smtmmsins.setString(6, rs.getString("RESERVE_DT"));
-										} 
-										
-										smtmmsins.setString(7, null);
-										smtmmsins.setString(8, "0");
-										String mms1 = null;
-										String mms2 = null;
-										String mms3 = null;
-										
-										if(rs.getString("mms_id").length()>5) {
-											String mmsinfostr = "select * from cb_mms_images cmi where cmi.mem_id = '" + mem_id + "' and mms_id = '" + rs.getString("mms_id") + "'";
-											Statement mmsinfo = conn.createStatement();
-											ResultSet mmsrs = mmsinfo.executeQuery(mmsinfostr);
-											mmsrs.first();
-											
-											mms1 = mmsrs.getString("origin1_path");
-											mms2 = mmsrs.getString("origin2_path");
-											mms3 = mmsrs.getString("origin3_path");
-		
-											//file_cnt = 1;
-										}
-										
-										smtmmsins.setString(9, mms1);
-										smtmmsins.setString(10, mms2);
-										smtmmsins.setString(11, mms3);
-										smtmmsins.setString(12, sent_key);
-										smtmmsins.setString(13, rs.getString("MSGID"));
-										
-										
-										int mms_rows = smtmmsins.executeUpdate();
-										
-										String mms_msg_id = "";
-							            if(mms_rows == 1)
-							            {
-							                // get candidate id
-							            	ResultSet mms_rstemp = null;
-							            	mms_rstemp = smtmmsins.getGeneratedKeys();
-							                if(mms_rstemp.next())
-							                	mms_msg_id = mms_rstemp.getString(1);
-							                mms_rstemp.close();
-							            }
-							            
-										smtmmsins.close();
-										
-										wtudstr = "update cb_wt_msg_sent set mst_wait=ifnull(mst_wait,0)+1 where mst_id=?";
-										wtud = conn.prepareStatement(wtudstr);
-										wtud.setString(1, sent_key);
-										wtud.executeUpdate();
-										wtud.close();
-										
-										msgudstr = "update cb_msg_" + userid + " set MESSAGE_TYPE='sm',CODE='SMT', MESSAGE = '결과 수신대기', SMS_KIND='L', remark3 = ? where MSGID=?";
-										msgud = conn.prepareStatement(msgudstr);
-										msgud.setString(1, mms_msg_id);
-										msgud.setString(2, msg_id);
-										msgud.executeUpdate();
-										msgud.close();
-														
-										kind = "P";
-	
-										if(mms1 != null) {
-											amount = price.member_price.price_smt_mms;
-											payback = price.member_price.price_smt_mms - price.parent_price.price_smt_mms;
-											admin_amt = price.base_price.price_smt_mms;
-											memo = "웹(C) MMS";
-											if(amount == 0 || amount == 0.0f) {
-												amount = admin_amt;
-											}
-											
-										} else {
-											amount = price.member_price.price_smt;
-											payback = price.member_price.price_smt - price.parent_price.price_smt;
-											admin_amt = price.base_price.price_smt;
-											memo = "웹(C) LMS";
-											if(amount == 0 || amount == 0.0f) {
-												amount = admin_amt;
+										if(msgtype.equals("SMS")) {
+											try {
+												String smtquery = "insert into OShotSMS( Sender "          
+																						+ ",Receiver "         
+																						+ ",Msg "             
+																						+ ",URL "             
+																						+ ",ReserveDT "
+																						+ ",TimeoutDT "       
+																						+ ",SendResult "
+																						+ ",mst_id "
+																						+ ",cb_msg_id )"
+																						+ "values( ? "           
+																						+ ",? "      
+																						+ ",? "      
+																						+ ",? "      
+																						+ ",? "      
+																						+ ",? "      
+																						+ ",? "      
+																						+ ",? "      
+																						+ ",? )"; 
+												
+												PreparedStatement smtins = conn.prepareStatement(smtquery, Statement.RETURN_GENERATED_KEYS);
+												smtins.setString(1, rs.getString("SMS_SENDER"));
+												smtins.setString(2, phn);
+												smtins.setString(3, msg_sms);
+												smtins.setString(4, null);
+												
+												if(rs.getString("RESERVE_DT").equals("00000000000000")) {
+													smtins.setString(5, null);
+												}else {
+													smtins.setString(5, rs.getString("RESERVE_DT"));
+												} 
+												
+												smtins.setString(6, null);
+												smtins.setString(7, "0");
+												smtins.setString(8, sent_key);
+												smtins.setString(9, rs.getString("MSGID"));
+			
+												int sms_rows = smtins.executeUpdate();
+												
+												String sms_msg_id = "";
+									            if(sms_rows == 1)
+									            {
+									                // get candidate id
+									            	ResultSet sms_rstemp = null;
+									            	sms_rstemp = smtins.getGeneratedKeys();
+									                if(sms_rstemp.next())
+									                	sms_msg_id = sms_rstemp.getString(1);
+									                sms_rstemp.close();
+									            }
+												smtins.close();
+												
+												wtudstr = "update cb_wt_msg_sent set mst_wait=ifnull(mst_wait,0)+1 where mst_id=?";
+												wtud = conn.prepareStatement(wtudstr);
+												wtud.setString(1, sent_key);
+												wtud.executeUpdate();
+												wtud.close();
+												
+												msgudstr = "update cb_msg_" + userid + " set MESSAGE_TYPE='sm',CODE='SMT', MESSAGE = '결과 수신대기', SMS_KIND='S', remark3 = ? where MSGID=?";
+												msgud = conn.prepareStatement(msgudstr);
+												msgud.setString(1, sms_msg_id);
+												msgud.setString(2, msg_id);
+												msgud.executeUpdate();
+												msgud.close();
+																								
+												kind = "P";
+												amount = price.member_price.price_smt_sms;
+												payback = price.member_price.price_smt_sms - price.parent_price.price_smt_sms;
+												admin_amt = price.base_price.price_smt_sms;
+												memo = "웹(C) SMS";
+												if(amount == 0 || amount == 0.0f) {
+													amount = admin_amt;
+												}
+				
+												amtins = conn.prepareStatement(amtStr);
+												amtins.setTimestamp(1, new java.sql.Timestamp(System.currentTimeMillis())); 
+												amtins.setString(2, kind); 
+												amtins.setFloat(3, amount); 
+												amtins.setString(4, memo); 
+												amtins.setString(5, msg_id); 
+												amtins.setFloat(6, payback); 
+												amtins.setFloat(7, admin_amt); 
+												
+												amtins.executeUpdate();
+												amtins.close();
+											} catch ( Exception ex ) {
+												msgtype = "LMS";
+												log.info("TBL REQUEST RESULT  " + div_str + " ( Smart SMS ) 처리 중 오류 : "+ex.toString());
+												log.info("MSG TYPE : " + msgtype + "  /  MSG ( " + msg_sms.getBytes().length + " ) : " + msg_sms);
 											}
 										}
-		
-										amtins = conn.prepareStatement(amtStr);
-										amtins.setTimestamp(1, new java.sql.Timestamp(System.currentTimeMillis())); 
-										amtins.setString(2, kind); 
-										amtins.setFloat(3, amount); 
-										amtins.setString(4, memo); 
-										amtins.setString(5, msg_id); 
-										amtins.setFloat(6, payback); 
-										amtins.setFloat(7, admin_amt); 
 										
-										amtins.executeUpdate();
-										amtins.close();	
-									}
-										
+										if(msgtype.equals("LMS")) {
+											try {
+												String smtmmsquery = "insert into OShotMMS" 
+																			+ "(MsgGroupID "     
+										                                    + ",Sender "          
+										                                    + ",Receiver "        
+										                                    + ",Subject "         
+										                                    + ",Msg "             
+										                                    + ",ReserveDT "       
+										                                    + ",TimeoutDT "       
+										                                    + ",SendResult "      
+										                                    + ",File_Path1 "      
+										                                    + ",File_Path2 "     
+										                                    + ",File_Path3 "      
+										                                    + ",mst_id "      
+										                                    + ",cb_msg_id )"      
+																			+ "values"           
+																			+ "(? "     
+										                                    + ",? "          
+										                                    + ",? "        
+										                                    + ",? "         
+										                                    + ",? "             
+										                                    + ",? "       
+										                                    + ",? "       
+										                                    + ",? "          
+										                                    + ",? "      
+										                                    + ",? "      
+										                                    + ",? "      
+										                                    + ",? "      
+										                                    + ",?) ";
+												PreparedStatement smtmmsins = conn.prepareStatement(smtmmsquery, Statement.RETURN_GENERATED_KEYS);
+												smtmmsins.setString(1, sent_key);
+												smtmmsins.setString(2, rs.getString("SMS_SENDER"));
+												smtmmsins.setString(3, phn);
+												smtmmsins.setString(4, rs.getString("SMS_LMS_TIT").replaceAll("\\r\\n|\\r|\\n", ""));
+												smtmmsins.setString(5, msg_sms);
+												
+												if(rs.getString("RESERVE_DT").equals("00000000000000")) {
+													smtmmsins.setString(6, null);
+												}else {
+													smtmmsins.setString(6, rs.getString("RESERVE_DT"));
+												} 
+												
+												smtmmsins.setString(7, null);
+												smtmmsins.setString(8, "0");
+												String mms1 = null;
+												String mms2 = null;
+												String mms3 = null;
+												
+												if(rs.getString("mms_id").length()>5) {
+													String mmsinfostr = "select * from cb_mms_images cmi where cmi.mem_id = '" + mem_id + "' and mms_id = '" + rs.getString("mms_id") + "'";
+													Statement mmsinfo = conn.createStatement();
+													ResultSet mmsrs = mmsinfo.executeQuery(mmsinfostr);
+													mmsrs.first();
+													
+													mms1 = mmsrs.getString("origin1_path");
+													mms2 = mmsrs.getString("origin2_path");
+													mms3 = mmsrs.getString("origin3_path");
+				
+													//file_cnt = 1;
+												}
+												
+												smtmmsins.setString(9, mms1);
+												smtmmsins.setString(10, mms2);
+												smtmmsins.setString(11, mms3);
+												smtmmsins.setString(12, sent_key);
+												smtmmsins.setString(13, rs.getString("MSGID"));
+												
+												
+												int mms_rows = smtmmsins.executeUpdate();
+												
+												String mms_msg_id = "";
+									            if(mms_rows == 1)
+									            {
+									                // get candidate id
+									            	ResultSet mms_rstemp = null;
+									            	mms_rstemp = smtmmsins.getGeneratedKeys();
+									                if(mms_rstemp.next())
+									                	mms_msg_id = mms_rstemp.getString(1);
+									                mms_rstemp.close();
+									            }
+									            
+												smtmmsins.close();
+												
+												wtudstr = "update cb_wt_msg_sent set mst_wait=ifnull(mst_wait,0)+1 where mst_id=?";
+												wtud = conn.prepareStatement(wtudstr);
+												wtud.setString(1, sent_key);
+												wtud.executeUpdate();
+												wtud.close();
+												
+												msgudstr = "update cb_msg_" + userid + " set MESSAGE_TYPE='sm',CODE='SMT', MESSAGE = '결과 수신대기', SMS_KIND='L', remark3 = ? where MSGID=?";
+												msgud = conn.prepareStatement(msgudstr);
+												msgud.setString(1, mms_msg_id);
+												msgud.setString(2, msg_id);
+												msgud.executeUpdate();
+												msgud.close();
+																
+												kind = "P";
+			
+												if(mms1 != null) {
+													amount = price.member_price.price_smt_mms;
+													payback = price.member_price.price_smt_mms - price.parent_price.price_smt_mms;
+													admin_amt = price.base_price.price_smt_mms;
+													memo = "웹(C) MMS";
+													if(amount == 0 || amount == 0.0f) {
+														amount = admin_amt;
+													}
+													
+												} else {
+													amount = price.member_price.price_smt;
+													payback = price.member_price.price_smt - price.parent_price.price_smt;
+													admin_amt = price.base_price.price_smt;
+													memo = "웹(C) LMS";
+													if(amount == 0 || amount == 0.0f) {
+														amount = admin_amt;
+													}
+												}
+				
+												amtins = conn.prepareStatement(amtStr);
+												amtins.setTimestamp(1, new java.sql.Timestamp(System.currentTimeMillis())); 
+												amtins.setString(2, kind); 
+												amtins.setFloat(3, amount); 
+												amtins.setString(4, memo); 
+												amtins.setString(5, msg_id); 
+												amtins.setFloat(6, payback); 
+												amtins.setFloat(7, admin_amt); 
+												
+												amtins.executeUpdate();
+												amtins.close();	
+											} catch(Exception ex) {
+												log.info("TBL REQUEST RESULT " + div_str + " ( Smart LMS ) 처리 중 오류 : "+ex.toString());
+												log.info("MSG TYPE : " + msgtype + "  /  MSG ( " + msg_sms.getBytes().length + " ) : " + msg_sms);
+											}											
+										}
+
 									break;								
 								case "GREEN_SHOT":
 									if(msgtype.equals("SMS")) {
