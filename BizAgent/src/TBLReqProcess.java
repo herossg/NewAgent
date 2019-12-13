@@ -73,6 +73,7 @@ public class TBLReqProcess implements Runnable {
 					"              ,b.mem_sms_agent" + 
 					"              ,b.mem_2nd_send" + 
 					"              ,(select mst_mms_content from cb_wt_msg_sent wms where wms.mst_id = a.remark4) as mms_id" + 
+					"              ,(select mst_type2 from cb_wt_msg_sent wms where wms.mst_id = a.remark4) as mst_type2" + 
 					"          from TBL_REQUEST_RESULT a inner join cb_member b on b.mem_id = a.REMARK2" + 
 					"         where REMARK3 = '" + div_str + "'" +
 					"           and ( a.reserve_dt < '" + rd.format(reserve_dt) + "'" + 
@@ -90,11 +91,12 @@ public class TBLReqProcess implements Runnable {
 				isPass = false;
 				
 				String userid = rs.getString("mem_userid");
-				if(rs.getString("SMS_KIND").equals("S")) {
+				if(rs.getString("mst_type2").contains("s")) {
 					msgtype = "SMS";
 				} else {
 					msgtype = "LMS";
 				}
+				
 				//log.info("MSG ID : " + rs.getString("MSGID") + " 진행 시작 !!");
 				String msg_id = rs.getString("MSGID");
 				String mem_id = rs.getString("mem_id");
