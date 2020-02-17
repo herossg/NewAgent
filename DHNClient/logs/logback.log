@@ -1,0 +1,6 @@
+[2020-02-03 20:41:36:432][main] INFO  com.dhn.client.DhnClientApplication - Starting DhnClientApplication on DESKTOP-NH93HRS with PID 9536 (C:\Users\WE\Documents\workspace-spring-tool-suite-4-4.2.0.RELEASE\DHNClient\target\classes started by WE in C:\Users\WE\Documents\workspace-spring-tool-suite-4-4.2.0.RELEASE\DHNClient)
+[2020-02-03 20:41:36:441][main] INFO  com.dhn.client.DhnClientApplication - No active profile set, falling back to default profiles: default
+[2020-02-03 20:41:39:3547][main] INFO  com.dhn.client.DhnClientApplication - Started DhnClientApplication in 3.44 seconds (JVM running for 4.248)
+[2020-02-03 20:42:26:418][main] INFO  com.dhn.client.DhnClientApplication - Starting DhnClientApplication on DESKTOP-NH93HRS with PID 26500 (C:\Users\WE\Documents\workspace-spring-tool-suite-4-4.2.0.RELEASE\DHNClient\target\classes started by WE in C:\Users\WE\Documents\workspace-spring-tool-suite-4-4.2.0.RELEASE\DHNClient)
+[2020-02-03 20:42:26:428][main] INFO  com.dhn.client.DhnClientApplication - No active profile set, falling back to default profiles: default
+[2020-02-03 20:42:29:2970][main] INFO  com.dhn.client.DhnClientApplication - Started DhnClientApplication in 2.866 seconds (JVM running for 3.545)
